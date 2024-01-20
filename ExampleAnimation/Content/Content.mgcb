@@ -1,0 +1,21 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
+/platform:DesktopGL
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+/reference:..\..\GameEnginePipeline\bin\Debug\net6.0\GameEnginePipeline.dll
+
+#---------------------------------- Content ---------------------------------#
+
+#begin Animations/test.animation
+/importer:AnimationImporter
+/processor:Animation2DProcessor
+/build:Animations/test.animation
+
