@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
+﻿namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 {
 	/// <summary>
 	/// The string extension to perform auto completion.
