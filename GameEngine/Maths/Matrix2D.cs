@@ -638,7 +638,13 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <returns>Returns a new matrix containing the result.</returns>
 		public Matrix2D Invert()
-		{return new Matrix2D(InnerDeterminant * M11,-InnerDeterminant * M01,InnerDeterminant * (M01 * M12 - M02 * M11),-InnerDeterminant * M10,InnerDeterminant * M00,InnerDeterminant * (M02 * M10 - M00 * M12));}
+		{
+			if(_ii_assigned)
+				return new Matrix2D(_im00,_im01,_im02,_im10,_im11,_im12);
+
+			_ii_assigned = true;
+			return new Matrix2D(_im00 = InnerDeterminant * M11,_im01 = -InnerDeterminant * M01,_im02 = InnerDeterminant * (M01 * M12 - M02 * M11),_im10 = -InnerDeterminant * M10,_im11 = InnerDeterminant * M00,_im12 = InnerDeterminant * (M02 * M10 - M00 * M12));
+		}
 
 		/// <summary>
 		/// Calculates the equivalent matrix of this with the opposite chirality.
@@ -799,6 +805,14 @@ namespace GameEngine.Maths
 
 		private float _id;
 		private bool _id_assigned;
+
+		private float _im00;
+		private float _im01;
+		private float _im02;
+		private float _im10;
+		private float _im11;
+		private float _im12;
+		private bool _ii_assigned;
 
 		/// <summary>
 		/// The identity matrix.
