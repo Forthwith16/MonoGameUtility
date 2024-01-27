@@ -8,6 +8,15 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 	public static class VectorExtensions
 	{
 		/// <summary>
+		/// Returns a new vector with components equal to the magnitude of each original component.
+		/// In short, computes the absolute value of each component.
+		/// </summary>
+		/// <param name="v">The vector to take the absolute value of.</param>
+		/// <returns>Returns a new vector whose components are the absolute value of the original vector's.</returns>
+		public static Vector2 Abs(this Vector2 v)
+		{return new Vector2(MathF.Abs(v.X),MathF.Abs(v.Y));}
+
+		/// <summary>
 		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/> with each vector being extended into 3-space with a z component of 0.
 		/// </summary>
 		/// <param name="a">The first vector.</param>
