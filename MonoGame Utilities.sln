@@ -13,15 +13,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonogameTestingGrounds", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEnginePipeline", "GameEnginePipeline\GameEnginePipeline.csproj", "{0DA1FDF3-D4D1-4BE4-A9BC-F47D12489D76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleDrawImage", "ExampleDrawImage\ExampleDrawImage.csproj", "{193D0C26-C4BF-4071-A6F7-956C6CDFCD76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleDrawImage", "ExampleDrawImage\ExampleDrawImage.csproj", "{193D0C26-C4BF-4071-A6F7-956C6CDFCD76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleImageComponent", "ExampleImageComponent\ExampleImageComponent.csproj", "{239C217F-98F8-409E-B252-98A790C8C987}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleImageComponent", "ExampleImageComponent\ExampleImageComponent.csproj", "{239C217F-98F8-409E-B252-98A790C8C987}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleInputManager", "ExampleInputManager\ExampleInputManager.csproj", "{49BCA01C-1BB6-4D20-B99E-1361490387E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleInputManager", "ExampleInputManager\ExampleInputManager.csproj", "{49BCA01C-1BB6-4D20-B99E-1361490387E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAnimation", "ExampleAnimation\ExampleAnimation.csproj", "{ACAF8B69-1A83-4BE3-9AC1-CA5316FB0A6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAnimation", "ExampleAnimation\ExampleAnimation.csproj", "{ACAF8B69-1A83-4BE3-9AC1-CA5316FB0A6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleGUI", "ExampleGUI\ExampleGUI.csproj", "{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleGUI", "ExampleGUI\ExampleGUI.csproj", "{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniGolf", "MiniGolf\MiniGolf.csproj", "{724E1B88-544E-48CD-A50E-2342FE92D940}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{724E1B88-544E-48CD-A50E-2342FE92D940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{724E1B88-544E-48CD-A50E-2342FE92D940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{724E1B88-544E-48CD-A50E-2342FE92D940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{724E1B88-544E-48CD-A50E-2342FE92D940}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
