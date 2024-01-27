@@ -74,6 +74,74 @@ namespace GameEngine.GameComponents
 		{return (x,y) => c;}
 
 		/// <summary>
+		/// Creates a ColorFunction that makes a wireframe box.
+		/// </summary>
+		/// <param name="w">The width of the box.</param>
+		/// <param name="h">The height of the box.</param>
+		/// <param name="thickness">The thickness of the wireframe.</param>
+		/// <param name="c">The color of the wireframe.</param>
+		public static ColorFunction Wireframe(int w, int h, int thickness, Color c)
+		{return (x,y) => x < thickness || x >= w - thickness || y < thickness || y >= h - thickness ? c : Color.Transparent;}
+
+		/// <summary>
+		/// Creates an elliptical ColorFunction that returns a constant color <paramref name="c"/> inside an ellipse whose horizontal and vertical radii center the ellipse in a <paramref name="w"/> by <paramref name="h"/> box.
+		/// </summary>
+		/// <param name="w">The horizontal diameter.</param>
+		/// <param name="h">The vertical diameter.</param>
+		/// <param name="c">The color of the ellipse.</param>
+		public static ColorFunction Ellipse(int w, int h, Color c)
+		{
+			// We precompute these values so that we don't have to do so over and over
+			float cx = w / 2.0f;
+			float cy = h / 2.0f;
+
+			float rx2 = cx * cx;
+			float ry2 = cy * cy;
+
+			return (x,y) =>
+			{
+				float x2 = x - cx;
+				float y2 = y - cy;
+				
+				return x2 * x2 / rx2 + y2 * y2 / ry2 <= 1 ? c : Color.Transparent;
+			};
+		}
+
+		/// <summary>
+		/// Creates an elliptical wireframe ColorFunction with horizontal and vertical radii centered in a <paramref name="w"/> by <paramref name="h"/> box.
+		/// </summary>
+		/// <param name="w">The horizontal diameter.</param>
+		/// <param name="h">The vertical diameter.</param>
+		/// <param name="thickness">The thickness of the wireframe.</param>
+		/// <param name="c">The color of the ellipse.</param>
+		public static ColorFunction WireframeEllipse(int w, int h, int thickness, Color c)
+		{
+			// We precompute these values so that we don't have to do so over and over
+			float cxo = w / 2.0f;
+			float cyo = h / 2.0f;
+
+			float rxo2 = cxo * cxo;
+			float ryo2 = cyo * cyo;
+
+			float cxi = w / 2.0f;
+			float cyi = h / 2.0f;
+
+			float rxi2 = (cxi - (thickness << 1)) * (cxi - (thickness << 1));
+			float ryi2 = (cyi - (thickness << 1)) * (cyi - (thickness << 1));
+
+			return (x,y) =>
+			{
+				float x2 = x - cxo;
+				float y2 = y - cyo;
+				
+				if(x2 * x2 / rxo2 + y2 * y2 / ryo2 > 1)
+					return Color.Transparent;
+
+				return x2 * x2 / rxi2 + y2 * y2 / ryi2 < 1 ? Color.Transparent : c;
+			};
+		}
+
+		/// <summary>
 		/// Creates a ColorFunction that generates a horizontal gradient.
 		/// </summary>
 		/// <param name="w">The width of the gradient. If this is smaller than the width of image being generated, extra color values will clamp at the boundaries.</param>
