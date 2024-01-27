@@ -6,7 +6,7 @@ namespace GameEngine.Maths
 	/// <summary>
 	/// A dedicated and optimized two dimensional matrix for computer graphics in a plane.
 	/// </summary>
-	public struct Matrix2D : IEquatable<Matrix2D>
+	public readonly struct Matrix2D : IEquatable<Matrix2D>
 	{
 		/// <summary>
 		/// Constructs the identity matrix.
@@ -21,9 +21,6 @@ namespace GameEngine.Maths
 			M11 = 1.0f;
 			M12 = 0.0f;
 			
-			_id = 0.0f;
-			_id_assigned = false;
-
 			return;
 		}
 
@@ -42,9 +39,6 @@ namespace GameEngine.Maths
 			M11 = m11;
 			M12 = m12;
 			
-			_id = 0.0f;
-			_id_assigned = false;
-			
 			return;
 		}
 
@@ -61,9 +55,6 @@ namespace GameEngine.Maths
 			M11 = m[1,1];
 			M12 = m[1,2];
 			
-			_id = m._id;
-			_id_assigned = m._id_assigned;
-
 			return;
 		}
 
@@ -639,11 +630,8 @@ namespace GameEngine.Maths
 		/// <returns>Returns a new matrix containing the result.</returns>
 		public Matrix2D Invert()
 		{
-			if(_ii_assigned)
-				return new Matrix2D(_im00,_im01,_im02,_im10,_im11,_im12);
-
-			_ii_assigned = true;
-			return new Matrix2D(_im00 = InnerDeterminant * M11,_im01 = -InnerDeterminant * M01,_im02 = InnerDeterminant * (M01 * M12 - M02 * M11),_im10 = -InnerDeterminant * M10,_im11 = InnerDeterminant * M00,_im12 = InnerDeterminant * (M02 * M10 - M00 * M12));
+			float det = InnerDeterminant;
+			return new Matrix2D(det * M11,-det * M01,det * (M01 * M12 - M02 * M11),-det * M10,det * M00,det * (M02 * M10 - M00 * M12));
 		}
 
 		/// <summary>
@@ -791,28 +779,7 @@ namespace GameEngine.Maths
 		/// <summary>
 		/// The determinant of the inner 2x2 matrix.
 		/// </summary>
-		public float InnerDeterminant
-		{
-			get
-			{
-				if(_id_assigned)
-					return _id;
-
-				// Affine transformations are always invertable (with the exception of dumb things like scaling by 0), so we don't need to worry about the determinant being 0
-				return _id = 1.0f / (M00 * M11 - M01 * M10);
-			}
-		}
-
-		private float _id;
-		private bool _id_assigned;
-
-		private float _im00;
-		private float _im01;
-		private float _im02;
-		private float _im10;
-		private float _im11;
-		private float _im12;
-		private bool _ii_assigned;
+		public float InnerDeterminant => 1.0f / (M00 * M11 - M01 * M10); // Affine transformations are always invertable (with the exception of dumb things like scaling by 0), so we generally don't need to worry about the determinant being 0
 
 		/// <summary>
 		/// The identity matrix.
