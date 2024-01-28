@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Framework;
+using Microsoft.Xna.Framework;
 
 namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 {
@@ -44,6 +45,18 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		{return a.X * b.X + a.Y * b.Y;}
 
 		/// <summary>
+		/// Returns a new normalized version of this vector.
+		/// </summary>
+		/// <returns>Returns the normalized vector or the zero vector if this was the zero vector.</returns>
+		public static Vector2 Normalized(this Vector2 me)
+		{
+			if(me.LengthSquared() < GlobalConstants.EPSILON)
+				return Vector2.Zero;
+
+			return me / me.Length();
+		}
+
+		/// <summary>
 		/// Projects <paramref name="me"/> onto the vector <paramref name="onto"/>.
 		/// </summary>
 		/// <param name="me">The vector to project.</param>
@@ -60,5 +73,21 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <returns>Returns the signed length of the projected vector.</returns>
 		public static float ProjectionLength(this Vector2 me, Vector2 onto)
 		{return me.Dot(onto) / onto.Length();}
+
+		/// <summary>
+		/// Reflects this vector across a line with direction specified by <paramref name="line"/>.
+		/// For example, reflecting the vector (1,1) across the line in the direction (1,0) produces the vector (1,-1).
+		/// </summary>
+		/// <param name="me"></param>
+		/// <param name="line">The line direction.</param>
+		/// <returns>Returns a new vector reflected across the line or the zero vector if <paramref name="line"/> is the zero vector.</returns>
+		public static Vector2 Reflect(this Vector2 me, Vector2 line)
+		{
+			if(line.LengthSquared() < GlobalConstants.EPSILON * GlobalConstants.EPSILON)
+				return Vector2.Zero;
+
+			Vector2 projection = me.Projection(line);
+			return 2.0f * projection - me;
+		}
 	}
 }
