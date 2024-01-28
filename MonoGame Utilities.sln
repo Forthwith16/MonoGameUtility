@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAnimation", "Example
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleGUI", "ExampleGUI\ExampleGUI.csproj", "{A4BBBBD3-F533-4462-83AE-B4925A10BDAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniGolf", "MiniGolf\MiniGolf.csproj", "{724E1B88-544E-48CD-A50E-2342FE92D940}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniGolf", "MiniGolf\MiniGolf.csproj", "{724E1B88-544E-48CD-A50E-2342FE92D940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GettingStarted", "GettingStarted\GettingStarted.csproj", "{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{724E1B88-544E-48CD-A50E-2342FE92D940}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{724E1B88-544E-48CD-A50E-2342FE92D940}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{724E1B88-544E-48CD-A50E-2342FE92D940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
