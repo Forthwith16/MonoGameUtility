@@ -139,7 +139,7 @@ namespace GameEngine.Framework
 			PreDraw(delta);
 			base.Draw(delta);
 			PostDraw(delta);
-			
+
 			// Draw the mouse (there will be some small lag for those with good eyes if drawing below the system cursor's dedicated hardware refresh rate)
 			if(Mouse is not null && IsCustomMouseVisible)
 			{
@@ -147,7 +147,7 @@ namespace GameEngine.Framework
 				Mouse.Draw(delta);
 				MouseRenderer.End();
 			}
-
+			
 			return;
 		}
 
@@ -266,7 +266,7 @@ namespace GameEngine.Framework
 		/// </summary>
 		public bool IsCustomMouseVisible
 		{
-			get => Mouse is null ? false : Mouse.Visible;
+			get => Mouse is not null && Mouse.Visible;
 
 			set
 			{

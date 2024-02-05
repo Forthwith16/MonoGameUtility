@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleGUI", "ExampleGUI\Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniGolf", "MiniGolf\MiniGolf.csproj", "{724E1B88-544E-48CD-A50E-2342FE92D940}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GettingStarted", "GettingStarted\GettingStarted.csproj", "{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GettingStarted", "GettingStarted\GettingStarted.csproj", "{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example3D", "Example3D\Example3D.csproj", "{9FF25FE6-3D69-4953-8759-D6D607190614}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +75,10 @@ Global
 		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CCB2CE5-2664-4678-B5C0-D87B8C49E18A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FF25FE6-3D69-4953-8759-D6D607190614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FF25FE6-3D69-4953-8759-D6D607190614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FF25FE6-3D69-4953-8759-D6D607190614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FF25FE6-3D69-4953-8759-D6D607190614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
