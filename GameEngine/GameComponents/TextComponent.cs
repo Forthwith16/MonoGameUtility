@@ -18,7 +18,7 @@ namespace GameEngine.GameComponents
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
 		public TextComponent(Game game, SpriteBatch? renderer, string font, string msg, Color? c = null) : base(game,renderer,c)
 		{
-			_t = msg;
+			_tx = msg;
 			Resource = font;
 			Font = null;
 			
@@ -38,7 +38,7 @@ namespace GameEngine.GameComponents
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
 		public TextComponent(Game game, SpriteBatch? renderer, SpriteFont font, string msg, Color? c = null) : base(game,renderer,c)
 		{
-			_t = msg;
+			_tx = msg;
 			Font = font; // The event isn't called when the old font is null
 
 			TextChanged += (a,b,c) => { };
@@ -110,23 +110,23 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public string Text
 		{
-			get => _t;
+			get => _tx;
 
 			set
 			{
-				if(_t == value)
+				if(_tx == value)
 					return;
 
-				string old = _t;
-				_t = value;
+				string old = _tx;
+				_tx = value;
 				MessageDimensions = Font is null ? Vector2.Zero : Font.MeasureString(Text);
 
-				TextChanged(this,old,_t);
+				TextChanged(this,old,_tx);
 				return;
 			}
 		}
 
-		protected string _t;
+		protected string _tx;
 
 		/// <summary>
 		/// Obtains the dimensions of the message with the current font.

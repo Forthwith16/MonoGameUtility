@@ -53,7 +53,7 @@ namespace GameEngine.GUI.Components
 			Tint = pencil_color;
 			Cursor = cursor;
 			
-			_t = "";
+			_tx = "";
 			_ta = HorizontalTextAlignment.Left;
 			_hp = 5.0f;
 			_ml = -1;
@@ -113,7 +113,7 @@ namespace GameEngine.GUI.Components
 			Tint = pencil_color;
 			Cursor = cursor;
 			
-			_t = "";
+			_tx = "";
 			_ta = HorizontalTextAlignment.Left;
 			_hp = 5.0f;
 			_ml = -1;
@@ -254,7 +254,7 @@ namespace GameEngine.GUI.Components
 						else
 						{
 							// Translate the mouse position into local coordinates
-							float xpos = (World.Invert() * b.Position.ToVector2()).X;
+							float xpos = (InverseWorld * b.Position.ToVector2()).X;
 
 							// Since we clicked on this textbox (that's the only way to get here with the mouse), then know that pos is in bounds
 							// We just need to run a binary search to figure out which cursor position is most appropriate
@@ -760,7 +760,7 @@ namespace GameEngine.GUI.Components
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
 		{
 			// Transform pos into the local coordinate system
-			pos = World.Invert() * pos;
+			pos = InverseWorld * pos;
 
 			// We need to calculate containment within an arbitrarily rotated, translated, and scaled rectangle
 			// The obvious choice for doing this is to just make sure we're all on the 'inside' of the lines defined by the four corners of the untransformed boundary
@@ -836,33 +836,33 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		public string Text
 		{
-			get => _t;
+			get => _tx;
 
 			set
 			{
 				// If we're asked to do nothing, then do nothing
-				if(_t == value)
+				if(_tx == value)
 					return;
 
 				// Remember the old value for later
-				string old = _t;
+				string old = _tx;
 
 				// We need to trim the proposed text according to any rules we have
 				if(MaxLength >= 0 && value.Length > MaxLength)
 					value = value[0..MaxLength];
 
 				// Assign the text
-				_t = value;
+				_tx = value;
 				
 				// Now invoke our update event
 				// We don't need to call AlignText or PickDisplayedText since this event invocation will do that for us
-				OnTextChange(this,old,_t);
+				OnTextChange(this,old,_tx);
 				
 				return;
 			}
 		}
 
-		protected string _t;
+		protected string _tx;
 
 		/// <summary>
 		/// If false, then our text set came from an internal source.

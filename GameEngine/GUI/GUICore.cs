@@ -570,7 +570,7 @@ namespace GameEngine.GUI
 		public override void Draw(GameTime delta)
 		{
 			// We need to invert the camera matrix so that the camera behaves naturally (e.g. moving the camera up moves the world down)
-			Renderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,World.Invert().SwapChirality());
+			Renderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,InverseWorld.SwapChirality());
 			
 			foreach(IGUI component in DrawChildren)
 				if(component.Visible) // We don't care if a GUI component is enabled here since they can still be draw but are greyed out or whatever

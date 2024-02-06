@@ -147,7 +147,7 @@ namespace GameEngine.GUI.Components
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
 		{
 			// Transform pos into the local coordinate system
-			pos = World.Invert() * pos;
+			pos = InverseWorld * pos;
 
 			// We need to calculate containment within an arbitrarily rotated, translated, and scaled rectangle
 			// The obvious choice for doing this is to just make sure we're all on the 'inside' of the lines defined by the four corners of the untransformed boundary

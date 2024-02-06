@@ -216,7 +216,7 @@ namespace GameEngine.GUI.Components
 		{
 			// Translate pos into this component's local coordinates
 			// The World transform inverse aligns us with the local coordinate system by undoing the world space transform
-			pos = World.Invert() * pos;
+			pos = InverseWorld * pos;
 			
 			// First check if pos is even within this group at all
 			Vector2 TL = new Vector2(0,0); // Screen coorinates (and thus world coordinates) put the origin at the top left

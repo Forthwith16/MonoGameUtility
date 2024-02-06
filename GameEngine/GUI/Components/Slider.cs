@@ -368,7 +368,7 @@ namespace GameEngine.GUI.Components
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
 		{
 			// Transform pos into the local coordinate system
-			pos = World.Invert() * pos;
+			pos = InverseWorld * pos;
 
 			// We need to know where the four corners end up as the most extreme points
 			// Then we can pick the min and max values to get a bounding rectangle

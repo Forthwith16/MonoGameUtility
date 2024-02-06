@@ -9,9 +9,6 @@ namespace GameEngine.GameComponents
 	/// </summary>
 	public interface IAffineComponent
 	{
-		public void jd()
-		{return;}
-
 		/// <summary>
 		/// Applies a translation to this component.
 		/// This is equivalent to a left multiplication by a translation matrix.
@@ -222,12 +219,44 @@ namespace GameEngine.GameComponents
 		{get;}
 
 		/// <summary>
+		/// If true, then the world transform is marked as stale.
+		/// </summary>
+		/// <remarks>This is used purely for world calculations. The average user need not be concerned with it.</remarks>
+		public bool StaleWorld
+		{get;}
+
+		/// <summary>
 		/// The transformation matrix of this component absent its parent transform (if it has one).
 		/// <para/>
 		/// For the transformation matrix containing the parent (if present), use World instead.
 		/// </summary>
 		public Matrix2D Transform
 		{get; set;}
+
+		/// <summary>
+		/// The inverse transformation matrix of this component.
+		/// If this component has a parent, this includes the parent's inverse transformation.
+		/// The parent transform is applied first in the inverse when it exists with this component's transform being applied last (i.e. InverseTransform is right multiplied by Parent.InverseTransform).
+		/// <para/>
+		/// For the raw inverse transformation matrix, use InverseTransform instead.
+		/// </summary>
+		public Matrix2D InverseWorld
+		{get;}
+
+		/// <summary>
+		/// If true, then the inverse world transform is marked as stale.
+		/// </summary>
+		/// <remarks>This is used purely for inverse calculations. The average user need not be concerned with it.</remarks>
+		public bool StaleInverseWorld
+		{get;}
+
+		/// <summary>
+		/// The inverse transform of this component's Transform absent its parent transform (if it has one).
+		/// <para/>
+		/// For the inverse transformation matrix containing the parent (if present), use InverseWorld instead.
+		/// </summary>
+		public Matrix2D InverseTransform
+		{get;}
 
 		/// <summary>
 		/// The parent of this component.

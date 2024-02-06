@@ -6,6 +6,7 @@ namespace GameEngine.GameComponents
 {
 	/// <summary>
 	/// The base requirements for a component to be both drawable and affine.
+	/// </summary>
 	public abstract class DrawableAffineComponent : DrawableGameComponent, IAffineComponent
 	{
 		/// <summary>
@@ -140,13 +141,122 @@ namespace GameEngine.GameComponents
 			return;
 		}
 
-		public Matrix2D World => Parent is null ? Transform : Parent.World * Transform;
+		public Matrix2D World
+		{
+			get
+			{
+				if(StaleWorld)
+				{
+					// We won't bother checking what's up with these and blindly assign them
+					StaleParent = false;
+					StaleTransform = false;
+
+					_w = Parent is null ? Transform : Parent.World * Transform;
+				}
+
+				return _w;
+			}
+		}
+
+		protected Matrix2D _w;
+		
+		public bool StaleWorld => StaleParent || StaleTransform || Parent is not null && Parent.StaleWorld;
+
+		/// <summary>
+		/// If true, then the transform has changed and marks the world matrix as stale.
+		/// </summary>
+		private bool StaleTransform
+		{get; set;}
 
 		public Matrix2D Transform
+		{
+			get => _t;
+
+			set
+			{
+				// It's not worth checking if _t == value, so we'll just blindly mark these as stale
+				StaleTransform = true;
+				StaleInverse = true;
+
+				_t = value;
+				return;
+			}
+		}
+
+		protected Matrix2D _t;
+
+		public Matrix2D InverseWorld
+		{
+			get
+			{
+				if(StaleInverseWorld)
+				{
+					StaleParentInverse = false; // We won't bother checking what's up with this and blindly assign it
+					_iw = Parent is null ? InverseTransform : InverseTransform * Parent.InverseWorld;
+				}
+
+				return _iw;
+			}
+		}
+
+		protected Matrix2D _iw;
+
+		public bool StaleInverseWorld => StaleInverse || StaleParentInverse || Parent is not null && Parent.StaleInverseWorld;
+
+		/// <summary>
+		/// If true, then the parent has changed and the world is now stale.
+		/// </summary>
+		private bool StaleParent
+		{get; set;}
+
+		/// <summary>
+		/// If true, then the parent has changed and the inverse world is now stale.
+		/// </summary>
+		private bool StaleParentInverse
+		{get; set;}
+
+		public Matrix2D InverseTransform
+		{
+			get
+			{
+				if(StaleInverse)
+					InverseTransform = Transform.Invert();
+
+				return _it;
+			}
+			
+			private set
+			{
+				_it = value;
+				StaleInverse = false;
+
+				return;
+			}
+		}
+
+		protected Matrix2D _it;
+
+		/// <summary>
+		/// If true, then the inverse transform is marked as stale.
+		/// </summary>
+		private bool StaleInverse
 		{get; set;}
 
 		public IAffineComponent? Parent
-		{get; set;}
+		{
+			get => _p;
+			
+			set
+			{
+				StaleParent = true;
+				StaleParentInverse = true;
+
+				_p = value;
+				return;
+			}
+		}
+
+		protected IAffineComponent? _p;
 
 		/// <summary>
 		/// This is the SpriteBatch used to draw this component.
