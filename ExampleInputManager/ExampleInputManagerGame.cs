@@ -22,7 +22,7 @@ namespace ExampleInputManager
 			return;
 		}
 
-		protected override void Initialize()
+		protected override void PreInitialize()
 		{
 			// Create a new InputManager and add it to our Components
 			// This will automatically call its Update method every frame

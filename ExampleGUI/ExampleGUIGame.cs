@@ -27,7 +27,7 @@ namespace ExampleGUI
 			return;
 		}
 
-		protected override void Initialize()
+		protected override void PreInitialize()
 		{
 			Components.Add(Input = new InputManager());
 			

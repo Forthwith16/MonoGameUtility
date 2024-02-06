@@ -24,10 +24,7 @@ namespace GameEngine.Framework
 			Components.ComponentAdded += (a,b) =>
 			{
 				if(b.GameComponent is IRenderTargetDrawable obj)
-				{
-					RenderTargetComponents.Add(obj);
-					obj.RenderTargetDrawOrderChanged += UpdateDrawOrder;
-				}
+					AddRenderTargetComponent(obj);
 				
 				if(Initialized)
 					b.GameComponent.Initialize();
@@ -38,10 +35,7 @@ namespace GameEngine.Framework
 			Components.ComponentRemoved += (a,b) =>
 			{
 				if(b.GameComponent is IRenderTargetDrawable obj)
-				{
-					RenderTargetComponents.Remove(obj);
-					obj.RenderTargetDrawOrderChanged -= UpdateDrawOrder;
-				}
+					RemoveRenderTargetComponent(obj);
 
 				return;
 			};
@@ -54,9 +48,11 @@ namespace GameEngine.Framework
 			return;
 		}
 
-		protected override void Initialize()
+		protected sealed override void Initialize()
 		{
 			Initialized = true;
+
+			BeforeInitialize();
 			
 			// Replace the system mouse with a custom one
 			MouseRenderer = new SpriteBatch(GraphicsDevice);
@@ -64,9 +60,30 @@ namespace GameEngine.Framework
 			IsMouseVisible = false;
 			IsCustomMouseVisible = true;
 			
+			PreInitialize();
 			base.Initialize();
+			PostInitialize();
+
 			return;
 		}
+
+		/// <summary>
+		/// Called before any initialization occurs (but after Initialized is set to true).
+		/// </summary>
+		protected virtual void BeforeInitialize()
+		{return;}
+
+		/// <summary>
+		/// Called after mouse initialization but before the base game Initialize is called.
+		/// </summary>
+		protected virtual void PreInitialize()
+		{return;}
+
+		/// <summary>
+		/// Called after mouse initialization and after the base game Initialize is finished.
+		/// </summary>
+		protected virtual void PostInitialize()
+		{return;}
 
 		/// <summary>
 		/// Updates the position of <paramref name="sender"/> in UpdateChildren.
@@ -127,12 +144,14 @@ namespace GameEngine.Framework
 		/// Draws this game.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
-		protected override void Draw(GameTime delta)
+		protected sealed override void Draw(GameTime delta)
 		{
 			PreRenderTargetDraw(delta);
 
 			foreach(IRenderTargetDrawable component in RenderTargetComponents)
 				component.DrawRenderTarget(delta);
+
+			PostRenderTargetDraw(delta);
 
 			GraphicsDevice.SetRenderTarget(null);
 
@@ -148,6 +167,7 @@ namespace GameEngine.Framework
 				MouseRenderer.End();
 			}
 			
+			AfterDraw(delta);
 			return;
 		}
 
@@ -156,6 +176,13 @@ namespace GameEngine.Framework
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected virtual void PreRenderTargetDraw(GameTime delta)
+		{return;}
+
+		/// <summary>
+		/// Called after render targets are drawn to but before the render target is set back to null (the default).
+		/// </summary>
+		/// <param name="delta">The elapsed time since the last Draw call.</param>
+		protected virtual void PostRenderTargetDraw(GameTime delta)
 		{return;}
 
 		/// <summary>
@@ -170,6 +197,13 @@ namespace GameEngine.Framework
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected virtual void PostDraw(GameTime delta)
+		{return;}
+
+		/// <summary>
+		/// Called after all drawing is finished, including the custom mouse.
+		/// </summary>
+		/// <param name="delta">The elapsed time since the last Draw call.</param>
+		protected virtual void AfterDraw(GameTime delta)
 		{return;}
 
 		/// <summary>
