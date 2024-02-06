@@ -27,6 +27,26 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		{return a.X * b.Y - a.Y * b.X;}
 
 		/// <summary>
+		/// Determines which 'side' of a (directed) line defined by the vector from <paramref name="a"/> to <paramref name="b"/> that a point <paramref name="p"/> lies on.
+		/// This is done by determining the sign of (b - a).Cross(p - a).
+		/// </summary>
+		/// <param name="p">The point.</param>
+		/// <param name="a">The first point on the line. The line extends in the direction of <paramref name="b"/> from <paramref name="a"/>.</param>
+		/// <param name="b">The second point on the line. The line extends in the direction of <paramref name="b"/> from <paramref name="a"/>.</param>
+		/// <returns>Returns the sign of the cross product previous described which represents which side of the (directed) line the point lies on.</returns>
+		public static LineSide CrossSign(this Vector2 p, Vector2 a, Vector2 b)
+		{
+			float f = Cross(b - a,p - a);
+
+			if(f.CloseEnough(0.0f))
+				return LineSide.Zero;
+			else if(f > 0.0f)
+				return LineSide.Positive;
+			else // f < 0.0f
+				return LineSide.Negative;
+		}
+
+		/// <summary>
 		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/>.
 		/// </summary>
 		/// <param name="a">The first vector.</param>
@@ -89,5 +109,15 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 			Vector2 projection = me.Projection(line);
 			return 2.0f * projection - me;
 		}
+	}
+
+	/// <summary>
+	/// The sign of the cross product of a point against a line, representing which 'side' of the line the point is on.
+	/// </summary>
+	public enum LineSide
+	{
+		Positive,
+		Zero,
+		Negative
 	}
 }
