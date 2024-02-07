@@ -1,15 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace GameEngine.DataStructures.Geometry
 {
 	/// <summary>
 	/// A rectangle that supports floating point positions.
 	/// </summary>
-	[DataContract]
-	[DebuggerDisplay("{DebugDisplayString,nq}")]
-	public struct FRectangle : IEquatable<FRectangle>
+	public readonly struct FRectangle : IBoundingBox<FRectangle>
 	{
 		/// <summary>
 		/// Creates a new rectangle.
@@ -100,86 +96,6 @@ namespace GameEngine.DataStructures.Geometry
 		public override readonly int GetHashCode() => (((17 * 23 + X.GetHashCode()) * 23 + Y.GetHashCode()) * 23 + Width.GetHashCode()) * 23 + Height.GetHashCode();
 
 		/// <summary>
-		/// Inflates the rectangle by the provided amount.
-		/// This inflation decreases the (X,Y) position by (<paramref name="x_amount"/>,<paramref name="y_amount"/>) and increases the dimensions by twice this amount.
-		/// In short, it adds a horizontal and vertical padding around this rectangle.
-		/// </summary>
-		/// <param name="x_amount">The horizontal padding to add.</param>
-		/// <param name="y_amount">The vertical padding to add.</param>
-		public void Inflate(int horizontalAmount, int verticalAmount)
-		{
-			X -= horizontalAmount;
-			Y -= verticalAmount;
-
-			Width += horizontalAmount * 2;
-			Height += verticalAmount * 2;
-			
-			return;
-		}
-
-		/// <summary>
-		/// Inflates the rectangle by the provided amount.
-		/// This inflation decreases the (X,Y) position by (<paramref name="x_amount"/>,<paramref name="y_amount"/>) and increases the dimensions by twice this amount.
-		/// In short, it adds a horizontal and vertical padding around this rectangle.
-		/// </summary>
-		/// <param name="x_amount">The horizontal padding to add.</param>
-		/// <param name="y_amount">The vertical padding to add.</param>
-		public void Inflate(float x_amount, float y_amount)
-		{
-			X -= x_amount;
-			Y -= y_amount;
-
-			Width += x_amount * 2.0f;
-			Height += y_amount * 2.0f;
-			
-			return;
-		}
-
-		/// <summary>
-		/// Moves this rectangle by (<paramref name="offset_x"/>,<paramref name="offset_y"/>).
-		/// </summary>
-		public void Offset(int offset_x, int offset_y)
-		{
-			X += offset_x;
-			Y += offset_y;
-			
-			return;
-		}
-
-		/// <summary>
-		/// Moves this rectangle by (<paramref name="offset_x"/>,<paramref name="offset_y"/>).
-		/// </summary>
-		public void Offset(float offset_x, float offset_y)
-		{
-			X += (int)offset_x;
-			Y += (int)offset_y;
-			
-			return;
-		}
-
-		/// <summary>
-		/// Moves this rectangle by <paramref name="amount"/>.
-		/// </summary>
-		public void Offset(Point amount)
-		{
-			X += amount.X;
-			Y += amount.Y;
-			
-			return;
-		}
-
-		/// <summary>
-		/// Moves this rectangle by <paramref name="amount"/>.
-		/// </summary>
-		public void Offset(Vector2 amount)
-		{
-			X += amount.X;
-			Y += amount.Y;
-			
-			return;
-		}
-
-		/// <summary>
 		/// Determines if this rectangle contains the point (<paramref name="x"/>,<paramref name="y"/>).
 		/// </summary>
 		/// <returns>Returns true if this rectangle contains the point (<paramref name="x"/>,<paramref name="y"/>) and false otherwise.</returns>
@@ -224,7 +140,7 @@ namespace GameEngine.DataStructures.Geometry
 		/// Determines if this rectangle contains the rectangle <paramref name="r"/>.
 		/// </summary>
 		/// <returns>Returns true if this rectangle contains <paramref name="r"/> and false otherwise.</returns>
-		public bool Contains(Rectangle r) => X <= r.X && r.X + r.Width <= X + Width && Y <= r.Y && r.Y + r.Height <= Y + Height;
+		public bool Contains(FRectangle r) => X <= r.X && r.X + r.Width <= X + Width && Y <= r.Y && r.Y + r.Height <= Y + Height;
 
 		/// <summary>
 		/// Determines if this rectangle contains the rectangle <paramref name="r"/> and stores the result in <paramref name="rresult"/>.
@@ -269,12 +185,10 @@ namespace GameEngine.DataStructures.Geometry
 		/// <param name="result">The resulting rectangle.</param>
 		public static void Union(ref FRectangle r1, ref FRectangle r2, out FRectangle result)
 		{
-			result.X = Math.Min(r1.X,r2.X);
-			result.Y = Math.Min(r1.Y,r2.Y);
+			float rx = Math.Min(r1.X,r2.X);
+			float ry = Math.Min(r1.Y,r2.Y);
 
-			result.Width = Math.Max(r1.Right,r2.Right) - result.X;
-			result.Height = Math.Max(r1.Bottom,r2.Bottom) - result.Y;
-
+			result = new FRectangle(rx,ry,Math.Max(r1.Right,r2.Right) - rx,Math.Max(r1.Bottom,r2.Bottom) - ry);
 			return;
 		}
 
@@ -296,9 +210,16 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Intersects this rectangle with <paramref name="r"/> and returns the result as a new rectangle.
 		/// </summary>
-		/// <param name="r">The rectangle to intersect with.0</param>
-		/// <returns>Returns the resuting intersection or the empty rectangle if this rectangle and <paramref name="r"/> do not intersect.</returns>
+		/// <param name="r">The rectangle to intersect with.</param>
+		/// <returns>Returns the resulting intersection or the empty rectangle if this rectangle and <paramref name="r"/> do not intersect.</returns>
 		public FRectangle Intersect(FRectangle r) => Intersect(this,r);
+
+		/// <summary>
+		/// Intersects this rectangle with <paramref name="r"/> and returns the result as a new rectangle.
+		/// </summary>
+		/// <param name="r">The rectangle to intersect with.</param>
+		/// <returns>Returns the resulting intersection or the empty rectangle if this rectangle and <paramref name="r"/> do not intersect.</returns>
+		public FRectangle Intersection(FRectangle r) => Intersect(this,r);
 
 		/// <summary>
 		/// Computes the intersection of <paramref name="r1"/> and <paramref name="r2"/> and returns the result as a new rectangle.
@@ -348,26 +269,26 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// The x position of the rectangle.
 		/// </summary>
-		[DataMember]
-		public float X;
+		public float X
+		{get;}
 
 		/// <summary>
 		/// The y position of the rectangle.
 		/// </summary>
-		[DataMember]
-		public float Y;
+		public float Y
+		{get;}
 
 		/// <summary>
 		/// The width of the rectangle.
 		/// </summary>
-		[DataMember]
-		public float Width;
+		public float Width
+		{get;}
 
 		/// <summary>
 		/// The height of the rectangle.
 		/// </summary>
-		[DataMember]
-		public float Height;
+		public float Height
+		{get;}
 
 		/// <summary>
 		/// The left position of the rectangle.
@@ -394,14 +315,9 @@ namespace GameEngine.DataStructures.Geometry
 		public float Top => Y + Height;
 
 		/// <summary>
-		/// The empty rectangle.
+		/// The center of this rectangle.
 		/// </summary>
-		public static FRectangle Empty => emptyRectangle;
-
-		/// <summary>
-		/// The empty rectangle.
-		/// </summary>
-		private static FRectangle emptyRectangle = new FRectangle(0.0f,0.0f,0.0f,0.0f);
+		public Vector2 Center => new Vector2(X + Width / 2.0f,Y + Height / 2.0f);
 
 		/// <summary>
 		/// Determines if this rectangle is the empty rectangle.
@@ -411,43 +327,29 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// The (x,y) position of the rectangle.
 		/// </summary>
-		public Vector2 Location
-		{
-			get => new Vector2(X,Y);
-
-			set
-			{
-				X = value.X;
-				Y = value.Y;
-
-				return;
-			}
-		}
+		public Vector2 Location => new Vector2(X,Y);
 
 		/// <summary>
 		/// The (width,height) of this rectangle.
 		/// </summary>
-		public Vector2 Size
-		{
-			get => new Vector2(Width,Height);
-
-			set
-			{
-				Width = value.X;
-				Height = value.Y;
-
-				return;
-			}
-		}
+		public Vector2 Size => new Vector2(Width,Height);
 
 		/// <summary>
-		/// The center of this rectangle.
+		/// The area of this rectangle.
 		/// </summary>
-		public Vector2 Center => new Vector2(X + Width / 2.0f,Y + Height / 2.0f);
+		public float Area => Width * Height;
+
+		public float BoxSpace => Area;
+		public FRectangle EmptyBox => Empty;
 
 		/// <summary>
-		/// A mysterious string copied from MonoGame's Rectangle class.
+		/// The empty rectangle.
 		/// </summary>
-		internal string DebugDisplayString => X + "  " + Y + "  " + Width + "  " + Height;
+		public static FRectangle Empty => emptyRectangle;
+
+		/// <summary>
+		/// The empty rectangle.
+		/// </summary>
+		private static FRectangle emptyRectangle = new FRectangle(0.0f,0.0f,0.0f,0.0f);
 	}
 }
