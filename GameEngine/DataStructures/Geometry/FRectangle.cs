@@ -160,7 +160,7 @@ namespace GameEngine.DataStructures.Geometry
 			float num = MathF.Min(X,r.X);
 			float num2 = MathF.Min(Y,r.Y);
 
-			return new FRectangle(num,num2,MathF.Max(Right,r.Right) - num,MathF.Max(Bottom,r.Bottom) - num2);
+			return new FRectangle(num,num2,MathF.Max(Right,r.Right) - num,MathF.Max(Top,r.Top) - num2);
 		}
 
 		/// <summary>
@@ -174,7 +174,7 @@ namespace GameEngine.DataStructures.Geometry
 			float num = MathF.Min(r1.X,r2.X);
 			float num2 = MathF.Min(r1.Y,r2.Y);
 
-			return new FRectangle(num,num2,MathF.Max(r1.Right,r2.Right) - num,MathF.Max(r1.Bottom,r2.Bottom) - num2);
+			return new FRectangle(num,num2,MathF.Max(r1.Right,r2.Right) - num,MathF.Max(r1.Top,r2.Top) - num2);
 		}
 
 		/// <summary>
@@ -188,7 +188,7 @@ namespace GameEngine.DataStructures.Geometry
 			float rx = Math.Min(r1.X,r2.X);
 			float ry = Math.Min(r1.Y,r2.Y);
 
-			result = new FRectangle(rx,ry,Math.Max(r1.Right,r2.Right) - rx,Math.Max(r1.Bottom,r2.Bottom) - ry);
+			result = new FRectangle(rx,ry,Math.Max(r1.Right,r2.Right) - rx,Math.Max(r1.Top,r2.Top) - ry);
 			return;
 		}
 
@@ -196,14 +196,14 @@ namespace GameEngine.DataStructures.Geometry
 		/// Determines if this rectangle intersects with <paramref name="r"/>.
 		/// </summary>
 		/// <returns>Returns true if the two rectangles intersect nontrivially (with nonzero area) and false otherwise.</returns>
-		public bool Intersects(FRectangle r) => r.Left < Right && Left < r.Right && r.Top < Bottom && Top < r.Bottom;
+		public bool Intersects(FRectangle r) => r.Left < Right && Left < r.Right && r.Bottom < Top && Bottom < r.Top;
 
 		/// <summary>
 		/// Determines if this rectangle intersects with <paramref name="r"/> and stores the result in <paramref name="result"/>.
 		/// </summary>
 		public void Intersects(ref FRectangle r, out bool result)
 		{
-			result = r.Left < Right && Left < r.Right && r.Top < Bottom && Top < r.Bottom;
+			result = r.Left < Right && Left < r.Right && r.Bottom < Top && Bottom < r.Top;
 			return;
 		}
 
@@ -237,10 +237,10 @@ namespace GameEngine.DataStructures.Geometry
 		{
 			if(r1.Intersects(r2))
 			{
-				float num = MathF.Min(r1.X + r1.Width,r2.X + r2.Width);
+				float num = MathF.Min(r1.Right,r2.Right);
 				float num2 = MathF.Max(r1.X,r2.X);
 				float num3 = MathF.Max(r1.Y,r2.Y);
-				float num4 = MathF.Min(r1.Y + r1.Height,r2.Y + r2.Height);
+				float num4 = MathF.Min(r1.Top,r2.Top);
 
 				result = new FRectangle(num2,num3,num - num2,num4 - num3);
 			}
@@ -264,7 +264,7 @@ namespace GameEngine.DataStructures.Geometry
 			return;
 		}
 
-		public override string ToString() => "{X:" + X + " Y:" + Y + " Width:" + Width + " Height:" + Height + "}";
+		public override string ToString() => "(X: " + X + " Y: " + Y + " Width: " + Width + " Height: " + Height + ")";
 
 		/// <summary>
 		/// The x position of the rectangle.
