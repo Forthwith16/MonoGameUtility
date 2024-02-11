@@ -77,6 +77,18 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		}
 
 		/// <summary>
+		/// Returns a new normalized version of this vector.
+		/// </summary>
+		/// <returns>Returns the normalized vector or the zero vector if this was the zero vector.</returns>
+		public static Vector3 Normalized(this Vector3 me)
+		{
+			if(me.LengthSquared() < GlobalConstants.EPSILON)
+				return Vector3.Zero;
+
+			return me / me.Length();
+		}
+
+		/// <summary>
 		/// Projects <paramref name="me"/> onto the vector <paramref name="onto"/>.
 		/// </summary>
 		/// <param name="me">The vector to project.</param>

@@ -199,7 +199,7 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Determines if this prism intersects with <paramref name="r"/>.
 		/// </summary>
-		/// <returns>Returns true if the two prisms intersect nontrivially (with nonzero area) and false otherwise.</returns>
+		/// <returns>Returns true if the two prisms intersect nontrivially (with nonzero volume) and false otherwise.</returns>
 		public bool Intersects(FPrism r) => r.Left < Right && Left < r.Right && r.Bottom < Top && Bottom < r.Top && r.Near < Far && Near < r.Far;
 
 		/// <summary>

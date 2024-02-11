@@ -244,7 +244,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// The graphics device manager for the game.
 		/// </summary>
-		protected GraphicsDeviceManager Graphics
+		public GraphicsDeviceManager Graphics
 		{get; private set;}
 
 		/// <summary>

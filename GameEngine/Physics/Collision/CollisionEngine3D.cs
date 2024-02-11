@@ -4,41 +4,45 @@ using GameEngine.Physics.Collision.Colliders;
 namespace GameEngine.Physics.Collision
 {
 	/// <summary>
-	/// A collision engine for 2D applications.
+	/// A collision engine for 3D applications.
 	/// </summary>
 	/// <remarks>
 	/// Note that this class is not a GameObject.
 	/// It is intended for use by other systems to detect collisions.
 	/// It should be updated after all GameObjects have updated but before these systems (such as a physics system) utilizes it.
 	/// </remarks>
-	public class CollisionEngine2D
+	public class CollisionEngine3D
 	{
 		/// <summary>
-		/// Creates a new 2D collision engine.
+		/// Creates a new 3D collision engine.
 		/// </summary>
 		/// <param name="left">The initial left bound of the world. This should be strictly less than <paramref name="right"/>.</param>
 		/// <param name="right">The initial right bound of the world. This should be strictly greater than <paramref name="left"/>.</param>
 		/// <param name="bottom">The initial bottom bound of the world. This should be strictly less than <paramref name="top"/>.</param>
 		/// <param name="top">The initial top bound of the world. This should be strictly greater than <paramref name="bottom"/>.</param>
-		public CollisionEngine2D(float left, float right, float bottom, float top) : this(new FRectangle(left,bottom,right - left,top - bottom))
+		/// <param name="near">The initial near bound of the world. This should be strictly less than <paramref name="far"/>.</param>
+		/// <param name="far">The initial far bound of the world. This should be strictly greater than <paramref name="near"/>.</param>
+		public CollisionEngine3D(float left, float right, float bottom, float top, float near, float far) : this(new FPrism(left,bottom,near,right - left,top - bottom,far - near))
 		{return;}
 
 		/// <summary>
-		/// Creates a new 2D collision engine.
+		/// Creates a new 3D collision engine.
 		/// </summary>
 		/// <param name="world_bounds">The initial boundary of the world. This value will expand if necessary.</param>
-		public CollisionEngine2D(FRectangle world_bounds)
+		public CollisionEngine3D(FPrism world_bounds)
 		{
-			Statics = new Quadtree(world_bounds);
+			Statics = new Octree(world_bounds);
 			
-			Kinetics = new Dictionary<uint,ColliderWraper2D>();
-			KineticXAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
-			KineticYAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
+			Kinetics = new Dictionary<uint,ColliderWraper3D>();
+			KineticXAxis = new CollisionLinkedList<AxisColliderWrapper3D>();
+			KineticYAxis = new CollisionLinkedList<AxisColliderWrapper3D>();
+			KineticZAxis = new CollisionLinkedList<AxisColliderWrapper3D>();
 
 			MarkedX = new HashSet<(uint,uint)>();
 			MarkedXY = new HashSet<(uint,uint)>();
+			MarkedXYZ = new HashSet<(uint,uint)>();
 
-			Collisions = new CollisionLinkedList<(ICollider2D,ICollider2D)>();
+			Collisions = new CollisionLinkedList<(ICollider3D,ICollider3D)>();
 			return;
 		}
 
@@ -48,7 +52,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="c">The collider to add. If this is already in the collision engine, no change will occur.</param>
 		/// <returns>Returns true if <paramref name="c"/> is added and false otherwise.</returns>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="c"/> already belongs to this collision engine.</exception>
-		public bool AddCollider(ICollider2D c)
+		public bool AddCollider(ICollider3D c)
 		{
 			// If we already contain c, we're done
 			// Contains is fast, so we don't need to worry about inlining it
@@ -73,7 +77,7 @@ namespace GameEngine.Physics.Collision
 		/// Adds <paramref name="c"/> to the static system of this collision engine.
 		/// </summary>
 		/// <remarks>It is assumed that <paramref name="c"/> does not belong to this collision engine already.</remarks>
-		protected void AddToStaticSystem(ICollider2D c)
+		protected void AddToStaticSystem(ICollider3D c)
 		{
 			Statics.Add(c);
 			return;
@@ -83,10 +87,10 @@ namespace GameEngine.Physics.Collision
 		/// Adds <paramref name="c"/> to the kinetic system of this collision engine.
 		/// </summary>
 		/// <remarks>It is assumed that <paramref name="c"/> does not belong to this collision engine already.</remarks>
-		protected void AddToKineticSystem(ICollider2D c)
+		protected void AddToKineticSystem(ICollider3D c)
 		{
 			// Create a new wrapper and add it to our dictionary linked to the collider's ID
-			ColliderWraper2D cw = new ColliderWraper2D(c);
+			ColliderWraper3D cw = new ColliderWraper3D(c);
 			Kinetics.Add(c.ID,cw);
 			
 			// Add the x axis left and right wrappers
@@ -97,6 +101,10 @@ namespace GameEngine.Physics.Collision
 			cw.BottomNode = KineticYAxis.AddLast(cw.Bottom);
 			cw.TopNode = KineticYAxis.AddLast(cw.Top);
 
+			// Add the z axis near and far wrappers
+			cw.NearNode = KineticZAxis.AddLast(cw.Near);
+			cw.FarNode = KineticZAxis.AddLast(cw.Far);
+
 			return;
 		}
 
@@ -105,12 +113,12 @@ namespace GameEngine.Physics.Collision
 		/// This method is more efficient for adding colliders in batch, as it optimizes the sweep and prune algorithm which requires 'mostly sorted' data to be efficient.
 		/// </summary>
 		/// <param name="colliders">The colliders to add.</param>
-		public void AddAllColliders(IEnumerable<ICollider2D> colliders)
+		public void AddAllColliders(IEnumerable<ICollider3D> colliders)
 		{
 			int nk = 0;
 
 			// Add every collider lazily and keep track of how many of them were kinetic
-			foreach(ICollider2D c in colliders)
+			foreach(ICollider3D c in colliders)
 				if(AddCollider(c))
 					if(c.IsKinetic)
 						nk++;
@@ -120,6 +128,7 @@ namespace GameEngine.Physics.Collision
 			{
 				KineticXAxis.QuickSort((a,b) => a.Value.CompareTo(b.Value));
 				KineticYAxis.QuickSort((a,b) => a.Value.CompareTo(b.Value));
+				KineticZAxis.QuickSort((a,b) => a.Value.CompareTo(b.Value));
 			}
 
 			return;
@@ -130,7 +139,7 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		/// <param name="c">The collider whose static state changed.</param>
 		/// <param name="static_state">The current static state of <paramref name="c"/>.</param>
-		private void SwapStaticKinetic(ICollider2D c, bool static_state)
+		private void SwapStaticKinetic(ICollider3D c, bool static_state)
 		{
 			if(static_state)
 			{
@@ -155,7 +164,7 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// Updates <paramref name="c"/>'s position in this collision engine's static collider tree.
 		/// </summary>
-		private void RefreshStaticCollider(ICollider2D c)
+		private void RefreshStaticCollider(ICollider3D c)
 		{
 			// We only operate on static colliders
 			if(c.IsKinetic)
@@ -173,7 +182,7 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		/// <param name="c">The collider to remove. If this was not in the collision engine, no change will occur.</param>
 		/// <returns>Returns true if <paramref name="c"/> was removed and false otherwise.</returns>
-		public bool RemoveCollider(ICollider2D c)
+		public bool RemoveCollider(ICollider3D c)
 		{
 			// If we don't contain the collider, do nothing
 			// This is fast, so don't worry about not inlining this check
@@ -196,7 +205,7 @@ namespace GameEngine.Physics.Collision
 		/// Removes <paramref name="c"/> from the static system of this collision engine.
 		/// </summary>
 		/// <remarks>It is assumed that <paramref name="c"/> belongs to this collision engine.</remarks>
-		protected void RemoveFromStaticSystem(ICollider2D c)
+		protected void RemoveFromStaticSystem(ICollider3D c)
 		{
 			Statics.Remove(c);
 			return;
@@ -206,10 +215,10 @@ namespace GameEngine.Physics.Collision
 		/// Removes <paramref name="c"/> from the kinetic system of this collision engine.
 		/// </summary>
 		/// <remarks>It is assumed that <paramref name="c"/> belongs to this collision engine.</remarks>
-		protected void RemoveFromKineticSystem(ICollider2D c)
+		protected void RemoveFromKineticSystem(ICollider3D c)
 		{
 			// Grab the wrapper
-			ColliderWraper2D cw = Kinetics[c.ID];
+			ColliderWraper3D cw = Kinetics[c.ID];
 
 			// We no longer need to be in Kinetics
 			Kinetics.Remove(c.ID);
@@ -220,6 +229,9 @@ namespace GameEngine.Physics.Collision
 
 			KineticYAxis.Remove(cw.BottomNode!);
 			KineticYAxis.Remove(cw.TopNode!);
+			
+			KineticZAxis.Remove(cw.NearNode!);
+			KineticZAxis.Remove(cw.FarNode!);
 
 			return;
 		}
@@ -230,7 +242,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="c">The collider to look for.</param>
 		/// <returns>Returns true if <paramref name="c"/> belongs to this collision engine and false otherwise.</returns>
 		/// <remarks>Containment is checked by comparing unique collider IDs.</remarks>
-		public bool ContainsCollider(ICollider2D c) => c.IsStatic ? Statics.Contains(c) : Kinetics.ContainsKey(c.ID);
+		public bool ContainsCollider(ICollider3D c) => c.IsStatic ? Statics.Contains(c) : Kinetics.ContainsKey(c.ID);
 
 		/// <summary>
 		/// Determines what is colliding this frame.
@@ -240,7 +252,7 @@ namespace GameEngine.Physics.Collision
 			// Find all of the kinetic-static collisions
 			Collisions.Clear();
 			
-			foreach(ICollider2D k in Kinetics.Values.Select(cw => cw.Collider))
+			foreach(ICollider3D k in Kinetics.Values.Select(cw => cw.Collider))
 				Collisions.AddAllLast(Statics.Query(k).Select(s => (k,s)));
 
 			// Now grab all of the kinetic-kinetic collisions
@@ -264,13 +276,14 @@ namespace GameEngine.Physics.Collision
 			// They should be mostly sorted already due to temporal coherence, so this should be fast
 			KineticXAxis.InsertionSort((a,b) => a.Value.CompareTo(b.Value));
 			KineticYAxis.InsertionSort((a,b) => a.Value.CompareTo(b.Value));
+			KineticZAxis.InsertionSort((a,b) => a.Value.CompareTo(b.Value));
 
 			// Since we have two dimensions, we need to remember which things we've seen overlapping in the first when we get to the second
 			MarkedX.Clear();
 
 			// Now we can iterate over the axes and mark what kinetic objects need additional inspection
 			// X axis first
-			CollisionLinkedListNode<AxisColliderWrapper2D> i = KineticXAxis.Head!;
+			CollisionLinkedListNode<AxisColliderWrapper3D> i = KineticXAxis.Head!;
 			
 			// Loop until we get to the tail, which cannot possibly interact with anything
 			while(!i.IsTail)
@@ -284,7 +297,7 @@ namespace GameEngine.Physics.Collision
 
 				// i is a beginning point, so we need to loop forward until we get to the terminating point
 				// We do, of course, assume that the terminating point is always after the beginning point in the list
-				CollisionLinkedListNode<AxisColliderWrapper2D> j = i.Next!;
+				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
 
 				// Loop to i's terminating point
 				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
@@ -305,7 +318,7 @@ namespace GameEngine.Physics.Collision
 				// Advance i
 				i = i.Next!;
 			}
-			
+
 			// If we have nothing marked, we're done
 			if(MarkedX.Count == 0)
 				return Enumerable.Empty<(uint,uint)>();
@@ -323,14 +336,10 @@ namespace GameEngine.Physics.Collision
 					continue;
 				}
 
-				CollisionLinkedListNode<AxisColliderWrapper2D> j = i.Next!;
+				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
 
 				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
 				{
-					// Because we only have two dimensions, we CAN immediately resolve this collision
-					// Instead we will leave this marked or 'unmark' it if we no longer think it's fit for collision
-					// This allows us to collect everything that will collide into one independent list
-					// Then if a collision removes things from the simulation, we won't have to worry about our enumerators' behavior being called into question
 					if(j.Value.Owner.Collider.Enabled)
 						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
 						{
@@ -350,8 +359,48 @@ namespace GameEngine.Physics.Collision
 				i = i.Next!;
 			}
 
+			// If we have nothing marked, we're done
+			if(MarkedXY.Count == 0)
+				return Enumerable.Empty<(uint,uint)>();
+
+			// Now we know what intersects on the x AND y axis, so let's do it all again on the z axis
+			// Now we do it again for the y axis nearly identically
+			MarkedXYZ.Clear();
+			i = KineticZAxis.Head!;
+
+			while(!i.IsTail)
+			{
+				if(i.Value.Terminating || i.Value.Owner.Collider.Disabled)
+				{
+					i = i.Next!;
+					continue;
+				}
+
+				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
+
+				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
+				{
+					if(j.Value.Owner.Collider.Enabled)
+						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
+						{
+							if(MarkedXY.Contains((i.Value.Owner.Collider.ID,j.Value.Owner.Collider.ID)))
+								MarkedXYZ.Add((i.Value.Owner.Collider.ID,j.Value.Owner.Collider.ID));
+						}
+						else
+						{
+							if(MarkedXY.Contains((j.Value.Owner.Collider.ID,i.Value.Owner.Collider.ID)))
+								MarkedXYZ.Add((j.Value.Owner.Collider.ID,i.Value.Owner.Collider.ID));
+						}
+					
+					j = j.Next!;
+				}
+
+				// Advance i
+				i = i.Next!;
+			}
+
 			// double_marked is independent of the kinetic and static lists, so we don't need to worry if those change as a result of collision resolution
-			return MarkedXY.Where(pair => Kinetics[pair.Item1].Collider.CollidesWith(Kinetics[pair.Item2].Collider));
+			return MarkedXYZ.Where(pair => Kinetics[pair.Item1].Collider.CollidesWith(Kinetics[pair.Item2].Collider));
 		}
 
 		/// <summary>
@@ -372,22 +421,27 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// The static colliders in the collision engine.
 		/// </summary>
-		protected Quadtree Statics;
+		protected Octree Statics;
 
 		/// <summary>
 		/// The kinetic colliders in the collision engine.
 		/// </summary>
-		protected Dictionary<uint,ColliderWraper2D> Kinetics;
+		protected Dictionary<uint,ColliderWraper3D> Kinetics;
 
 		/// <summary>
 		/// The x axis list of colliders for the sweep and prune section of the collision engine.
 		/// </summary>
-		protected CollisionLinkedList<AxisColliderWrapper2D> KineticXAxis;
+		protected CollisionLinkedList<AxisColliderWrapper3D> KineticXAxis;
 
 		/// <summary>
 		/// The y axis list of colliders for the sweep and prune section of the collision engine.
 		/// </summary>
-		protected CollisionLinkedList<AxisColliderWrapper2D> KineticYAxis;
+		protected CollisionLinkedList<AxisColliderWrapper3D> KineticYAxis;
+
+		/// <summary>
+		/// The z axis list of colliders for the sweep and prune section of the collision engine.
+		/// </summary>
+		protected CollisionLinkedList<AxisColliderWrapper3D> KineticZAxis;
 
 		/// <summary>
 		/// The kinetic x axis for the sweep and prune.
@@ -404,43 +458,54 @@ namespace GameEngine.Physics.Collision
 		{get; set;}
 
 		/// <summary>
+		/// The kinetic z axis for the sweep and prune.
+		/// This value is kept between runs and cleared to prevent the heap from being filled with garbage.
+		/// </summary>
+		protected HashSet<(uint,uint)> MarkedXYZ
+		{get; set;}
+
+		/// <summary>
 		/// The set of collisions calculated for the current frame.
 		/// The first collider is always kinetic.
 		/// The second collider may be kinetic or static.
 		/// <para/>
 		/// These pairs may be stale this frame if the collisions have already been resolved.
 		/// </summary>
-		public IEnumerable<(ICollider2D,ICollider2D)> CurrentCollisions => Collisions;
+		public IEnumerable<(ICollider3D,ICollider3D)> CurrentCollisions => Collisions;
 
 		/// <summary>
 		/// The current set of collisions.
 		/// </summary>
-		protected CollisionLinkedList<(ICollider2D,ICollider2D)> Collisions
+		protected CollisionLinkedList<(ICollider3D,ICollider3D)> Collisions
 		{get; set;}
 	}
 
 	/// <summary>
 	/// A wrapper around colliders for additional collision engine information.
 	/// </summary>
-	public class ColliderWraper2D
+	public class ColliderWraper3D
 	{
 		/// <summary>
 		/// Creates a wrapper around a collider.
 		/// </summary>
 		/// <param name="c">The collider to wrap around.</param>
-		public ColliderWraper2D(ICollider2D c)
+		public ColliderWraper3D(ICollider3D c)
 		{
 			Collider = c;
 
-			Left = new AxisColliderWrapper2D(this,false,() => Collider.LeftBound);
-			Right = new AxisColliderWrapper2D(this,true,() => Collider.RightBound);
-			Bottom = new AxisColliderWrapper2D(this,false,() => Collider.BottomBound);
-			Top = new AxisColliderWrapper2D(this,true,() => Collider.TopBound);
+			Left = new AxisColliderWrapper3D(this,false,() => Collider.LeftBound);
+			Right = new AxisColliderWrapper3D(this,true,() => Collider.RightBound);
+			Bottom = new AxisColliderWrapper3D(this,false,() => Collider.BottomBound);
+			Top = new AxisColliderWrapper3D(this,true,() => Collider.TopBound);
+			Near = new AxisColliderWrapper3D(this,false,() => Collider.NearBound);
+			Far = new AxisColliderWrapper3D(this,true,() => Collider.FarBound);
 			
 			LeftNode = null;
 			RightNode = null;
 			BottomNode = null;
 			TopNode = null;
+			NearNode = null;
+			FarNode = null;
 
 			return;
 		}
@@ -448,13 +513,13 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// The collider.
 		/// </summary>
-		public ICollider2D Collider
+		public ICollider3D Collider
 		{get;}
 
 		/// <summary>
 		/// The wrapper for our left bound.
 		/// </summary>
-		public AxisColliderWrapper2D Left
+		public AxisColliderWrapper3D Left
 		{get;}
 
 		/// <summary>
@@ -462,13 +527,13 @@ namespace GameEngine.Physics.Collision
 		/// <para/>
 		/// This must be manually set once added to the x axis.
 		/// </summary>
-		public CollisionLinkedListNode<AxisColliderWrapper2D>? LeftNode
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? LeftNode
 		{get; set;}
 
 		/// <summary>
 		/// The wrapper for our right bound.
 		/// </summary>
-		public AxisColliderWrapper2D Right
+		public AxisColliderWrapper3D Right
 		{get;}
 
 		/// <summary>
@@ -476,13 +541,13 @@ namespace GameEngine.Physics.Collision
 		/// <para/>
 		/// This must be manually set once added to the x axis.
 		/// </summary>
-		public CollisionLinkedListNode<AxisColliderWrapper2D>? RightNode
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? RightNode
 		{get; set;}
 
 		/// <summary>
 		/// The wrapper for our bottom bound.
 		/// </summary>
-		public AxisColliderWrapper2D Bottom
+		public AxisColliderWrapper3D Bottom
 		{get;}
 
 		/// <summary>
@@ -490,13 +555,13 @@ namespace GameEngine.Physics.Collision
 		/// <para/>
 		/// This must be manually set once added to the y axis.
 		/// </summary>
-		public CollisionLinkedListNode<AxisColliderWrapper2D>? BottomNode
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? BottomNode
 		{get; set;}
 
 		/// <summary>
 		/// The wrapper for our top bound.
 		/// </summary>
-		public AxisColliderWrapper2D Top
+		public AxisColliderWrapper3D Top
 		{get;}
 
 		/// <summary>
@@ -504,14 +569,42 @@ namespace GameEngine.Physics.Collision
 		/// <para/>
 		/// This must be manually set once added to the y axis.
 		/// </summary>
-		public CollisionLinkedListNode<AxisColliderWrapper2D>? TopNode
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? TopNode
+		{get; set;}
+
+		/// <summary>
+		/// The wrapper for our near bound.
+		/// </summary>
+		public AxisColliderWrapper3D Near
+		{get;}
+
+		/// <summary>
+		/// The node containing our near bound.
+		/// <para/>
+		/// This must be manually set once added to the z axis.
+		/// </summary>
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? NearNode
+		{get; set;}
+
+		/// <summary>
+		/// The wrapper for our far bound.
+		/// </summary>
+		public AxisColliderWrapper3D Far
+		{get;}
+
+		/// <summary>
+		/// The node containing our far bound.
+		/// <para/>
+		/// This must be manually set once added to the z axis.
+		/// </summary>
+		public CollisionLinkedListNode<AxisColliderWrapper3D>? FarNode
 		{get; set;}
 	}
 
 	/// <summary>
 	/// A wrapper for an entry of a collider wrapper into a linked list for a sweep and prune algorithm.
 	/// </summary>
-	public readonly struct AxisColliderWrapper2D
+	public readonly struct AxisColliderWrapper3D
 	{
 		/// <summary>
 		/// Creates a new wrapper.
@@ -519,7 +612,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="w">The wrapper we are wrapping around.</param>
 		/// <param name="terminal">If true, then this is the end of the axis interval. If false, it is the beginning.</param>
 		/// <param name="value_func">The means by which we obtain our axis value.</param>
-		public AxisColliderWrapper2D(ColliderWraper2D w, bool terminal, FetchAxisValue2D value_func)
+		public AxisColliderWrapper3D(ColliderWraper3D w, bool terminal, FetchAxisValue3D value_func)
 		{
 			Owner = w;
 			Terminating = terminal;
@@ -533,7 +626,7 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// The wrapper that owns this.
 		/// </summary>
-		public ColliderWraper2D Owner
+		public ColliderWraper3D Owner
 		{get;}
 
 		/// <summary>
@@ -557,12 +650,12 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// How we obtain our value.
 		/// </summary>
-		private FetchAxisValue2D ValueFetcher
+		private FetchAxisValue3D ValueFetcher
 		{get;}
 	}
 
 	/// <summary>
 	/// Returns a position along an axis.
 	/// </summary>
-	public delegate float FetchAxisValue2D();
+	public delegate float FetchAxisValue3D();
 }

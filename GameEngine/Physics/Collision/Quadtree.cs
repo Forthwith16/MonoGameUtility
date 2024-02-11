@@ -5,24 +5,24 @@ using System.Collections;
 namespace GameEngine.Physics.Collision
 {
 	/// <summary>
-	/// A quad tree.
+	/// A quadtree.
 	/// </summary>
 	public class Quadtree : IEnumerable<ICollider2D>
 	{
 		/// <summary>
-		/// Creates a new quad tree.
+		/// Creates a new quadtree.
 		/// </summary>
-		/// <param name="left">The initial left bound of the quad tree. This should be strictly less than <paramref name="right"/>.</param>
-		/// <param name="right">The initial right bound of the quad tree. This should be strictly greater than <paramref name="left"/>.</param>
-		/// <param name="bottom">The initial bottom bound of the quad tree. This should be strictly less than <paramref name="top"/>.</param>
-		/// <param name="top">The initial top bound of the quad tree. This should be strictly greater than <paramref name="bottom"/>.</param>
+		/// <param name="left">The initial left bound of the quadtree. This should be strictly less than <paramref name="right"/>.</param>
+		/// <param name="right">The initial right bound of the quadtree. This should be strictly greater than <paramref name="left"/>.</param>
+		/// <param name="bottom">The initial bottom bound of the quadtree. This should be strictly less than <paramref name="top"/>.</param>
+		/// <param name="top">The initial top bound of the quadtree. This should be strictly greater than <paramref name="bottom"/>.</param>
 		public Quadtree(float left, float right, float bottom, float top) : this(new FRectangle(left,bottom,right - left,top - bottom))
 		{return;}
 
 		/// <summary>
-		/// Creates a new quad tree.
+		/// Creates a new quadtree.
 		/// </summary>
-		/// <param name="initial_boundary">The initial boundary of the quad tree.</param>
+		/// <param name="initial_boundary">The initial boundary of the quadtree.</param>
 		public Quadtree(FRectangle initial_boundary)
 		{
 			Root = new Quad(initial_boundary);
@@ -40,6 +40,19 @@ namespace GameEngine.Physics.Collision
 				return Enumerable.Empty<ICollider2D>();
 
 			return Root.Query(c);
+		}
+
+		/// <summary>
+		/// Queries this tree to determine what colliders in it collide with <paramref name="region"/>.
+		/// </summary>
+		/// <param name="region">The region to check for possible collision.</param>
+		/// <returns>Returns an enumeration of colliders that collide with <paramref name="region"/>. If there are none, then an empty list is returned.</returns>
+		public IEnumerable<ICollider2D> Query(FRectangle region)
+		{
+			if(!TreeBoundary.Intersects(region))
+				return Enumerable.Empty<ICollider2D>();
+
+			return Root.Query(region);
 		}
 
 		/// <summary>
@@ -80,14 +93,24 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		/// <param name="c">The collider to remove.</param>
 		/// <returns>Returns true if <paramref name="c"/> is removed and false otherwise.</returns>
-		public bool Remove(ICollider2D c) => Root.Remove(c);
+		public bool Remove(ICollider2D c) => IsEmpty ? false : Root.Remove(c);
 
 		/// <summary>
 		/// Determines if this tree contains <paramref name="c"/>.
 		/// </summary>
 		/// <param name="c">The collider to look for.</param>
 		/// <returns>Returns true if this tree contains <paramref name="c"/> and false otherwise.</returns>
-		public bool Contains(ICollider2D c) => Root.Contains(c);
+		public bool Contains(ICollider2D c) => IsEmpty ? false : Root.Contains(c);
+
+		/// <summary>
+		/// Updates the boundary of <paramref name="c"/> in this tree.
+		/// If <paramref name="c"/> does not belong to this tree, then this does nothing.
+		/// </summary>
+		/// <param name="c">The collider whose boundary needs updating.</param>
+		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
+		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
+		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
+		public bool UpdateBoundary(ICollider2D c, FRectangle new_boundary) => Root.UpdateBoundary(c,new_boundary);
 
 		/// <summary>
 		/// Clears this tree.
@@ -108,6 +131,18 @@ namespace GameEngine.Physics.Collision
 		/// The number of items in this tree.
 		/// </summary>
 		public int Count => Root.Count;
+
+		/// <summary>
+		/// If true, the this tree is empty.
+		/// Otherwise, this tree has at least one item.
+		/// </summary>
+		public bool IsEmpty => Root.IsEmpty;
+
+		/// <summary>
+		/// If true, then this tree is not empty.
+		/// If false, it is.
+		/// </summary>
+		public bool IsNotEmpty => !IsEmpty;
 
 		/// <summary>
 		/// The current global boundary of this tree.
@@ -175,7 +210,7 @@ namespace GameEngine.Physics.Collision
 			HalfY = bounds.Bottom + bounds.Height / 2.0f;
 
 			Parent = parent;
-
+			
 			TopRight = null;
 			TopLeft = null;
 			BottomRight = null;
@@ -219,46 +254,76 @@ namespace GameEngine.Physics.Collision
 			// Top right
 			if(c.RightBound >= HalfX && c.TopBound >= HalfY)
 				if(IsTopRightLeaf)
-					foreach(ICollider2D c2 in SmallTopRightColliders)
-					{
-						if(c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2))
-							ret.AddLast(c2);
-					}
+					ret.AddAllLast(SmallTopRightColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(TopRight!.Query(c));
 			
 			// Top left
 			if(c.LeftBound <= HalfX && c.TopBound >= HalfY)
 				if(IsTopLeftLeaf)
-					foreach(ICollider2D c2 in SmallTopLeftColliders)
-					{
-						if(c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2))
-							ret.AddLast(c2);
-					}
+					ret.AddAllLast(SmallTopLeftColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(TopLeft!.Query(c));
 
 			// Bottom right
 			if(c.RightBound >= HalfX && c.BottomBound <= HalfY)
 				if(IsBottomRightLeaf)
-					foreach(ICollider2D c2 in SmallBottomRightColliders)
-					{
-						if(c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2))
-							ret.AddLast(c2);
-					}
+					ret.AddAllLast(SmallBottomRightColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(BottomRight!.Query(c));
 
 			// Bottom left
 			if(c.LeftBound <= HalfX && c.BottomBound <= HalfY)
 				if(IsBottomLeftLeaf)
-					foreach(ICollider2D c2 in SmallBottomLeftColliders)
-					{
-						if(c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2))
-							ret.AddLast(c2);
-					}
+					ret.AddAllLast(SmallBottomLeftColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(BottomLeft!.Query(c));
+
+			return ret;
+		}
+
+		/// <summary>
+		/// Queries this quad to determine what colliders in it (or its children) collide with <paramref name="region"/>.
+		/// </summary>
+		/// <param name="region">The region to check for possible collision.</param>
+		/// <returns>Returns an enumeration of colliders that collide with <paramref name="region"/>. If there are none, then an empty list is returned.</returns>
+		public IEnumerable<ICollider2D> Query(FRectangle region)
+		{
+			CollisionLinkedList<ICollider2D> ret = new CollisionLinkedList<ICollider2D>();
+
+			// We always need to check the big colliders, since they can cover any arbitrary area of this quad
+			foreach(ICollider2D c2 in BigColliders)
+				if(region.Intersects(c2.Boundary))
+					ret.AddLast(c2);
+
+			// Now we need to check all of the children that region overlaps with (or the appropriate small colliders lists if this is a leaf)
+			// Top right
+			if(region.Right >= HalfX && region.Top >= HalfY)
+				if(IsTopRightLeaf)
+					ret.AddAllLast(SmallTopRightColliders.Where(c => region.Intersects(c.Boundary)));
+				else
+					ret.AddAllLast(TopRight!.Query(region));
+			
+			// Top left
+			if(region.Left <= HalfX && region.Top >= HalfY)
+				if(IsTopLeftLeaf)
+					ret.AddAllLast(SmallTopLeftColliders.Where(c => region.Intersects(c.Boundary)));
+				else
+					ret.AddAllLast(TopLeft!.Query(region));
+
+			// Bottom right
+			if(region.Right >= HalfX && region.Bottom <= HalfY)
+				if(IsBottomRightLeaf)
+					ret.AddAllLast(SmallBottomRightColliders.Where(c => region.Intersects(c.Boundary)));
+				else
+					ret.AddAllLast(BottomRight!.Query(region));
+
+			// Bottom left
+			if(region.Left <= HalfX && region.Bottom <= HalfY)
+				if(IsBottomLeftLeaf)
+					ret.AddAllLast(SmallBottomLeftColliders.Where(c => region.Intersects(c.Boundary)));
+				else
+					ret.AddAllLast(BottomLeft!.Query(region));
 
 			return ret;
 		}
@@ -479,6 +544,29 @@ namespace GameEngine.Physics.Collision
 
 			// Since we haven't returned yet, c must belong to this quad, so look for it here
 			return BigColliders.Contains(c);
+		}
+
+		/// <summary>
+		/// Updates the boundary of <paramref name="c"/> in this quad.
+		/// If <paramref name="c"/> does not belong to this quad, then this does nothing.
+		/// </summary>
+		/// <param name="c">The collider whose boundary needs updating.</param>
+		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
+		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
+		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
+		public bool UpdateBoundary(ICollider2D c, FRectangle new_boundary)
+		{
+			// If we fail to remove c, then we don't have c and can't update it
+			if(!Remove(c))
+				return false;
+
+			// Now we need to update c
+			bool ret = c.ChangeBoundary(new_boundary);
+
+			// And lastly, we add c back in (regardless of if its boundary was successfully changed)
+			Add(c);
+
+			return ret;
 		}
 
 		/// <summary>
