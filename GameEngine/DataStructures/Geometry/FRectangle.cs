@@ -131,25 +131,25 @@ namespace GameEngine.DataStructures.Geometry
 		/// Determines if this rectangle contains the point (<paramref name="x"/>,<paramref name="y"/>).
 		/// </summary>
 		/// <returns>Returns true if this rectangle contains the point (<paramref name="x"/>,<paramref name="y"/>) and false otherwise.</returns>
-		public bool Contains(int x, int y) => X <= x && x < X + Width && Y <= y && y < Y + Height;
+		public bool Contains(int x, int y) => X <= x && x <= X + Width && Y <= y && y <= Y + Height;
 
 		/// <summary>
 		/// Determines if this rectangle contains the point (<paramref name="x"/>,<paramref name="y"/>) and stores the result in <paramref name="result"/>.
 		/// </summary>
-		public bool Contains(float x, float y) => X <= x && x < X + Width && Y <= y && y < Y + Height;
+		public bool Contains(float x, float y) => X <= x && x <= X + Width && Y <= y && y <= Y + Height;
 		
 		/// <summary>
 		/// Determines if this rectangle contains <paramref name="p"/>.
 		/// </summary>
 		/// <returns>Returns true if this rectangle contains the point <paramref name="p"/> and false otherwise.</returns>
-		public bool Contains(Point p) => X <= p.X && p.X < X + Width && Y <= p.Y && p.Y < Y + Height;
+		public bool Contains(Point p) => X <= p.X && p.X <= X + Width && Y <= p.Y && p.Y <= Y + Height;
 
 		/// <summary>
 		/// Determines if this rectangle contains the point <paramref name="p"/> and stores the result in <paramref name="result"/>.
 		/// </summary>
 		public void Contains(ref Point p, out bool result)
 		{
-			result = X <= p.X && p.X < X + Width && Y <= p.Y && p.Y < Y + Height;
+			result = X <= p.X && p.X <= X + Width && Y <= p.Y && p.Y <= Y + Height;
 			return;
 		}
 
@@ -157,14 +157,14 @@ namespace GameEngine.DataStructures.Geometry
 		/// Determines if this rectangle contains <paramref name="v"/>.
 		/// </summary>
 		/// <returns>Returns true if this rectangle contains the point <paramref name="v"/> and false otherwise.</returns>
-		public bool Contains(Vector2 v) => X <= v.X && v.X < X + Width && Y <= v.Y && v.Y < Y + Height;
+		public bool Contains(Vector2 v) => X <= v.X && v.X <= X + Width && Y <= v.Y && v.Y <= Y + Height;
 
 		/// <summary>
 		/// Determines if this rectangle contains the point <paramref name="v"/> and stores the result in <paramref name="result"/>.
 		/// </summary>
 		public void Contains(ref Vector2 v, out bool result)
 		{
-			result = X <= v.X && v.X < X + Width && Y <= v.Y && v.Y < Y + Height;
+			result = X <= v.X && v.X <= X + Width && Y <= v.Y && v.Y <= Y + Height;
 			return;
 		}
 
@@ -175,7 +175,7 @@ namespace GameEngine.DataStructures.Geometry
 		public bool Contains(FRectangle r) => X <= r.X && r.X + r.Width <= X + Width && Y <= r.Y && r.Y + r.Height <= Y + Height;
 
 		/// <summary>
-		/// Determines if this rectangle contains the rectangle <paramref name="r"/> and stores the result in <paramref name="rresult"/>.
+		/// Determines if this rectangle contains the rectangle <paramref name="r"/> and stores the result in <paramref name="result"/>.
 		/// </summary>
 		public void Contains(ref FRectangle r, out bool result)
 		{
@@ -220,7 +220,7 @@ namespace GameEngine.DataStructures.Geometry
 			float rx = Math.Min(r1.X,r2.X);
 			float ry = Math.Min(r1.Y,r2.Y);
 
-			result = new FRectangle(rx,ry,Math.Max(r1.Right,r2.Right) - rx,Math.Max(r1.Top,r2.Top) - ry);
+			result = new FRectangle(rx,ry,MathF.Max(r1.Right,r2.Right) - rx,MathF.Max(r1.Top,r2.Top) - ry);
 			return;
 		}
 
@@ -377,11 +377,11 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// The empty rectangle.
 		/// </summary>
-		public static FRectangle Empty => emptyRectangle;
+		public static FRectangle Empty => _er;
 
 		/// <summary>
 		/// The empty rectangle.
 		/// </summary>
-		private static FRectangle emptyRectangle = new FRectangle(0.0f,0.0f,0.0f,0.0f);
+		private static FRectangle _er = new FRectangle(0.0f,0.0f,0.0f,0.0f);
 	}
 }
