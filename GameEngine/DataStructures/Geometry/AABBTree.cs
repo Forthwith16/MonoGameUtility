@@ -62,7 +62,7 @@ namespace GameEngine.DataStructures.Geometry
 
 			// The tree is not empty, so we need to find the best leaf node to pair v with
 			// Then once we know what leaf we're pairing with, expand the leaf
-			new AABBTreeNode<V,B>(v,bound,PickBestLeaf(Root!,bound));
+			new AABBTreeNode<V,B>(v,bound,PickBestLeaf(Root!,bound)); // This will perform the add by the mere act of its creation
 			Count++;
 
 			// Lastly, we may have rotated the root away from being the root, so restore Root to the actual root
@@ -262,7 +262,7 @@ namespace GameEngine.DataStructures.Geometry
 			return;
 		}
 
-		public IEnumerator<V> GetEnumerator() => Query(TreeBoundary).GetEnumerator();
+		public IEnumerator<V> GetEnumerator() => Query(TreeBoundary).GetEnumerator(); // Inefficient, yes, but you shouldn't be enumerating an AABB tree anyway except maybe when debugging
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 		/// <summary>
@@ -286,8 +286,7 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Obtains the boundary of the entire tree.
 		/// </summary>
-		/// <exception cref="InvalidOperationException">Thrown if the tree is empty.</exception>
-		public B TreeBoundary => IsEmpty ? throw new InvalidOperationException() : Root!.Bounds;
+		public B TreeBoundary => IsEmpty ? default(B) : Root!.Bounds;
 
 		/// <summary>
 		/// The root of the tree.

@@ -29,7 +29,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GettingStarted", "GettingSt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example3D", "Example3D\Example3D.csproj", "{9FF25FE6-3D69-4953-8759-D6D607190614}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleSound", "ExampleSound\ExampleSound.csproj", "{7488881C-E8BB-434C-B3BE-19BD77E2B49D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleSound", "ExampleSound\ExampleSound.csproj", "{7488881C-E8BB-434C-B3BE-19BD77E2B49D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5267BD98-B17D-4881-AC10-AD2F22AAEF3E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

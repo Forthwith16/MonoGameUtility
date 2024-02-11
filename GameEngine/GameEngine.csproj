@@ -14,4 +14,12 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\Forthwith\source\repos\MonoGameUtility\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\Forthwith\source\repos\MonoGameUtility\.editorconfig" />
+  </ItemGroup>
+
 </Project>

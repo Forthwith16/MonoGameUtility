@@ -93,6 +93,38 @@ namespace GameEngine.DataStructures.Geometry
 
 		public readonly bool Equals(FRectangle other) => this == other;
 
+		/// <summary>
+		/// Creats a new rectangle with (X,Y) position offset by <paramref name="offset"/>.
+		/// </summary>
+		/// <param name="r">The rectangle to offset.</param>
+		/// <param name="offset">The offset to apply to the rectangle.</param>
+		/// <returns>Returns a new offset rectangle.</returns>
+		public static FRectangle operator +(FRectangle r, Vector2 offset) => new FRectangle(r.X + offset.X,r.Y + offset.Y,r.Width,r.Height);
+
+		/// <summary>
+		/// Creats a new rectangle with (X,Y) position offset by <paramref name="offset"/>.
+		/// </summary>
+		/// <param name="offset">The offset to apply to the rectangle.</param>
+		/// <param name="r">The rectangle to offset.</param>
+		/// <returns>Returns a new offset rectangle.</returns>
+		public static FRectangle operator +(Vector2 offset, FRectangle r) => new FRectangle(r.X + offset.X,r.Y + offset.Y,r.Width,r.Height);
+
+		/// <summary>
+		/// Creats a new rectangle with (X,Y) position offset by -<paramref name="offset"/>.
+		/// </summary>
+		/// <param name="r">The rectangle to offset.</param>
+		/// <param name="offset">The offset to apply to the rectangle.</param>
+		/// <returns>Returns a new offset rectangle.</returns>
+		public static FRectangle operator -(FRectangle r, Vector2 offset) => new FRectangle(r.X - offset.X,r.Y - offset.Y,r.Width,r.Height);
+
+		/// <summary>
+		/// Creats a new rectangle with -(X,Y) position offset by <paramref name="offset"/>.
+		/// </summary>
+		/// <param name="offset">The offset to apply to the rectangle.</param>
+		/// <param name="r">The rectangle to offset.</param>
+		/// <returns>Returns a new offset rectangle.</returns>
+		public static FRectangle operator -(Vector2 offset, FRectangle r) => new FRectangle(offset.X - r.X,offset.Y - r.Y,r.Width,r.Height);
+
 		public override readonly int GetHashCode() => (((17 * 23 + X.GetHashCode()) * 23 + Y.GetHashCode()) * 23 + Width.GetHashCode()) * 23 + Height.GetHashCode();
 
 		/// <summary>
