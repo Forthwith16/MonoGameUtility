@@ -254,28 +254,28 @@ namespace GameEngine.Physics.Collision
 			// Top right
 			if(c.RightBound >= HalfX && c.TopBound >= HalfY)
 				if(IsTopRightLeaf)
-					ret.AddAllLast(SmallTopRightColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
+					ret.AddAllLast(SmallTopRightColliders.Where(c2 => c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(TopRight!.Query(c));
 			
 			// Top left
 			if(c.LeftBound <= HalfX && c.TopBound >= HalfY)
 				if(IsTopLeftLeaf)
-					ret.AddAllLast(SmallTopLeftColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
+					ret.AddAllLast(SmallTopLeftColliders.Where(c2 => c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(TopLeft!.Query(c));
 
 			// Bottom right
 			if(c.RightBound >= HalfX && c.BottomBound <= HalfY)
 				if(IsBottomRightLeaf)
-					ret.AddAllLast(SmallBottomRightColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
+					ret.AddAllLast(SmallBottomRightColliders.Where(c2 => c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(BottomRight!.Query(c));
 
 			// Bottom left
 			if(c.LeftBound <= HalfX && c.BottomBound <= HalfY)
 				if(IsBottomLeftLeaf)
-					ret.AddAllLast(SmallBottomLeftColliders.Where(c2 => c.Boundary.Intersects(c.Boundary) && c.CollidesWith(c2)));
+					ret.AddAllLast(SmallBottomLeftColliders.Where(c2 => c.Boundary.Intersects(c2.Boundary) && c.CollidesWith(c2)));
 				else
 					ret.AddAllLast(BottomLeft!.Query(c));
 
