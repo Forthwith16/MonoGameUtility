@@ -385,7 +385,7 @@ namespace GameEngine.Physics.Collision
 				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
 
 				// Loop to i's terminating point
-				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
+				while(j.Value.Owner.Collider.ID != i.Value.Owner.Collider.ID)
 				{
 					// We mark j's owner for further consideration
 					// We force the smaller ID to be added first to avoid the duplicate symmetric collisions
@@ -423,7 +423,7 @@ namespace GameEngine.Physics.Collision
 
 				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
 
-				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
+				while(j.Value.Owner.Collider.ID != i.Value.Owner.Collider.ID)
 				{
 					if(j.Value.Owner.Collider.Enabled)
 						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
@@ -463,7 +463,7 @@ namespace GameEngine.Physics.Collision
 
 				CollisionLinkedListNode<AxisColliderWrapper3D> j = i.Next!;
 
-				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
+				while(j.Value.Owner.Collider.ID != i.Value.Owner.Collider.ID)
 				{
 					if(j.Value.Owner.Collider.Enabled)
 						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
