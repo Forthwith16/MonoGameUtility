@@ -426,6 +426,15 @@ namespace GameEngine.Physics.Collision
 				i = i!.Next;
 			}
 
+			RepairHeadTail();
+			return;
+		}
+
+		/// <summary>
+		/// Repairs the Head and Tail values if they were lost somehow.
+		/// </summary>
+		public void RepairHeadTail()
+		{
 			// Restore the head (we could do this inline, but we save no time and this is easier
 			while(!Head!.IsHead)
 				Head = Head.Previous;

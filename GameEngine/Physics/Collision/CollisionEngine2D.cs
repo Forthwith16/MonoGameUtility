@@ -31,7 +31,7 @@ namespace GameEngine.Physics.Collision
 		{
 			Statics = new Quadtree(world_bounds);
 			
-			Kinetics = new Dictionary<uint,ColliderWraper2D>();
+			Kinetics = new Dictionary<uint,ColliderWrapper2D>();
 			KineticXAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
 			KineticYAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
 
@@ -64,7 +64,7 @@ namespace GameEngine.Physics.Collision
 			// It's easiest to just sign up for all of them, never unsubscribe, and add guards to the subscriptions to make sure we only actually execute them when we actually need to
 			// In the static movement event, for example, we just check to make sure that our collider is static in the event body
 			c.OnStaticStateChanged += SwapStaticKinetic;
-			c.OnStaticMovement += RefreshStaticCollider;
+			c.OnStaticMovement += RefreshCollider;
 
 			return true;
 		}
@@ -86,7 +86,7 @@ namespace GameEngine.Physics.Collision
 		protected void AddToKineticSystem(ICollider2D c)
 		{
 			// Create a new wrapper and add it to our dictionary linked to the collider's ID
-			ColliderWraper2D cw = new ColliderWraper2D(c);
+			ColliderWrapper2D cw = new ColliderWrapper2D(c);
 			Kinetics.Add(c.ID,cw);
 			
 			// Add the x axis left and right wrappers
@@ -118,8 +118,8 @@ namespace GameEngine.Physics.Collision
 			// If we added a nontrivial number of kinetic colliders, we should use a quick sort now to sort them rather than leaving them for insertion sort to deal with later
 			if(nk > 8)
 			{
-				KineticXAxis.QuickSort((a,b) => a.Value.CompareTo(b.Value));
-				KineticYAxis.QuickSort((a,b) => a.Value.CompareTo(b.Value));
+				KineticXAxis.QuickSort((a,b) => a.CompareTo(b));
+				KineticYAxis.QuickSort((a,b) => a.CompareTo(b));
 			}
 
 			return;
@@ -153,18 +153,102 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
-		/// Updates <paramref name="c"/>'s position in this collision engine's static collider tree.
+		/// Updates <paramref name="c"/>'s position in this collision engine independent of the Update method.
 		/// </summary>
-		private void RefreshStaticCollider(ICollider2D c)
+		/// <remarks>
+		/// Although this method works on both static and kinetic colliders, the latter is the intended usage.
+		/// The former's boundary data is updated automatically (if the static collider's callback routines are implemented correctly).
+		/// Regardless, the former runs in O(log n) time while the latter typically runs in O(1) time but can be as bad as O(n).
+		/// In either case, the current list of collisions is <b><u>NOT</u></b> updated.
+		/// For that, run the Update method.
+		/// </remarks>
+		public void RefreshKineticCollider(ICollider2D c) => RefreshCollider(c);
+
+		/// <summary>
+		/// Updates <paramref name="c"/>'s position in this collision engine.
+		/// </summary>
+		/// <remarks>
+		/// This method works on both static and kinetic colliders.
+		/// The former runs in O(log n) time while the latter typically runs in O(1) time but can be as bad as O(n).
+		/// In either case, the current list of collisions is <b><u>NOT</u></b> updated.
+		/// For that, run the Update method.
+		/// </remarks>
+		private void RefreshCollider(ICollider2D c)
 		{
-			// We only operate on static colliders
-			if(c.IsKinetic)
+			// We handle an individual update for a static and kinetic collider VERY differently
+			if(c.IsStatic)
+			{
+				// Moving static colliders should be rare, so we don't need to worry too much about efficiency so long as we remain O(log n)
+				if(RemoveCollider(c))
+					AddCollider(c);
+
+				return;
+			}
+
+			// We have a kinetic collider, so we need to update it's axis positions
+			// We will do this here because this is a weird special case we really don't want to put into the linked list itself
+			// First grab the wrapper with c's node information
+			if(!Kinetics.TryGetValue(c.ID,out ColliderWrapper2D? cw))
 				return;
 
-			// Moving static colliders should be rare, so we don't need to worry too much about efficiency so long as we remain O(log n)
-			RemoveCollider(c);
-			AddCollider(c);
+			// Update each axis
+			UpdateKineticBoundPointer(KineticXAxis,cw.LeftNode!,cw.RightNode!);
+			UpdateKineticBoundPointer(KineticYAxis,cw.BottomNode!,cw.TopNode!);
 
+			return;
+		}
+
+		/// <summary>
+		/// Updates the pointers <paramref name="low"/> and <paramref name="high"/> in <paramref name="l"/> via 2-3 partial insertion sorts, requiring at most O(n) time but usually only taking O(1) time.
+		/// </summary>
+		/// <param name="l">The axis we are updating these nodes in.</param>
+		/// <param name="low">The lower bound node.</param>
+		/// <param name="high">The upper bound node.</param>
+		protected void UpdateKineticBoundPointer(CollisionLinkedList<AxisColliderWrapper2D> l, CollisionLinkedListNode<AxisColliderWrapper2D> low, CollisionLinkedListNode<AxisColliderWrapper2D> high)
+		{
+			// We need to move nodes around in l, which can be a little awkward when low gets stuck on high instead of passing over high or vice versa
+			// However, we know that this can only happen when we move low right and high right since if high moves left, it must be the case that left won't cross its old position
+			bool low_left = low.IsHead ? false : low.Value.Value < low.Previous!.Value.Value; // low can never be the tail
+			bool high_right = high.IsTail ? false : high.Value.Value > high.Next!.Value.Value; // high can never be the head
+
+			// Now that we know which was we're moving each node, let's get to it
+			if(low_left)
+			{
+				// Move low left until it's done
+				while(!low.IsHead && low.Value.Value < low.Previous!.Value.Value)
+					low.MoveLeft();
+
+				// Move high either left or right
+				// It can't cross low, which is in its correct position now, so this is fine
+				if(high_right)
+					while(!high.IsTail && high.Value.Value > high.Next!.Value.Value)
+						high.MoveRight();
+				else
+					while(!high.IsHead && high.Value.Value < high.Previous!.Value.Value)
+						high.MoveLeft();
+			}
+			else if(high_right)
+			{
+				// Move high right until its done
+				while(!high.IsTail && high.Value.Value > high.Next!.Value.Value)
+					high.MoveRight();
+
+				// Move low right until it's done
+				// This is after high is already in its new correct position, so this is fine
+				while(!low.IsTail && low.Value.Value > low.Next!.Value.Value)
+					low.MoveRight();
+			}
+			else // low moves right and high moves left
+			{
+				// low and high are moving toward each other, so they won't cross
+				while(!low.IsTail && low.Value.Value > low.Next!.Value.Value)
+					low.MoveRight();
+
+				while(!high.IsHead && high.Value.Value < high.Previous!.Value.Value)
+					high.MoveLeft();
+			}
+
+			l.RepairHeadTail();
 			return;
 		}
 
@@ -187,7 +271,7 @@ namespace GameEngine.Physics.Collision
 
 			// We unsubscribe from c's events
 			c.OnStaticStateChanged -= SwapStaticKinetic;
-			c.OnStaticMovement -= RefreshStaticCollider;
+			c.OnStaticMovement -= RefreshCollider;
 
 			return true;
 		}
@@ -209,7 +293,7 @@ namespace GameEngine.Physics.Collision
 		protected void RemoveFromKineticSystem(ICollider2D c)
 		{
 			// Grab the wrapper
-			ColliderWraper2D cw = Kinetics[c.ID];
+			ColliderWrapper2D cw = Kinetics[c.ID];
 
 			// We no longer need to be in Kinetics
 			Kinetics.Remove(c.ID);
@@ -262,8 +346,8 @@ namespace GameEngine.Physics.Collision
 
 			// Sort the kinetics along their axes
 			// They should be mostly sorted already due to temporal coherence, so this should be fast
-			KineticXAxis.InsertionSort((a,b) => a.Value.CompareTo(b.Value));
-			KineticYAxis.InsertionSort((a,b) => a.Value.CompareTo(b.Value));
+			KineticXAxis.InsertionSort((a,b) => a.CompareTo(b));
+			KineticYAxis.InsertionSort((a,b) => a.CompareTo(b));
 
 			// Since we have two dimensions, we need to remember which things we've seen overlapping in the first when we get to the second
 			MarkedX.Clear();
@@ -286,7 +370,7 @@ namespace GameEngine.Physics.Collision
 				// We do, of course, assume that the terminating point is always after the beginning point in the list
 				CollisionLinkedListNode<AxisColliderWrapper2D> j = i.Next!;
 
-				// Loop to i's terminating point
+				// Loop to i's terminating point (i.e. loop while j is not i's termination point)
 				while(!(j.Value.Terminating && j.Value.Owner.Collider.ID == i.Value.Owner.Collider.ID))
 				{
 					// We mark j's owner for further consideration
@@ -377,7 +461,7 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// The kinetic colliders in the collision engine.
 		/// </summary>
-		protected Dictionary<uint,ColliderWraper2D> Kinetics;
+		protected Dictionary<uint,ColliderWrapper2D> Kinetics;
 
 		/// <summary>
 		/// The x axis list of colliders for the sweep and prune section of the collision engine.
@@ -422,13 +506,13 @@ namespace GameEngine.Physics.Collision
 	/// <summary>
 	/// A wrapper around colliders for additional collision engine information.
 	/// </summary>
-	public class ColliderWraper2D
+	public class ColliderWrapper2D
 	{
 		/// <summary>
 		/// Creates a wrapper around a collider.
 		/// </summary>
 		/// <param name="c">The collider to wrap around.</param>
-		public ColliderWraper2D(ICollider2D c)
+		public ColliderWrapper2D(ICollider2D c)
 		{
 			Collider = c;
 
@@ -511,7 +595,7 @@ namespace GameEngine.Physics.Collision
 	/// <summary>
 	/// A wrapper for an entry of a collider wrapper into a linked list for a sweep and prune algorithm.
 	/// </summary>
-	public readonly struct AxisColliderWrapper2D
+	public readonly struct AxisColliderWrapper2D : IComparable<AxisColliderWrapper2D>
 	{
 		/// <summary>
 		/// Creates a new wrapper.
@@ -519,7 +603,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="w">The wrapper we are wrapping around.</param>
 		/// <param name="terminal">If true, then this is the end of the axis interval. If false, it is the beginning.</param>
 		/// <param name="value_func">The means by which we obtain our axis value.</param>
-		public AxisColliderWrapper2D(ColliderWraper2D w, bool terminal, FetchAxisValue2D value_func)
+		public AxisColliderWrapper2D(ColliderWrapper2D w, bool terminal, FetchAxisValue2D value_func)
 		{
 			Owner = w;
 			Terminating = terminal;
@@ -530,10 +614,30 @@ namespace GameEngine.Physics.Collision
 
 		public override string ToString() => "(value: " + Value.ToString() + " terminating: " + Terminating + " ID: " + Owner.Collider.ID + ")";
 
+		public int CompareTo(AxisColliderWrapper2D other)
+		{
+			int ret = Value.CompareTo(other.Value);
+
+			// If our floats are equal, then we need to sort terminating things before non terminating ones
+			if(ret == 0)
+				if(Terminating)
+					if(other.Terminating)
+						return 0; // Both terminating; equal weight
+					else
+						return -1; // We're terminating, so we must come before non terminating values
+				else // We're not terminating
+					if(other.Terminating)
+						return 1; // We're not terminating, so we must come after terminals
+					else
+						return 0; // Both not terminating; equal weight
+
+			return ret;
+		}
+
 		/// <summary>
 		/// The wrapper that owns this.
 		/// </summary>
-		public ColliderWraper2D Owner
+		public ColliderWrapper2D Owner
 		{get;}
 
 		/// <summary>
