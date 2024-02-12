@@ -47,6 +47,129 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
+		/// Determines what colliders lie at least partially within <paramref name="region"/>.
+		/// This check is determined via each collider's bounding box intersecting with <paramref name="region"/>, not via its fully collision check method.
+		/// </summary>
+		/// <param name="region">The region to query.</param>
+		/// <returns>Returns the list of colliders which at least partially lie within <paramref name="region"/>. If there are none, an empty list is returned.</returns>
+		public IEnumerable<ICollider3D> Query(FPrism region, bool query_statics = true, bool query_kinetics = true)
+		{
+			CollisionLinkedList<ICollider3D> ret = new CollisionLinkedList<ICollider3D>();
+
+			// If we have nothing, we're done
+			if(IsEmpty)
+				return ret;
+
+			// Grab every static we collide with
+			if(query_statics)
+				ret.AddAllLast(Statics.Query(region));
+
+			// If we don't want kinetics, we're done
+			if(!query_kinetics)
+				return ret;
+
+			// Now we have the more complicated task of querying the kinetics
+			// To do this, we have little better option than to go through them all
+			// We could scan across the axes, but we have no way to binary search, so that's linear time regardless
+			// Even though we would often be able to end early at region's upper bounds, we would still have to scan multiple lists and interact with hashsets, so it's probably just as efficient (or better) to just scan Kinetics
+			foreach(ICollider3D c in Kinetics.Values.Select(k => k.Collider))
+				if(c.Boundary.Intersects(region))
+					ret.AddLast(c);
+
+			return ret;
+		}
+
+		/// <summary>
+		/// Determines what colliders <paramref name="c"/> is colliding with.
+		/// This will take roughly O(1 + log n) time on average, as it bypasses the (here considered stale) current list of collisions stored in CurrentCollisions.
+		/// </summary>
+		/// <param name="c">
+		/// The collider to check for collision.
+		/// It must be the case that <paramref name="c"/>'s boundary information is not stale here (see RefreshKineticCollider/Update).
+		/// Everything kinetic that it does or does not collide with must also not be stale to obtain correct results.
+		/// </param>
+		/// <param name="query_statics">If true, then the static list will be queried.</param>
+		/// <param name="query_kinetics">If true, then the kinetic list will be queried.</param>
+		/// <returns>Returns a list of colliders <paramref name="c"/> is colliding with (if any). An empty list is returned if there are no collisions.</returns>
+		public IEnumerable<ICollider3D> Query(ICollider3D c, bool query_statics = true, bool query_kinetics = true)
+		{
+			CollisionLinkedList<ICollider3D> ret = new CollisionLinkedList<ICollider3D>();
+			
+			// If we have nothing, we're done
+			if(IsEmpty)
+				return ret;
+
+			// The static colliders are easy to grab
+			if(query_statics)
+				ret.AddAllLast(Statics.Query(c));
+
+			// If we don't want kinetics, we're done
+			if(!query_kinetics)
+				return ret;
+
+			// The kinetics are more difficult to get
+			// We will run a mini sweep and prune algorithm on just c
+			ColliderWrapper3D cw = Kinetics[c.ID];
+
+			// Sweep the x axis first
+			HashSet<uint> x_mark = new HashSet<uint>();
+
+			// The left node cannot be the tail
+			// n.Next is also never null
+			for(CollisionLinkedListNode<AxisColliderWrapper3D> n = cw.LeftNode!.Next!;n.Value.Owner.Collider.ID != c.ID;n = n.Next!)
+				x_mark.Add(n.Value.Owner.Collider.ID);
+
+			// Now sweep the y axis
+			HashSet<uint> y_mark = new HashSet<uint>();
+
+			for(CollisionLinkedListNode<AxisColliderWrapper3D> n = cw.BottomNode!.Next!;n.Value.Owner.Collider.ID != c.ID;n = n.Next!)
+				if(x_mark.Contains(n.Value.Owner.Collider.ID))
+					y_mark.Add(n.Value.Owner.Collider.ID);
+
+			// Now sweep the z axis
+			HashSet<uint> z_mark = new HashSet<uint>();
+
+			for(CollisionLinkedListNode<AxisColliderWrapper3D> n = cw.BottomNode!.Next!;n.Value.Owner.Collider.ID != c.ID;n = n.Next!)
+				if(y_mark.Contains(n.Value.Owner.Collider.ID))
+					z_mark.Add(n.Value.Owner.Collider.ID);
+			
+			// Now that we have all of our collisions (and no duplicates), add them all to ret
+			ret.AddAllLast(z_mark.Where(ID => ID != c.ID).Select(ID => Kinetics[ID].Collider));
+
+			return ret;
+		}
+
+		/// <summary>
+		/// Determines what colliders <paramref name="c"/> is colliding with.
+		/// This will search the current list of collisions stored in CurrentCollisions for the result.
+		/// </summary>
+		/// <param name="c">The collider to check for collision.</param>
+		/// <param name="query_statics">If true, then statics collisions with <paramref name="c"/> will be obtained..</param>
+		/// <param name="query_kinetics">If true, then kinetic collisions with <paramref name="c"/> will be obtained.</param>
+		/// <returns>Returns a list of colliders <paramref name="c"/> is colliding with (if any). An empty list is returned if there are no collisions.</returns>
+		public IEnumerable<ICollider3D> QueryCache(ICollider3D c, bool query_statics = true, bool query_kinetics = true)
+		{
+			CollisionLinkedList<ICollider3D> ret = new CollisionLinkedList<ICollider3D>();
+
+			// If we have nothing, we're done
+			if(Collisions.IsEmpty)
+				return ret;
+
+			// Check the cached colliders for c
+			foreach((ICollider3D,ICollider3D) cc in Collisions)
+				if(cc.Item1.ID == c.ID)
+				{
+					if(query_statics && cc.Item2.IsStatic || query_kinetics && cc.Item2.IsKinetic)
+						ret.AddLast(cc.Item2);
+				}
+				else if(cc.Item2.ID == c.ID)
+					if(query_statics && cc.Item1.IsStatic || query_kinetics && cc.Item1.IsKinetic)
+						ret.AddLast(cc.Item1);
+
+			return ret;
+		}
+
+		/// <summary>
 		/// Adds a collider to the collision engine.
 		/// </summary>
 		/// <param name="c">The collider to add. If this is already in the collision engine, no change will occur.</param>
@@ -487,6 +610,18 @@ namespace GameEngine.Physics.Collision
 			// double_marked is independent of the kinetic and static lists, so we don't need to worry if those change as a result of collision resolution
 			return MarkedXYZ.Where(pair => Kinetics[pair.Item1].Collider.CollidesWith(Kinetics[pair.Item2].Collider));
 		}
+
+		/// <summary>
+		/// If true, then this collision engine has no colliders in it.
+		/// If false, then it has at least one.
+		/// </summary>
+		public bool IsEmpty => Count == 0;
+
+		/// <summary>
+		/// If true, then this collision engine has at least one collider in it.
+		/// If false, then it has none.
+		/// </summary>
+		public bool IsNotEmpty => !IsEmpty;
 
 		/// <summary>
 		/// The total number of colliders in this collision engine.
