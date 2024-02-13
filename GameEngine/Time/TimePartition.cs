@@ -111,6 +111,10 @@ namespace GameEngine.Time
 		/// <param name="delta">The elapsed gametime since the last update.</param>
 		public override void Update(GameTime delta)
 		{
+			// If time is not moving forward, don't bother with anything
+			if(!Playing)
+				return;
+
 			// Elapsed time is easy
 			// It just counts total time experienced
 			ElapsedTime += (float)delta.ElapsedGameTime.TotalSeconds;
@@ -338,6 +342,9 @@ namespace GameEngine.Time
 		/// </summary>
 		public void Play()
 		{
+			if(Playing)
+				return;
+
 			bool ptemp = Playing;
 			Playing = true;
 			
@@ -396,6 +403,9 @@ namespace GameEngine.Time
 		/// </summary>
 		public void Pause()
 		{
+			if(Paused)
+				return;
+
 			bool ptemp = Playing;
 			Playing = false;
 			
@@ -410,6 +420,9 @@ namespace GameEngine.Time
 		/// </summary>
 		public void Stop()
 		{
+			if(Stopped)
+				return;
+
 			bool ptemp = Playing;
 			float ttemp = CurrentTime;
 			

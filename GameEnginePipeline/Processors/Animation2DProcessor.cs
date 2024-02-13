@@ -40,7 +40,7 @@ namespace GameEnginePipeline.Processors
 
 			// If we have the wrong loop data, we'll have to fix that
 			float loop_start = asset.LoopStart is null ? (asset.LoopFrameStart is null ? 0.0f : segs[asset.LoopFrameStart.Value]) : asset.LoopStart.Value;
-			float loop_end = asset.LoopEnd is null ? (asset.LoopFrameEnd is null ? segs[asset.Frames.Length] : segs[asset.LoopFrameEnd.Value]) : asset.LoopEnd.Value;
+			float loop_end = asset.LoopEnd is null ? (asset.LoopFrameEnd is null ? segs[asset.Frames.Length] : segs[asset.LoopFrameEnd.Value + 1]) : asset.LoopEnd.Value;
 
 			// All that we have left to do is check that the loop data makes sense (and assign anything that we're missing)
 			if(loop_end <= loop_start || loop_start < 0.0f || loop_end > segs[asset.Frames.Length])
