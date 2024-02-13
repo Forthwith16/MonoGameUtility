@@ -68,6 +68,23 @@ namespace GameEngine.Maths
 		}
 
 		/// <summary>
+		/// Creates a matrix from a position, rotation, and scale.
+		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/>.
+		/// This will place <b><u><paramref name="origin"/></u></b> (the rotational/scaling center) at <paramref name="position"/>.
+		/// </summary>
+		/// <param name="position">The translation to apply to this object.</param>
+		/// <param name="rotation">The rotation (in radians about the z axis) to apply to this object.</param>
+		/// <param name="scale">The scale to apply to this object.</param>
+		/// <param name="righthanded_chirality">
+		/// Positive rotation values result in a counterclockwise rotation about its axis.
+		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		/// The rotation matrix this function generates follows this scheme when this value is false.
+		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
+		/// </param>
+		public static Matrix2D FromPositionRotationScale(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
+		{return Matrix2D.Translation(position) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
+
+		/// <summary>
 		/// Decomposes this matrix into its translation, rotation, and scale.
 		/// These values can be transformed into an equivalent matrix via the appropriate matrices for translation * scale * rotation.
 		/// For a SpriteBatch's Draw call, these parameters correspond to position, -rotation (with origin = Vector2.Zero), and scale.
@@ -97,23 +114,6 @@ namespace GameEngine.Maths
 			
 			return true;
 		}
-
-		/// <summary>
-		/// Creates a matrix from a position, rotation, and scale.
-		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/>.
-		/// This will place <b><u><paramref name="origin"/></u></b> (the rotational/scaling center) at <paramref name="position"/>.
-		/// </summary>
-		/// <param name="position">The translation to apply to this object.</param>
-		/// <param name="rotation">The rotation (in radians about the z axis) to apply to this object.</param>
-		/// <param name="scale">The scale to apply to this object.</param>
-		/// <param name="righthanded_chirality">
-		/// Positive rotation values result in a counterclockwise rotation about its axis.
-		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
-		/// The rotation matrix this function generates follows this scheme when this value is false.
-		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
-		/// </param>
-		public static Matrix2D FromPositionRotationScale(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
-		{return Matrix2D.Translation(position) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
 
 		public static bool operator ==(Matrix2D lhs, Matrix2D rhs)
 		{return lhs.Equals(rhs);}
