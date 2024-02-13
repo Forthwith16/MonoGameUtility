@@ -355,10 +355,7 @@ namespace GameEngine.Maths
 		/// </param>
 		public static Matrix2D Rotation90(int times, bool righthanded_chirality = false)
 		{
-			times = times % 4;
-
-			if(times < 0)
-				times += 4;
+			times &= 0b11; // We only need the last two bits (this also allows us to ignore sign)
 
 			float cos = 0.0f;
 			float sin = 0.0f;
