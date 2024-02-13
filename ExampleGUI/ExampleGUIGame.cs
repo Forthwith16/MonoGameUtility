@@ -37,7 +37,6 @@ namespace ExampleGUI
 			Services.AddService<GUICore>(new GUICore(this));
 			Components.Add(Services.GetService<GUICore>());
 
-			base.Initialize();
 			return;
 		}
 

@@ -62,7 +62,6 @@ namespace ExampleInputManager
 			// Services can hold exactly one object of every type inside of it
 			Services.AddService<InputManager>(Input);
 
-			base.Initialize();
 			return;
 		}
 

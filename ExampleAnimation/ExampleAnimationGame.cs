@@ -41,7 +41,6 @@ namespace ExampleAnimation
 			Input.AddKeyInput("L",Keys.Left);
 			Input.AddKeyInput("R",Keys.Right);
 
-			base.Initialize();
 			return;
 		}
 

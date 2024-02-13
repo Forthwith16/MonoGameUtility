@@ -33,7 +33,6 @@ namespace Example3DGame
 			rotation = 0.0f;
 			pos = Vector3.Zero;
 
-			base.Initialize();
 			return;
 		}
 
