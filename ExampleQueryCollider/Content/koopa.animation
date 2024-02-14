@@ -1,0 +1,17 @@
+﻿<Animation2DAsset>
+  <Type>Animation2D</Type>
+  <Source>koopa.spritesheet</Source>
+  <Frames>
+    <Animation2DKeyFrame>
+	 <Sprite>0</Sprite>
+	 <Duration>0.23</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>1</Sprite>
+	 <Duration>0.23</Duration>
+    </Animation2DKeyFrame>
+  </Frames>
+  <Loops>true</Loops>
+  <LoopFrameStart>0</LoopFrameStart>
+  <LoopFrameEnd>1</LoopFrameEnd>
+</Animation2DAsset>

@@ -1,0 +1,8 @@
+<SpriteSheetAsset>
+	<Source>koopa.png</Source>
+	<TileFillRowFirst>true</TileFillRowFirst>
+	<TileVCount>1</TileVCount>
+	<TileCount>2</TileCount>
+	<TileWidth>18</TileWidth>
+	<TileHeight>27</TileHeight>
+</SpriteSheetAsset>
