@@ -8,6 +8,7 @@ using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,6 +49,11 @@ namespace ExampleQueryCollider
 			// Load the background
 			Components.Add(Background = new ImageComponent(this,Renderer,"background"));
 
+			// Load the background music
+			Song bgm = Content.Load<Song>("overworld");
+			MediaPlayer.Play(bgm);
+			MediaPlayer.IsRepeating = true;
+			
 			// Now we need to load the ground collision box
 			CollisionBox temp;
 			Colliders.AddLast(temp = new CollisionBox(this,Renderer,1280,128,Color.Red));

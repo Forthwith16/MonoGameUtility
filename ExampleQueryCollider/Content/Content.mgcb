@@ -31,3 +31,9 @@
 /processor:Animation2DProcessor
 /build:koopa.animation
 
+#begin overworld.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:overworld.mp3
+
