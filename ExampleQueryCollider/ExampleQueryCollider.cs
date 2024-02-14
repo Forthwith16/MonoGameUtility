@@ -20,9 +20,9 @@ namespace ExampleQueryCollider
 	public class ExampleQueryCollider : RenderTargetFriendlyGame
 	{
 		// Pick one of the below (and only one) to see how each setting behaves
-		public const bool NoQueryColliders = false; // Uses no query colliders to walk forward
+		public const bool NoQueryColliders = true; // Uses no query colliders to walk forward
 		public const bool GroundQueryCollider = false; // Uses a ground query collider to walk forward better
-		public const bool ForwardQueryCollider = true; // Uses a ground and forward query collider to walk back and forth
+		public const bool ForwardQueryCollider = false; // Uses a ground and forward query collider to walk back and forth
 		public const bool OopsForwardQueryCollider = false; // Uses a ground and forward query collider to walk back and forth, but the koopa eventually falls off due to the changing position of the forward query
 
 		public ExampleQueryCollider() : base()
@@ -70,7 +70,7 @@ namespace ExampleQueryCollider
 			// Now add the koopa
 			Components.Add(Koopa = new AnimatedComponent(this,Renderer,"koopa"));
 			Koopa.Scale(4.0f,4.0f);
-			Koopa.Translate(650.0f,0.0f);
+			Koopa.Translate(650.0f,-200.0f);
 			Koopa.Animation.Paused = true;
 
 			// Now add the koopa's collider
@@ -126,8 +126,11 @@ namespace ExampleQueryCollider
 			Engine.AddAllColliders(Colliders);
 
 			// Add the colliders we don't want in the engine now
-			Colliders.AddLast(GroundQuery);
-			Colliders.AddLast(ForwardQuery);
+			if(GroundQueryCollider || ForwardQueryCollider || OopsForwardQueryCollider)
+				Colliders.AddLast(GroundQuery);
+
+			if(ForwardQueryCollider || OopsForwardQueryCollider)
+				Colliders.AddLast(ForwardQuery);
 
 			return;
 		}
