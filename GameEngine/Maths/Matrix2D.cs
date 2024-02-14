@@ -47,13 +47,13 @@ namespace GameEngine.Maths
 		/// </summary>
 		private Matrix2D(Matrix2D m)
 		{
-			M00 = m[0,0];
-			M01 = m[0,1];
-			M02 = m[0,2];
+			M00 = m.M00;
+			M01 = m.M01;
+			M02 = m.M02;
 
-			M10 = m[1,0];
-			M11 = m[1,1];
-			M12 = m[1,2];
+			M10 = m.M10;
+			M11 = m.M11;
+			M12 = m.M12;
 			
 			return;
 		}
@@ -64,7 +64,7 @@ namespace GameEngine.Maths
 		public static implicit operator Matrix(Matrix2D m)
 		{
 			// Monogame for some reason places the translations on the bottom row instead of the right hand column
-			return new Matrix(m[0,0],m[0,1],0.0f,0.0f,m[1,0],m[1,1],0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,m[0,2],m[1,2],0.0f,1.0f);
+			return new Matrix(m.M00,m.M01,0.0f,0.0f,m.M10,m.M11,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,m.M02,m.M12,0.0f,1.0f);
 		}
 
 		/// <summary>
@@ -135,13 +135,13 @@ namespace GameEngine.Maths
 		/// <returns>Returns a new matrix containing the result.</returns>
 		public static Matrix2D operator *(Matrix2D lhs, Matrix2D rhs)
 		{
-			float r00 = lhs[0,0] * rhs[0,0] + lhs[0,1] * rhs[1,0];
-			float r01 = lhs[0,0] * rhs[0,1] + lhs[0,1] * rhs[1,1];
-			float r02 = lhs[0,0] * rhs[0,2] + lhs[0,1] * rhs[1,2] + lhs[0,2];
+			float r00 = lhs.M00 * rhs.M00 + lhs.M01 * rhs.M10;
+			float r01 = lhs.M00 * rhs.M01 + lhs.M01 * rhs.M11;
+			float r02 = lhs.M00 * rhs.M02 + lhs.M01 * rhs.M12 + lhs.M02;
 
-			float r10 = lhs[1,0] * rhs[0,0] + lhs[1,1] * rhs[1,0];
-			float r11 = lhs[1,0] * rhs[0,1] + lhs[1,1] * rhs[1,1];
-			float r12 = lhs[1,0] * rhs[0,2] + lhs[1,1] * rhs[1,2] + lhs[1,2];
+			float r10 = lhs.M10 * rhs.M00 + lhs.M11 * rhs.M10;
+			float r11 = lhs.M10 * rhs.M01 + lhs.M11 * rhs.M11;
+			float r12 = lhs.M10 * rhs.M02 + lhs.M11 * rhs.M12 + lhs.M12;
 
 			return new Matrix2D(r00,r01,r02,r10,r11,r12);
 		}
@@ -152,8 +152,8 @@ namespace GameEngine.Maths
 		/// <returns>Returns a new vector containing the multiplication.</returns>
 		public static Vector2 operator *(Matrix2D m, Vector2 v)
 		{
-			float r0 = m[0,0] * v.X + m[0,1] * v.Y + m[0,2];
-			float r1 = m[1,0] * v.X + m[1,1] * v.Y + m[1,2];
+			float r0 = m.M00 * v.X + m.M01 * v.Y + m.M02;
+			float r1 = m.M10 * v.X + m.M11 * v.Y + m.M12;
 
 			return new Vector2(r0,r1);
 		}

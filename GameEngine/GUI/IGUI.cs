@@ -11,7 +11,7 @@ namespace GameEngine.GUI
 	/// <para/>
 	/// Users should add GUI components to a GUICore.
 	/// </summary>
-	public interface IGUI : IAffineComponent, IUpdateable, IDrawable, IDisposable
+	public interface IGUI : IAffineComponent2D, IUpdateable, IDrawable, IDisposable
 	{
 		/// <summary>
 		/// Called to initialize a GUI component.

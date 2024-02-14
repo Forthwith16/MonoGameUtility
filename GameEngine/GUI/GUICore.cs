@@ -7,6 +7,7 @@ using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.EnumExtensions;
+using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -431,7 +432,7 @@ namespace GameEngine.GUI
 		{
 			if(digital)
 			{
-				Vector2 pos = ActiveComponent!.Position;
+				Vector2 pos = ActiveComponent!.GetAffinePosition();
 				int dx = 0, dy = 0;
 
 				if(Input[DigitalRight].CurrentDigitalValue)
@@ -465,7 +466,7 @@ namespace GameEngine.GUI
 		{
 			if(digital)
 			{
-				Vector2 pos = ActiveComponent!.Position;
+				Vector2 pos = ActiveComponent!.GetAffinePosition();
 				int dx = 0, dy = 0;
 
 				if(Input[DigitalRight].CurrentDigitalValue)
@@ -496,7 +497,7 @@ namespace GameEngine.GUI
 		/// <returns>Returns a new mouse event encoding all of the given information.</returns>
 		protected MouseHoverEventArgs GenerateMouseHoverEvent(bool hover)
 		{
-			Vector2 pos = ActiveComponent!.Position;
+			Vector2 pos = ActiveComponent!.GetAffinePosition();
 			return new MouseHoverEventArgs(hover,false,(int)pos.X,(int)pos.Y,0,0);
 		}
 
@@ -510,7 +511,7 @@ namespace GameEngine.GUI
 		{
 			if(digital)
 			{
-				Vector2 pos = ActiveComponent!.Position;
+				Vector2 pos = ActiveComponent!.GetAffinePosition();
 				int dx = 0, dy = 0;
 
 				if(Input[DigitalRight].CurrentDigitalValue)
@@ -543,7 +544,7 @@ namespace GameEngine.GUI
 		{
 			if(digital)
 			{
-				Vector2 pos = ActiveComponent!.Position;
+				Vector2 pos = ActiveComponent!.GetAffinePosition();
 				int dx = 0, dy = 0;
 
 				if(Input[DigitalRight].CurrentDigitalValue)

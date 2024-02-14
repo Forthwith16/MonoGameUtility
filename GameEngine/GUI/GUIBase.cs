@@ -25,6 +25,9 @@ namespace GameEngine.GUI
 		/// </param>
 		protected GUIBase(RenderTargetFriendlyGame game, string name, DrawableAffineComponent? tooltip = null)
 		{
+			WorldRevision = 2;
+			InverseWorldRevision = 2;
+
 			Game = game;
 			Name = name;
 
@@ -223,108 +226,6 @@ namespace GameEngine.GUI
 			return;
 		}
 
-		public void Translate(float tx, float ty)
-		{
-			Transform = Transform.Translate(tx,ty);
-			return;
-		}
-
-		public void Translate(Vector2 t)
-		{
-			Transform = Transform.Translate(t);
-			return;
-		}
-
-		public void Rotate(float angle, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate(angle,righthanded_chirality);
-			return;
-		}
-
-		public void Rotate(float angle, Vector2 point, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate(angle,point,righthanded_chirality);
-			return;
-		}
-
-		public void Rotate(float angle, float x, float y, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate(angle,x,y,righthanded_chirality);
-			return;
-		}
-
-		public void Rotate90(int times, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate90(times,righthanded_chirality);
-			return;
-		}
-
-		public void Rotate90(int times, Vector2 point, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate90(times,point,righthanded_chirality);
-			return;
-		}
-
-		public void Rotate90(int times, float x, float y, bool righthanded_chirality = false)
-		{
-			Transform = Transform.Rotate90(times,x,y,righthanded_chirality);
-			return;
-		}
-
-		public void Scale(float s)
-		{
-			Transform = Transform.Scale(s);
-			return;
-		}
-
-		public void Scale(float s, float x, float y)
-		{
-			Transform = Transform.Scale(s,x,y);
-			return;
-		}
-
-		public void Scale(float s, Vector2 pos)
-		{
-			Transform = Transform.Scale(s,pos);
-			return;
-		}
-
-		public void Scale(float sx, float sy)
-		{
-			Transform = Transform.Scale(sx,sy);
-			return;
-		}
-
-		public void Scale(float sx, float sy, float x, float y)
-		{
-			Transform = Transform.Scale(sx,sy,x,y);
-			return;
-		}
-
-		public void Scale(float sx, float sy, Vector2 pos)
-		{
-			Transform = Transform.Scale(sx,sy,pos);
-			return;
-		}
-
-		public void Scale(Vector2 s)
-		{
-			Transform = Transform.Scale(s);
-			return;
-		}
-
-		public void Scale(Vector2 s, float x, float y)
-		{
-			Transform = Transform.Scale(s,x,y);
-			return;
-		}
-
-		public void Scale(Vector2 s, Vector2 pos)
-		{
-			Transform = Transform.Scale(s,pos);
-			return;
-		}
-
 		public RenderTargetFriendlyGame Game
 		{get; protected set;}
 
@@ -502,33 +403,6 @@ namespace GameEngine.GUI
 
 		protected bool _v;
 
-		public Matrix2D World
-		{
-			get
-			{
-				if(StaleWorld)
-				{
-					// We won't bother checking what's up with these and blindly assign them
-					StaleParent = false;
-					StaleTransform = false;
-
-					_w = Parent is null ? Transform : Parent.World * Transform;
-				}
-
-				return _w;
-			}
-		}
-
-		protected Matrix2D _w;
-		
-		public bool StaleWorld => StaleParent || StaleTransform || Parent is not null && Parent.StaleWorld;
-
-		/// <summary>
-		/// If true, then the transform has changed and marks the world matrix as stale.
-		/// </summary>
-		private bool StaleTransform
-		{get; set;}
-
 		public Matrix2D Transform
 		{
 			get => _t;
@@ -536,8 +410,11 @@ namespace GameEngine.GUI
 			set
 			{
 				// It's not worth checking if _t == value, so we'll just blindly mark these as stale
-				StaleTransform = true;
 				StaleInverse = true;
+
+				// Instead of keeping a stale boolean, we double our value in using the revision number to mark these as stale
+				ParentWorldRevision = 0u;
+				ParentInverseWorldRevision = 0u;
 
 				_t = value;
 				return;
@@ -546,35 +423,47 @@ namespace GameEngine.GUI
 
 		protected Matrix2D _t;
 
-		public Matrix2D InverseWorld
+		public Matrix2D World
 		{
 			get
 			{
-				if(StaleInverseWorld)
+				if(StaleWorld)
 				{
-					StaleParentInverse = false; // We won't bother checking what's up with this and blindly assign it
-					_iw = Parent is null ? InverseTransform : InverseTransform * Parent.InverseWorld;
+					// Our behavior differs depending on if we have a parent or not
+					if(Parent is null)
+					{
+						ParentWorldRevision = 1u; // A 1 value means our world is up to date when we have no parent
+						_w = Transform;
+					}
+					else
+					{
+						ParentWorldRevision = Parent.WorldRevision; // Our parent's revision number means our world is up to date when we have a parent
+						_w = Parent.World * Transform;
+					}
+
+					++WorldRevision;
 				}
 
-				return _iw;
+				return _w;
 			}
 		}
 
-		protected Matrix2D _iw;
+		protected Matrix2D _w;
 
-		public bool StaleInverseWorld => StaleInverse || StaleParentInverse || Parent is not null && Parent.StaleInverseWorld;
-
+		public uint WorldRevision
+		{get; protected set;}
+		
 		/// <summary>
-		/// If true, then the parent has changed and the world is now stale.
+		/// The currently known revision of Parent.World.
+		/// A different (higher) value means that our World matrix is stale.
 		/// </summary>
-		private bool StaleParent
+		protected uint ParentWorldRevision
 		{get; set;}
 
 		/// <summary>
-		/// If true, then the parent has changed and the inverse world is now stale.
+		/// If true, then the world matrix is stale and needs to be updated.
 		/// </summary>
-		private bool StaleParentInverse
-		{get; set;}
+		public bool StaleWorld => Parent is null ? ParentWorldRevision != 1u : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld;
 
 		public Matrix2D InverseTransform
 		{
@@ -598,26 +487,69 @@ namespace GameEngine.GUI
 		protected Matrix2D _it;
 
 		/// <summary>
-		/// If true, then the inverse transform is marked as stale.
+		/// If true, then our inverse is stale an needs to be recalculated.
+		/// If false, then our inverse is up to date.
 		/// </summary>
 		private bool StaleInverse
 		{get; set;}
 
-		public IAffineComponent? Parent
+		public Matrix2D InverseWorld
+		{
+			get
+			{
+				if(StaleInverseWorld)
+				{
+					// Our behavior differs depending on if we have a parent or not
+					if(Parent is null)
+					{
+						ParentInverseWorldRevision = 1u; // A 1 value means our inverse world is up to date when we have no parent
+						_iw = InverseTransform;
+					}
+					else
+					{
+						ParentInverseWorldRevision = Parent.InverseWorldRevision; // Our parent's revision number means our inverse world is up to date when we have a parent
+						_iw = InverseTransform * Parent.InverseWorld;
+					}
+
+					++InverseWorldRevision;
+				}
+
+				return _iw;
+			}
+		}
+
+		protected Matrix2D _iw;
+
+		public uint InverseWorldRevision
+		{get; protected set;}
+
+		/// <summary>
+		/// If true, then the inverse world matrix is stale and needs to be updated.
+		/// </summary>
+		public bool StaleInverseWorld => StaleInverse || (Parent is null ? ParentInverseWorldRevision != 1u : ParentInverseWorldRevision != Parent.InverseWorldRevision || Parent.StaleInverseWorld);
+
+		/// <summary>
+		/// The currently known revision of Parent.InverseWorld.
+		/// A different (higher) value means that our World matrix is stale.
+		/// </summary>
+		protected uint ParentInverseWorldRevision
+		{get; set;}
+
+		public IAffineComponent2D? Parent
 		{
 			get => _p;
 			
 			set
 			{
-				StaleParent = true;
-				StaleParentInverse = true;
+				ParentWorldRevision = 0u;
+				ParentInverseWorldRevision = 0u;
 
 				_p = value;
 				return;
 			}
 		}
 
-		protected IAffineComponent? _p;
+		protected IAffineComponent2D? _p;
 		
 		public abstract Rectangle Bounds
 		{get;}

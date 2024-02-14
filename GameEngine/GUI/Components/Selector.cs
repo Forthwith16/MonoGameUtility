@@ -3,6 +3,7 @@ using GameEngine.Framework;
 using GameEngine.GameComponents;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -154,7 +155,7 @@ namespace GameEngine.GUI.Components
 			if(value.ActiveComponent == this)
 				if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.LEFT) == this)
 					if(Grouping == ButtonGrouping.Vertical)
-						if(value.LastActiveComponent is not null && value.LastActiveComponent.Position.Y >= (Decrement as IGUI).Position.Y) // If we have no clear destination, pick the approximately closer one
+						if(value.LastActiveComponent is not null && value.LastActiveComponent.GetAffinePosition().Y >= Decrement.GetAffinePosition().Y) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Decrement);
 						else
 							Owner.JumpToComponent(Increment); // We prefer to default to Increment if we don't know where we came from
@@ -162,7 +163,7 @@ namespace GameEngine.GUI.Components
 						Owner.JumpToComponent(Increment); // Moving left into this in a horizontal position means we move to increment
 				else if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.RIGHT) == this)
 					if(Grouping == ButtonGrouping.Vertical)
-						if(value.LastActiveComponent is not null && value.LastActiveComponent.Position.Y >= (Decrement as IGUI).Position.Y) // If we have no clear destination, pick the approximately closer one
+						if(value.LastActiveComponent is not null && value.LastActiveComponent.GetAffinePosition().Y >= Decrement.GetAffinePosition().Y) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Decrement);
 						else
 							Owner.JumpToComponent(Increment); // We prefer to default to Increment if we don't know where we came from
@@ -172,7 +173,7 @@ namespace GameEngine.GUI.Components
 					if(Grouping == ButtonGrouping.Vertical)
 						Owner.JumpToComponent(Decrement); // Moving up into this in a vertical position means we move to decrement
 					else
-						if(value.LastActiveComponent is null || value.LastActiveComponent.Position.X >= (Increment as IGUI).Position.X) // If we have no clear destination, pick the approximately closer one
+						if(value.LastActiveComponent is null || value.LastActiveComponent.GetAffinePosition().X >= Increment.GetAffinePosition().X) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Increment);
 						else
 							Owner.JumpToComponent(Decrement); // We prefer to default to Increment if we don't know where we came from
@@ -180,7 +181,7 @@ namespace GameEngine.GUI.Components
 					if(Grouping == ButtonGrouping.Vertical)
 						Owner.JumpToComponent(Increment); // Moving up into this in a vertical position means we move to increment
 					else
-						if(value.LastActiveComponent is null || value.LastActiveComponent.Position.X >= (Increment as IGUI).Position.X) // If we have no clear destination, pick the approximately closer one
+						if(value.LastActiveComponent is null || value.LastActiveComponent.GetAffinePosition().X >= Increment.GetAffinePosition().X) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Increment);
 						else
 							Owner.JumpToComponent(Decrement); // We prefer to default to Increment if we don't know where we came from
