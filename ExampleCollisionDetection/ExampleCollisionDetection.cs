@@ -3,6 +3,7 @@ using GameEngine.Framework;
 using GameEngine.GameComponents;
 using GameEngine.Physics.Collision;
 using GameEngine.Physics.Collision.Colliders;
+using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
