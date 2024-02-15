@@ -2,15 +2,16 @@
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GameComponents
 {
-    /// <summary>
-    /// A collection of game components grouped together for administrative purposes.
-    /// They are initialized together, drawn together, and disposed of together.
-    /// Their other properties are managed independently.
-    /// </summary>
-    public class ComponentGroup : DrawableAffineComponent
+	/// <summary>
+	/// A collection of game components grouped together for administrative purposes.
+	/// They are initialized together, drawn together, and disposed of together.
+	/// Their other properties are managed independently.
+	/// </summary>
+	public class ComponentGroup : DrawableAffineComponent
 	{
 		/// <summary>
 		/// Creates a group of game components.
@@ -80,6 +81,24 @@ namespace GameEngine.GameComponents
 		/// Obtains the number of components in this ComponentGroup.
 		/// </summary>
 		public int Count => Components.Count;
+
+		public override SpriteBatch? Renderer
+		{
+			get => base.Renderer;
+
+			set
+			{
+				if(ReferenceEquals(base.Renderer,value))
+					return;
+
+				base.Renderer = value;
+
+				foreach(DrawableAffineComponent component in Components)
+					component.Renderer = base.Renderer;
+
+				return;
+			}
+		}
 
 		public override int Width => Bounds.Width; // These are slow, but they exist
 

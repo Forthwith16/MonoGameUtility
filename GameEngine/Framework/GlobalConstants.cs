@@ -302,9 +302,14 @@ namespace GameEngine.Framework
 
 		#region Math Constants
 		/// <summary>
-		/// If two floats are withing this distance, they are to be considered equal.
+		/// If two floats are within this distance, they are to be considered equal.
 		/// </summary>
 		public const float EPSILON = 0.00000001f;
+		
+		/// <summary>
+		/// If a float squared is at most this, then it should be considered zero
+		/// </summary>
+		public const float EPSILON_SQUARED = EPSILON * EPSILON;
 
 		/// <summary>
 		/// The square root of two.
