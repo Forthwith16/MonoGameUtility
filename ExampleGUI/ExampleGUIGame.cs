@@ -17,7 +17,7 @@ namespace ExampleGUI
 	/// </summary>
 	public class ExampleGUIGame : RenderTargetFriendlyGame
 	{
-		public ExampleGUIGame()
+		public ExampleGUIGame() : base()
 		{
 			Content.RootDirectory = "Content";
 
@@ -34,7 +34,7 @@ namespace ExampleGUI
 			Input.AddKeyInput("_E",Keys.Escape);
 			Input.AddEdgeTriggeredInput("Back","_E",true);
 
-			Services.AddService<GUICore>(new GUICore(this));
+			Services.AddService(new GUICore(this,null));
 			Components.Add(Services.GetService<GUICore>());
 
 			return;
@@ -44,6 +44,7 @@ namespace ExampleGUI
 		{
 			// To get a service out of Services, you just call GetService with the type you want out
 			GUICore menu = Services.GetService<GUICore>();
+			menu.Renderer = Renderer = new SpriteBatch(GraphicsDevice);
 
 			// Let's add four buttons
 			Button tl = CreateButton("Top Left",new Vector2(100.0f,100.0f),"TL");
@@ -84,7 +85,7 @@ namespace ExampleGUI
 		/// <param name="w">The width of the button.</param>
 		/// <param name="h">The height of the button.</param>
 		/// <returns>Returns the new button created.</returns>
-		protected Button CreateButton(string name, Vector2 position, string text = null, int w = 100, int h = 100)
+		protected Button CreateButton(string name, Vector2 position, string? text = null, int w = 100, int h = 100)
 		{
 			// The button requires a drawable component to display for each of its states
 			// These can all be different or all the same, depending on context
@@ -113,7 +114,7 @@ namespace ExampleGUI
 
 		protected override void Update(GameTime delta)
 		{
-			if(Input["Back"].CurrentDigitalValue)
+			if(Input!["Back"].CurrentDigitalValue)
 				Exit();
 
 			base.Update(delta);
@@ -123,9 +124,18 @@ namespace ExampleGUI
 		protected override void PreDraw(GameTime delta)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
+			Renderer!.Begin(SpriteSortMode.BackToFront,BlendState.NonPremultiplied,SamplerState.LinearClamp,null,null,null,null);
+
 			return;
 		}
-		
-		protected InputManager Input;
+
+		protected override void PostDraw(GameTime delta)
+		{
+			Renderer!.End();
+			return;
+		}
+
+		protected SpriteBatch? Renderer;
+		protected InputManager? Input;
 	}
 }
