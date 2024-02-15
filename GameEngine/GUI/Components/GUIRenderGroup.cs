@@ -11,6 +11,9 @@ namespace GameEngine.GUI.Components
 	/// Groups GUI components together.
 	/// This is accomplished via rendering them to a texture and then drawing the texture.
 	/// Note that this will implicitly make this its containing GUI components' parent without ever setting the parameter.
+	/// <para/>
+	/// This GUI component's render target <b><u>MUST</u></b> be drawn before its containing GUICore, otherwise it will interrupt the GUICore's render target draw.
+	/// To accomplish this, set its RenderTargetDrawOrder to a lower value than its containing GUICore's.
 	/// </summary>
 	/// <remarks>
 	///	Using Immediate mode for GUICore is incompatible with ComponentGroups (and other nested renderers) since Immediate mode SpriteBatches set the GraphicsDevice state immediately.

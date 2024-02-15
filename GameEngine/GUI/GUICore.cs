@@ -21,16 +21,18 @@ namespace GameEngine.GUI
 	/// GUI components added to a GUICore will have their Initialize method called by this but not their Dispose method.
 	/// Disposal is left to the finalizer or other managers.
 	/// </summary>
-	public class GUICore : DrawableAffineComponent
+	public class GUICore : DrawableAffineComponent, IRenderTargetDrawable
 	{
 		/// <summary>
 		/// Creates a new GUI core with all default bindings.
 		/// </summary>
 		/// <param name="game">The game this will belong to.</param>
+		/// <param name="renderer">The renderer for the GUI core. This can be changed later.</param>
 		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
-		public GUICore(RenderTargetFriendlyGame game, bool enable_digital = true) : base(game,null,null)
+		public GUICore(RenderTargetFriendlyGame game, SpriteBatch? renderer, bool enable_digital = true) : base(game,null,null)
 		{
 			Input = new InputManager(); // Does not need to be initialized
+			Renderer = renderer;
 			
 			// Mouse inputs
 			Input.AddReferenceInput(MouseClick,() => GlobalConstants.GUIMouseLeftClickDefault);
@@ -68,14 +70,17 @@ namespace GameEngine.GUI
 			Transform = Matrix2D.Identity;
 
 			Blend = BlendState.NonPremultiplied;
+			ClearColor = Color.Transparent;
 
 			// Make sure our events have dummy handlers
 			OnActiveComponentChanged += (a,b) => {};
 			OnFocusedComponentChanged += (a,b) => {};
+			RenderTargetDrawOrderChanged += (a,b) => {};
 
 			// Assign initial magic numbers
 			_dcrl = 0.15f;
 			_td = 0.5f;
+			_rtdo = 0;
 
 			return;
 		}
@@ -96,7 +101,13 @@ namespace GameEngine.GUI
 		protected override void LoadContent()
 		{
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
-			Renderer = new SpriteBatch(Game.GraphicsDevice);
+			LocalRenderer = new SpriteBatch(Game.GraphicsDevice);
+			RenderTarget = new RenderTarget2D(Game.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
+			
+			Source = new ImageComponent(Game,Renderer,RenderTarget);
+			Source.Parent = this;
+			Source.Initialize();
+
 			return;
 		}
 
@@ -418,6 +429,9 @@ namespace GameEngine.GUI
 				if(component.Enabled) // We don't care if a component is visible as we want to update them either way so long as they are enabled
 					component.Update(delta);
 
+			// Update the source, though it probably doesn't need to be
+			Source!.Update(delta);
+
 			return;
 		}
 
@@ -568,16 +582,28 @@ namespace GameEngine.GUI
 			return new MouseMoveEventArgs(false,Input[MouseClick].CurrentDigitalValue,(int)pos2.X,(int)pos2.Y,(int)Input[MouseXDelta].CurrentAnalogValue,(int)Input[MouseYDelta].CurrentAnalogValue);
 		}
 
-		public override void Draw(GameTime delta)
+		public void DrawRenderTarget(GameTime delta)
 		{
+			// First set the render target
+			Game.GraphicsDevice.SetRenderTarget(RenderTarget);
+
+			// Now clear the screen
+			Game.GraphicsDevice.Clear(ClearColor);
+
 			// We need to invert the camera matrix so that the camera behaves naturally (e.g. moving the camera up moves the world down)
-			Renderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,InverseWorld.SwapChirality());
+			LocalRenderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,InverseWorld.SwapChirality());
 			
 			foreach(IGUI component in DrawChildren)
 				if(component.Visible) // We don't care if a GUI component is enabled here since they can still be draw but are greyed out or whatever
 					component.Draw(delta);
 
-			Renderer!.End();
+			LocalRenderer!.End();
+			return;
+		}
+
+		public override void Draw(GameTime delta)
+		{
+			Source!.Draw(delta); // We only need to draw our render texture
 			return;
 		}
 
@@ -600,7 +626,7 @@ namespace GameEngine.GUI
 			// We do not need to bind the component's parent to this since we get to place the camera transform into the sprite batch's Begin call
 			// We do, however, need to set its owner and renderer
 			component.Owner = this; // This will add the component to Map
-			component.Renderer = Renderer;
+			component.Renderer = LocalRenderer;
 
 			// Add a vertex to the map for the new vertex
 			AddToMap(component);
@@ -852,19 +878,33 @@ namespace GameEngine.GUI
 		protected GUIMap Map
 		{get; set;}
 
-		/// <summary>
-		/// The SpriteBatch for all GUI drawing in this GUICore.
-		/// </summary>
 		public override SpriteBatch? Renderer
 		{
 			get => base.Renderer;
-			
+
 			set
 			{
-				if(ReferenceEquals(base.Renderer,value) || value is null)
-					return;
+				if(Source is not null)
+					Source.Renderer = value;
 
 				base.Renderer = value;
+				return;
+			}
+		}
+
+		/// <summary>
+		/// The SpriteBatch for all GUI drawing in this GUICore.
+		/// </summary>
+		public SpriteBatch? LocalRenderer
+		{
+			get => _lr;
+			
+			protected set
+			{
+				if(ReferenceEquals(_lr,value) || value is null)
+					return;
+
+				_lr = value;
 
 				foreach(IGUI component in DrawChildren)
 					component.Renderer = value;
@@ -872,6 +912,60 @@ namespace GameEngine.GUI
 				return;
 			}
 		}
+
+		protected SpriteBatch? _lr;
+
+		/// <summary>
+		/// The texture that we will render to.
+		/// </summary>
+		protected RenderTarget2D? RenderTarget
+		{get; set;}
+
+		public int RenderTargetDrawOrder
+		{
+			get => _rtdo;
+
+			set
+			{
+				if(_rtdo == value)
+					return;
+
+				_rtdo = value;
+				RenderTargetDrawOrderChanged(this,EventArgs.Empty);
+
+				return;
+			}
+		}
+
+		protected int _rtdo;
+
+		public override float LayerDepth
+		{
+			get => Source is null ? 0.0f : Source.LayerDepth;
+			
+			set
+			{
+				if(Source is null)
+					return;
+
+				Source.LayerDepth = value;
+				return;
+			}
+		}
+
+		/// <summary>
+		/// The color to clear the background of the render texture to.
+		/// This defaults to Color.Transparent.
+		/// </summary>
+		public Color ClearColor
+		{get; set;}
+
+		/// <summary>
+		/// This is the image component that will actually draw this component.
+		/// It's texture source is a render target.
+		/// </summary>
+		public ImageComponent? Source
+		{get; protected set;}
 
 		/// <summary>
 		/// Always returns SpriteEffects.None on get.
@@ -881,6 +975,7 @@ namespace GameEngine.GUI
 		public override SpriteEffects Effect
 		{
 			get => SpriteEffects.None;
+
 			set
 			{return;}
 		}
@@ -902,21 +997,9 @@ namespace GameEngine.GUI
 
 				foreach(IGUI component in DrawChildren)
 					component.Tint = value;
-
+				
 				return;
 			}
-		}
-
-		/// <summary>
-		/// Always returns 0.0f on get.
-		/// <para/>
-		/// Does nothing on set.
-		/// </summary>
-		public override float LayerDepth
-		{
-			get => 0.0f;
-			set
-			{return;}
 		}
 
 		/// <summary>
@@ -1223,6 +1306,8 @@ namespace GameEngine.GUI
 		/// There may be some delay between when the focused component is actually changed and when the change is fully processed and officially assigned.
 		/// </summary>
 		public event FocusedComponentChanged OnFocusedComponentChanged;
+
+		public event EventHandler<EventArgs> RenderTargetDrawOrderChanged;
 
 		/// <summary>
 		/// The binding name for a mouse click.

@@ -1184,8 +1184,6 @@ namespace GameEngine.GUI.Components
 
 		protected bool _udn;
 
-		
-		
 		/// <summary>
 		/// The default left navigational link for a component on the left edge of navigation.
 		/// </summary>
