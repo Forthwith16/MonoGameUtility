@@ -44,10 +44,25 @@ namespace ExampleSteeringBehavior
 			Input.AddMouseAxisInput("MX",true,false);
 			Input.AddMouseAxisInput("MY",false,false);
 
+			// Load the environment
+			Mountain = new RectangleComponent(this,Renderer,100,100,ColorFunctions.Ellipse(100,100,Color.RosyBrown));
+			Mountain.Translate(Bounds.Width / 2.0f - 50.0f,Bounds.Height / 2.0f - 50.0f);
+			Mountain.LayerDepth = 1.0f;
+
 			// Load the triangle men
 			// The solo triangle man first
 			Solo = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.White);
 			Solo.Position = new Vector2(Bounds.Width / 2.0f,Bounds.Height / 2.0f);
+
+			// Load the pursue/evade pair next
+			PairFirst = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.Purple);
+			PairFirst.Position = new Vector2(Bounds.Width * 0.75f,Bounds.Height / 2.0f);
+			
+			PairSecond = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.Red);
+			PairSecond.Position = new Vector2(Bounds.Width * 0.25f,Bounds.Height / 2.0f);
+			
+			PairFirst.EvasionTarget = PairFirst.PursuitTarget = PairSecond;
+			PairSecond.EvasionTarget = PairSecond.PursuitTarget = PairFirst;
 
 			// Create the bounding box for things to have fun in
 			BoundingBox = new RectangleComponent(this,Renderer,Bounds.Width + 6,Bounds.Height + 6,ColorFunctions.Wireframe(Bounds.Width + 6,Bounds.Height + 6,3,Color.Black));
@@ -70,6 +85,13 @@ namespace ExampleSteeringBehavior
 			Menu.AddRadioButton(CreateMenuOption("Broken Natural Seek","A single triangle will chase after the mouse.\nThis occurs with Newtonian physics."));
 			Menu.AddRadioButton(CreateMenuOption("Natural Seek","A single triangle will chase after the mouse.\nThis occurs with Newtonian physics.\nWhen it nears the mouse, it will slow down to arrive at its destination."));
 			Menu.AddRadioButton(CreateMenuOption("Excellent Seek","A single triangle will chase after the mouse.\nThis occurs with Newtonian physics.\nWhen it nears the mouse, it will slow down to arrive at its destination.\nIt will arrive early and produce a more natural stopping behavior."));
+			Menu.AddRadioButton(CreateMenuOption("Flee","A single triangle will flee from the mouse."));
+			Menu.AddRadioButton(CreateMenuOption("Seek Wander","A single triangle will wander around the world.\nThe wander method uses a randomly generated point which the triangle man will (excellent) seek."));
+			Menu.AddRadioButton(CreateMenuOption("Wander","A single triangle will wander around the world.\nThe wander method uses mooth circle sampling to generate wander forces."));
+			Menu.AddRadioButton(CreateMenuOption("Pursue","Two traingles will exist in the game.\nThe first triangle will wander about.\nThe second triangle will pursue the first."));
+			Menu.AddRadioButton(CreateMenuOption("Evade","Two traingles will exist in the game.\nThe first triangle will wander about.\nThe second triangle will evade the first."));
+			Menu.AddRadioButton(CreateMenuOption("Pursuit & Evasion","Two traingles will exist in the game.\nThe first triangle will pursue the second..\nThe second triangle will evade the first."));
+			Menu.AddRadioButton(CreateMenuOption("Seek & Evade","A single triagnle will seek the mouse while avoiding an area."));
 
 			Menu.SelectionChanged += LoadGameMode;
 			Menu.Translate(Bounds.Width + 20.0f,20.0f);
@@ -153,6 +175,27 @@ namespace ExampleSteeringBehavior
 			case "Excellent Seek":
 				LoadExcellentSeeking();
 				break;
+			case "Flee":
+				LoadFlee();
+				break;
+			case "Seek Wander":
+				LoadSeekWander();
+				break;
+			case "Wander":
+				LoadWander();
+				break;
+			case "Pursue":
+				LoadPursue();
+				break;
+			case "Evade":
+				LoadEvade();
+				break;
+			case "Pursuit & Evasion":
+				LoadPursuitEvasion();
+				break;
+			case "Seek & Evade":
+				LoadSeekEvade();
+				break;
 			}
 			
 			return;
@@ -172,9 +215,6 @@ namespace ExampleSteeringBehavior
 			return;
 		}
 
-		/// <summary>
-		/// Loads the components for the unnatural seek game mode.
-		/// </summary>
 		protected void LoadUnnaturalSeeking()
 		{
 			Solo!.Behavior = TriangleManBehavior.UnnaturalSeek;
@@ -183,9 +223,6 @@ namespace ExampleSteeringBehavior
 			return;
 		}
 
-		/// <summary>
-		/// Loads the components for the broken natural seek game mode.
-		/// </summary>
 		protected void LoadBrokenNaturalSeeking()
 		{
 			Solo!.Behavior = TriangleManBehavior.BrokenNaturalSeek;
@@ -194,32 +231,88 @@ namespace ExampleSteeringBehavior
 			return;
 		}
 
-		/// <summary>
-		/// Loads the components for the natural seek game mode.
-		/// </summary>
 		protected void LoadNaturalSeeking()
 		{
-			Solo!.Behavior = TriangleManBehavior.NaturalSeek;
+			Solo!.Behavior = TriangleManBehavior.ReasonablyNaturalSeek;
 			Components.Add(Solo);
 
 			return;
 		}
 
-		/// <summary>
-		/// Loads the components for the excellent seek game mode.
-		/// </summary>
 		protected void LoadExcellentSeeking()
 		{
-			Solo!.Behavior = TriangleManBehavior.ExcellentSeek;
+			Solo!.Behavior = TriangleManBehavior.Seek;
 			Components.Add(Solo);
 
 			return;
 		}
 
+		protected void LoadFlee()
+		{
+			Solo!.Behavior = TriangleManBehavior.Flee;
+			Components.Add(Solo);
 
+			return;
+		}
 
+		protected void LoadSeekWander()
+		{
+			Solo!.Behavior = TriangleManBehavior.SeekWander;
+			Components.Add(Solo);
 
+			return;
+		}
 
+		protected void LoadWander()
+		{
+			Solo!.Behavior = TriangleManBehavior.Wander;
+			Components.Add(Solo);
+
+			return;
+		}
+
+		protected void LoadPursue()
+		{
+			PairFirst!.Behavior = TriangleManBehavior.Wander;
+			Components.Add(PairFirst);
+
+			PairSecond!.Behavior = TriangleManBehavior.Pursuit;
+			Components.Add(PairSecond);
+
+			return;
+		}
+
+		protected void LoadEvade()
+		{
+			PairFirst!.Behavior = TriangleManBehavior.Wander;
+			Components.Add(PairFirst);
+
+			PairSecond!.Behavior = TriangleManBehavior.Evade;
+			Components.Add(PairSecond);
+
+			return;
+		}
+
+		protected void LoadPursuitEvasion()
+		{
+			PairFirst!.Behavior = TriangleManBehavior.Pursuit;
+			Components.Add(PairFirst);
+
+			PairSecond!.Behavior = TriangleManBehavior.Evade;
+			Components.Add(PairSecond);
+
+			return;
+		}
+
+		protected void LoadSeekEvade()
+		{
+			Solo!.Behavior = TriangleManBehavior.SeekEvade;
+			Solo.SeekFleeTargets = new Vector2[] {Mountain!.GetAffinePosition() + Vector2.One * 50.0f};
+			Components.Add(Solo);
+			
+			Components.Add(Mountain);
+			return;
+		}
 
 		protected override void Update(GameTime delta)
 		{
@@ -258,5 +351,11 @@ namespace ExampleSteeringBehavior
 
 		// Triangle men
 		protected TriangleMan? Solo;
+
+		protected TriangleMan? PairFirst;
+		protected TriangleMan? PairSecond;
+
+		// Environmental items
+		protected RectangleComponent? Mountain;
 	}
 }
