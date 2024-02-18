@@ -1,5 +1,4 @@
-﻿using GameEngine.Framework;
-using GameEngine.Maths;
+﻿using GameEngine.Maths;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -8,7 +7,7 @@ namespace GameEngine.GameComponents
 	/// <summary>
 	/// The base requirements for a component to be both drawable and affine.
 	/// </summary>
-	public abstract class DrawableAffineComponent : DrawableGameComponent, IDebugDrawable, IAffineComponent2D
+	public abstract class DrawableAffineComponent : DrawableGameComponent, IAffineComponent2D
 	{
 		/// <summary>
 		/// Initializes this component to have the identity transformation and no parent.
@@ -28,9 +27,6 @@ namespace GameEngine.GameComponents
 			Tint = c ?? Color.White;
 			Effect = SpriteEffects.None;
 
-			OnDrawDebugOrderChanged += (a,b,c) => {};
-			_ddo = 0;
-
 			Initialized = false;
 			return;
 		}
@@ -45,9 +41,6 @@ namespace GameEngine.GameComponents
 
 			return;
 		}
-
-		public virtual void DrawDebugInfo(GameTime delta)
-		{return;}
 
 		public virtual Matrix2D Transform
 		{
@@ -275,26 +268,5 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public bool Initialized
 		{get; protected set;}
-
-		public int DrawDebugOrder
-		{
-			get => _ddo;
-			
-			set
-			{
-				if(_ddo == value)
-					return;
-
-				int old = _ddo;
-				_ddo = value;
-				OnDrawDebugOrderChanged(this,_ddo,old);
-
-				return;
-			}
-		}
-
-		protected int _ddo;
-
-		public event DrawDebugOrderChanged OnDrawDebugOrderChanged;
 	}
 }
