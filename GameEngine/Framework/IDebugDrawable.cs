@@ -19,11 +19,23 @@ namespace GameEngine.Framework
 		/// </summary>
 		public int DrawDebugOrder
 		{get; set;}
+		
+		/// <summary>
+		/// If true, this is visible and DrawDebugInfo will be called.
+		/// If false, this is not visible and DrawDebugInfo will not be called.
+		/// </summary>
+		public bool Visible
+		{get;}
 
 		/// <summary>
 		/// An event called when the debug draw order for this changes.
 		/// </summary>
 		public event DrawDebugOrderChanged OnDrawDebugOrderChanged;
+
+		/// <summary>
+		/// Called when the visibility of this changes.
+		/// </summary>
+		public event EventHandler<EventArgs> VisibleChanged;
 	}
 
 	/// <summary>
