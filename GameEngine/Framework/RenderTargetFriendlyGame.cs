@@ -18,9 +18,9 @@ namespace GameEngine.Framework
 			Graphics = new GraphicsDeviceManager(this);
 			
 			// Set up the render targets list
-			RenderTargetComponents = new SortedSet<IRenderTargetDrawable>(new OrderComparer());
+			RenderTargetComponents = new SortedDictionary<int,HashSet<IRenderTargetDrawable>>();
 			
-			// We'll need to keep track of components coming in and going out
+			// We'll need to keep track of render target components coming in and going out
 			Components.ComponentAdded += (a,b) =>
 			{
 				if(b.GameComponent is IRenderTargetDrawable obj)
@@ -39,6 +39,30 @@ namespace GameEngine.Framework
 
 				return;
 			};
+
+			// Now we need to do the same thing for debug components
+			#if DEBUG
+			DebugComponents = new SortedDictionary<int,HashSet<IDebugDrawable>>();
+
+			Components.ComponentAdded += (a,b) =>
+			{
+				if(b.GameComponent is IDebugDrawable obj)
+					AddDebugComponent(obj);
+				
+				if(Initialized)
+					b.GameComponent.Initialize();
+				
+				return;
+			};
+
+			Components.ComponentRemoved += (a,b) =>
+			{
+				if(b.GameComponent is IDebugDrawable obj)
+					RemoveDebugComponent(obj);
+
+				return;
+			};
+			#endif
 
 			// Initialise the mouse data
 			_m = null;
@@ -86,16 +110,52 @@ namespace GameEngine.Framework
 		{return;}
 
 		/// <summary>
-		/// Updates the position of <paramref name="sender"/> in UpdateChildren.
+		/// Updates the position of <paramref name="sender"/> in RenderTargetComponents.
 		/// </summary>
-		private void UpdateDrawOrder(object? sender, EventArgs e)
+		private void UpdateRenderDrawOrder(object? sender, RenderTargetDrawOrderEventArgs e)
 		{
-			if(sender is not IRenderTargetDrawable component)
+			// Perform the removal logic first
+			if(!RenderTargetComponents.TryGetValue(e.OldOrder,out HashSet<IRenderTargetDrawable>? rs))
 				return;
-			
-			if(RenderTargetComponents.Remove(component))
-				RenderTargetComponents.Add(component);
-			
+
+			if(!rs.Remove(e.Sender))
+				return;
+
+			if(rs.Count == 0)
+				RenderTargetComponents.Remove(e.OldOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
+
+			// Now perform the addition logic
+			if(!RenderTargetComponents.TryGetValue(e.NewOrder,out rs))
+				RenderTargetComponents.Add(e.NewOrder,rs = new HashSet<IRenderTargetDrawable>());
+
+			// If this fails, we're in lot of trouble regardless of what we do, so let's just hope it doesn't
+			rs.Add(e.Sender);
+
+			return;
+		}
+
+		/// <summary>
+		/// Updates the position of <paramref name="sender"/> in DebugComponents.
+		/// </summary>
+		private void UpdateDebugDrawOrder(IDebugDrawable sender, int new_order, int old_order)
+		{
+			// Perform the removal logic first
+			if(!DebugComponents.TryGetValue(old_order,out HashSet<IDebugDrawable>? rs))
+				return;
+
+			if(!rs.Remove(sender))
+				return;
+
+			if(rs.Count == 0)
+				DebugComponents.Remove(old_order); // Whether this works or not doesn't really matter, so we'll ignore the return value
+
+			// Now perform the addition logic
+			if(!DebugComponents.TryGetValue(new_order,out rs))
+				DebugComponents.Add(new_order,rs = new HashSet<IDebugDrawable>());
+
+			// If this fails, we're in lot of trouble regardless of what we do, so let's just hope it doesn't
+			rs.Add(sender);
+
 			return;
 		}
 
@@ -106,10 +166,18 @@ namespace GameEngine.Framework
 		/// <returns>Returns true if the component was added and false otherwise.</returns>
 		public bool AddRenderTargetComponent(IRenderTargetDrawable component)
 		{
-			if(!RenderTargetComponents.Add(component))
-				return false;
+			HashSet<IRenderTargetDrawable>? rs;
 
-			component.RenderTargetDrawOrderChanged += UpdateDrawOrder;
+			if(!RenderTargetComponents.TryGetValue(component.RenderTargetDrawOrder,out rs))
+				RenderTargetComponents.Add(component.RenderTargetDrawOrder,rs = new HashSet<IRenderTargetDrawable>());
+
+			if(!rs.Add(component) && rs.Count == 0)
+			{
+				RenderTargetComponents.Remove(component.RenderTargetDrawOrder);
+				return false;
+			}
+
+			component.RenderTargetDrawOrderChanged += UpdateRenderDrawOrder;
 			return true;
 		}
 
@@ -120,10 +188,62 @@ namespace GameEngine.Framework
 		/// <returns>Returns true if the remove was successful and false otherwise.</returns>
 		public bool RemoveRenderTargetComponent(IRenderTargetDrawable component)
 		{
-			if(!RenderTargetComponents.Remove(component))
+			HashSet<IRenderTargetDrawable>? rs;
+
+			if(!RenderTargetComponents.TryGetValue(component.RenderTargetDrawOrder,out rs))
 				return false;
 
-			component.RenderTargetDrawOrderChanged -= UpdateDrawOrder;
+			if(!rs.Remove(component))
+				return false;
+
+			if(rs.Count == 0)
+				RenderTargetComponents.Remove(component.RenderTargetDrawOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
+
+			component.RenderTargetDrawOrderChanged -= UpdateRenderDrawOrder;
+			return true;
+		}
+
+		/// <summary>
+		/// Adds a debug component indepenent of the ordinary Components collection.
+		/// </summary>
+		/// <param name="component">The component to add.</param>
+		/// <returns>Returns true if the component was added and false otherwise.</returns>
+		protected bool AddDebugComponent(IDebugDrawable component)
+		{
+			HashSet<IDebugDrawable>? rs;
+
+			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
+				DebugComponents.Add(component.DrawDebugOrder,rs = new HashSet<IDebugDrawable>());
+
+			if(!rs.Add(component) && rs.Count == 0)
+			{
+				DebugComponents.Remove(component.DrawDebugOrder);
+				return false;
+			}
+
+			component.OnDrawDebugOrderChanged += UpdateDebugDrawOrder;
+			return true;
+		}
+
+		/// <summary>
+		/// Removes a debug component independent of the ordinary Components collection.
+		/// </summary>
+		/// <param name="component">The component to remove.</param>
+		/// <returns>Returns true if the remove was successful and false otherwise.</returns>
+		protected bool RemoveDebugComponent(IDebugDrawable component)
+		{
+			HashSet<IDebugDrawable>? rs;
+
+			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
+				return false;
+
+			if(!rs.Remove(component))
+				return false;
+
+			if(rs.Count == 0)
+				DebugComponents.Remove(component.DrawDebugOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
+
+			component.OnDrawDebugOrderChanged -= UpdateDebugDrawOrder;
 			return true;
 		}
 
@@ -148,14 +268,24 @@ namespace GameEngine.Framework
 		{
 			PreRenderTargetDraw(delta);
 
-			foreach(IRenderTargetDrawable component in RenderTargetComponents)
-				component.DrawRenderTarget(delta);
+			foreach(HashSet<IRenderTargetDrawable> rs in RenderTargetComponents.Values)
+				foreach(IRenderTargetDrawable component in rs)
+					component.DrawRenderTarget(delta);
 
 			PostRenderTargetDraw(delta);
 
 			GraphicsDevice.SetRenderTarget(null);
 
 			PreDraw(delta);
+
+			#if DEBUG
+			DrawDebugInfo(delta);
+
+			foreach(HashSet<IDebugDrawable> ds in DebugComponents.Values)
+				foreach(IDebugDrawable draw in ds)
+					draw.DrawDebugInfo(delta);
+			#endif
+
 			base.Draw(delta);
 			PostDraw(delta);
 
@@ -193,6 +323,13 @@ namespace GameEngine.Framework
 		{return;}
 
 		/// <summary>
+		/// Draws debug information.
+		/// </summary>
+		/// <param name="delta">The elapsed game time since the last draw.</param>
+		protected virtual void DrawDebugInfo(GameTime delta)
+		{return;}
+
+		/// <summary>
 		/// Called after both render targets are drawn to and ordinary Draw calls are made.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
@@ -209,13 +346,21 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// The render target components to draw.
 		/// </summary>
-		protected SortedSet<IRenderTargetDrawable> RenderTargetComponents
+		protected SortedDictionary<int,HashSet<IRenderTargetDrawable>> RenderTargetComponents
 		{get; init;}
 
+		#if DEBUG
 		/// <summary>
-		/// Compares IGUI objects by render draw order.
+		/// The set of components which draw debug information.
 		/// </summary>
-		protected class OrderComparer : IComparer<IRenderTargetDrawable>
+		protected SortedDictionary<int,HashSet<IDebugDrawable>> DebugComponents
+		{get; init;}
+		#endif
+
+		/// <summary>
+		/// Compares IGUI objects by some draw order.
+		/// </summary>
+		protected class OrderComparer : IComparer<IRenderTargetDrawable>, IComparer<IDebugDrawable>
 		{
 			/// <summary>
 			/// Creates a new order comparer.
@@ -226,6 +371,16 @@ namespace GameEngine.Framework
 			public int Compare(IRenderTargetDrawable? x, IRenderTargetDrawable? y)
 			{
 				int val = x!.RenderTargetDrawOrder.CompareTo(y!.RenderTargetDrawOrder);
+
+				if(val == 0)
+					return ReferenceEquals(x,y) ? 0 : 1; // We don't care about the order of two distinct objects of the same draw order
+				
+				return val;
+			}
+
+			public int Compare(IDebugDrawable? x, IDebugDrawable? y)
+			{
+				int val = x!.DrawDebugOrder.CompareTo(y!.DrawDebugOrder);
 
 				if(val == 0)
 					return ReferenceEquals(x,y) ? 0 : 1; // We don't care about the order of two distinct objects of the same draw order

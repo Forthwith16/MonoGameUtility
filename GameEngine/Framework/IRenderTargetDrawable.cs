@@ -36,7 +36,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// Called when RenderTargetDrawOrder changes.
 		/// </summary>
-		public event EventHandler<EventArgs> RenderTargetDrawOrderChanged;
+		public event EventHandler<RenderTargetDrawOrderEventArgs> RenderTargetDrawOrderChanged;
 
 		/// <summary>
 		/// Called when the visibility of this changes.
@@ -44,5 +44,28 @@ namespace GameEngine.Framework
 		public event EventHandler<EventArgs> VisibleChanged;
 	}
 
+	/// <summary>
+	/// An event for when a render target changes its draw order.
+	/// </summary>
+	public class RenderTargetDrawOrderEventArgs : EventArgs
+	{
+		public RenderTargetDrawOrderEventArgs(IRenderTargetDrawable sender, int new_order, int old_order)
+		{
+			Sender = sender;
+			
+			NewOrder = new_order;
+			OldOrder = old_order;
 
+			return;
+		}
+
+		public IRenderTargetDrawable Sender
+		{get;}
+
+		public int NewOrder
+		{get;}
+
+		public int OldOrder
+		{get;}
+	}
 }

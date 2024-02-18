@@ -930,8 +930,9 @@ namespace GameEngine.GUI
 				if(_rtdo == value)
 					return;
 
+				int old = _rtdo;
 				_rtdo = value;
-				RenderTargetDrawOrderChanged(this,EventArgs.Empty);
+				RenderTargetDrawOrderChanged(this,new RenderTargetDrawOrderEventArgs(this,_rtdo,old));
 
 				return;
 			}
@@ -1307,7 +1308,7 @@ namespace GameEngine.GUI
 		/// </summary>
 		public event FocusedComponentChanged OnFocusedComponentChanged;
 
-		public event EventHandler<EventArgs> RenderTargetDrawOrderChanged;
+		public event EventHandler<RenderTargetDrawOrderEventArgs> RenderTargetDrawOrderChanged;
 
 		/// <summary>
 		/// The binding name for a mouse click.
