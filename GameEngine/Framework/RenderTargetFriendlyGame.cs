@@ -264,7 +264,8 @@ namespace GameEngine.Framework
 
 			foreach(HashSet<IRenderTargetDrawable> rs in RenderTargetComponents.Values)
 				foreach(IRenderTargetDrawable component in rs)
-					component.DrawRenderTarget(delta);
+					if(component.Visible)
+						component.DrawRenderTarget(delta);
 
 			PostRenderTargetDraw(delta);
 
@@ -277,7 +278,8 @@ namespace GameEngine.Framework
 
 			foreach(HashSet<IDebugDrawable> ds in DebugComponents.Values)
 				foreach(IDebugDrawable draw in ds)
-					draw.DrawDebugInfo(delta);
+					if(draw.Visible)
+						draw.DrawDebugInfo(delta);
 			#endif
 
 			base.Draw(delta);
