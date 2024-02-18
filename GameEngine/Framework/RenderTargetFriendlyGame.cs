@@ -20,12 +20,25 @@ namespace GameEngine.Framework
 			// Set up the render targets list
 			RenderTargetComponents = new SortedDictionary<int,HashSet<IRenderTargetDrawable>>();
 			
+			// Do the same for the debug list
+			#if DEBUG
+			DebugComponents = new SortedDictionary<int,HashSet<IDebugDrawable>>();
+			#endif
+
 			// We'll need to keep track of render target components coming in and going out
+			// Do the same for debug components
+			// We also need to make sure things get initialized
 			Components.ComponentAdded += (a,b) =>
 			{
 				if(b.GameComponent is IRenderTargetDrawable obj)
 					AddRenderTargetComponent(obj);
-				
+
+				#if DEBUG
+				if(b.GameComponent is IDebugDrawable obj2)
+					AddDebugComponent(obj2);
+				#endif
+
+				// This will take care of initialization for anything that gets added
 				if(Initialized)
 					b.GameComponent.Initialize();
 
@@ -37,32 +50,13 @@ namespace GameEngine.Framework
 				if(b.GameComponent is IRenderTargetDrawable obj)
 					RemoveRenderTargetComponent(obj);
 
-				return;
-			};
-
-			// Now we need to do the same thing for debug components
-			#if DEBUG
-			DebugComponents = new SortedDictionary<int,HashSet<IDebugDrawable>>();
-
-			Components.ComponentAdded += (a,b) =>
-			{
-				if(b.GameComponent is IDebugDrawable obj)
-					AddDebugComponent(obj);
-				
-				if(Initialized)
-					b.GameComponent.Initialize();
-				
-				return;
-			};
-
-			Components.ComponentRemoved += (a,b) =>
-			{
-				if(b.GameComponent is IDebugDrawable obj)
-					RemoveDebugComponent(obj);
+				#if DEBUG
+				if(b.GameComponent is IDebugDrawable obj2)
+					RemoveDebugComponent(obj2);
+				#endif
 
 				return;
 			};
-			#endif
 
 			// Initialise the mouse data
 			_m = null;
