@@ -56,12 +56,28 @@ namespace Example3DCollisionDetection
 			Squares = new List<SimpleCollider>();
 			Detection = new CollisionEngine3D(-10.0f,10.0f,-10.0f,10.0f,-10.0f,10.0f);
 
+			// Add a bunch of random kinetic cubes
 			for(int i = 0;i < 100;i++)
 			{
 				Vector3 offset = new Vector3(rand.Next(41) - 20,rand.Next(41) - 20,rand.Next(41) - 20);
 
 				SimpleCollider r = new SimpleCollider(this,Color.White,new FPrism(-1.0f,-1.0f,-1.0f,2.0f,2.0f,2.0f) + offset,false);
 				r.Velocity = new Vector3(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized();
+				
+				Squares.Add(r);
+				Detection.AddCollider(r);
+
+				Components.Add(r);
+			}
+
+			// Add a bunch of random static cubes
+			// These generally should not move, though you can move them if your really desire
+			for(int i = 0;i < 100;i++)
+			{
+				Vector3 offset = new Vector3(rand.Next(41) - 20,rand.Next(41) - 20,rand.Next(41) - 20);
+
+				SimpleCollider r = new SimpleCollider(this,Color.White,new FPrism(-1.0f,-1.0f,-1.0f,2.0f,2.0f,2.0f) + offset,true);
+				//r.Velocity = new Vector3(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized();
 				
 				Squares.Add(r);
 				Detection.AddCollider(r);

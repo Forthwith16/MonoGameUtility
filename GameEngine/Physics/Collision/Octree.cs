@@ -487,7 +487,7 @@ namespace GameEngine.Physics.Collision
 				{
 					if(c.FarBound <= HalfZ) // Top left near
 					{
-						if(IsBottomLeftNearLeaf)
+						if(IsTopLeftNearLeaf)
 						{
 							SmallTopLeftNearColliders.AddLast(c);
 
