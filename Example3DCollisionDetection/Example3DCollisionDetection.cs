@@ -176,6 +176,7 @@ namespace Example3DCollisionDetection
 		public SimpleCollider(RenderTargetFriendlyGame game, Color c, FPrism bounds, bool is_static) : base(game)
 		{
 			Boundary = bounds;
+			PreviousBoundary = FPrism.Empty;
 			Tint = c;
 
 			World = Matrix.CreateTranslation(Boundary.Location);
@@ -223,7 +224,12 @@ namespace Example3DCollisionDetection
 
 		public bool ChangeBoundary(FPrism new_boundary)
 		{
+			PreviousBoundary = Boundary;
 			Boundary = new_boundary;
+			
+			if(IsStatic)
+				OnStaticMovement(this);
+
 			return true;
 		}
 
@@ -237,16 +243,21 @@ namespace Example3DCollisionDetection
 		{get; protected set;}
 		
 		public float LeftBound => Boundary.Left;
-		
 		public float RightBound => Boundary.Right;
-		
 		public float BottomBound => Boundary.Bottom;
-		
 		public float TopBound => Boundary.Top;
-		
 		public float NearBound => Boundary.Near;
-		
 		public float FarBound => Boundary.Far;
+
+		public FPrism PreviousBoundary
+		{get; protected set;}
+		
+		public float PreviousLeftBound => PreviousBoundary.Left;
+		public float PreviousRightBound => PreviousBoundary.Right;
+		public float PreviousBottomBound => PreviousBoundary.Bottom;
+		public float PreviousTopBound => PreviousBoundary.Top;
+		public float PreviousNearBound => PreviousBoundary.Near;
+		public float PreviousFarBound => PreviousBoundary.Far;
 		
 		public uint ID
 		{get;}

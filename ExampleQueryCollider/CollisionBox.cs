@@ -23,6 +23,7 @@ namespace ExampleQueryCollider
 		public CollisionBox(Game game, SpriteBatch? renderer, int w, int h, Color c) : base(game,renderer,w,h,ColorFunctions.Wireframe(w,h,3,c))
 		{
 			_b = new FRectangle(0,0,w,h);
+			PreviousBoundary = FRectangle.Empty;
 
 			OnEnableChanged += (a,b) => {};
 			EnabledChanged += (a,b) => OnEnableChanged(this,Enabled);
@@ -44,7 +45,12 @@ namespace ExampleQueryCollider
 
 		public bool ChangeBoundary(FRectangle new_boundary)
 		{
+			PreviousBoundary = Boundary;
 			Boundary = new_boundary; // We would usually want to hook this function into all of our transformation functions, but we just assign this here and forget about it
+			
+			if(IsStatic)
+				OnStaticMovement(this);
+
 			return true;
 		}
 
@@ -52,15 +58,11 @@ namespace ExampleQueryCollider
 
 		public FRectangle Boundary
 		{
-			get => this.GetAffinePosition() + _b; // The boundary is allowed to have a relative offset from the position
+			get => this.GetAffinePosition() + _b; // The boundary is allowed to have a relative offset from the position; this WILL NOT allow you to update static colliders properly with OnStaticMovement, so DON'T DO THAT
 
 			protected set
 			{
 				_b = value; // We assign the boundary to a relative position to this game object
-				
-				if(IsStatic)
-					OnStaticMovement(this);
-				
 				return;
 			}
 		}
@@ -71,6 +73,14 @@ namespace ExampleQueryCollider
 		public float RightBound => Boundary.Right;
 		public float BottomBound => Boundary.Bottom;
 		public float TopBound => Boundary.Top;
+
+		public FRectangle PreviousBoundary
+		{get; protected set;}
+
+		public float PreviousLeftBound => PreviousBoundary.Left;
+		public float PreviousRightBound => PreviousBoundary.Right;
+		public float PreviousBottomBound => PreviousBoundary.Bottom;
+		public float PreviousTopBound => PreviousBoundary.Top;
 
 		/// <summary>
 		/// The velocity of this box.

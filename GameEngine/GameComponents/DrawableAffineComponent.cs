@@ -62,7 +62,7 @@ namespace GameEngine.GameComponents
 
 		protected Matrix2D _t;
 
-		public Matrix2D World
+		public virtual Matrix2D World
 		{
 			get
 			{
@@ -104,7 +104,7 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public bool StaleWorld => Parent is null ? ParentWorldRevision != 1u : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld;
 
-		public Matrix2D InverseTransform
+		public virtual Matrix2D InverseTransform
 		{
 			get
 			{
@@ -132,7 +132,7 @@ namespace GameEngine.GameComponents
 		private bool StaleInverse
 		{get; set;}
 
-		public Matrix2D InverseWorld
+		public virtual Matrix2D InverseWorld
 		{
 			get
 			{

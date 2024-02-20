@@ -17,6 +17,7 @@ namespace ExampleCollisionDetection
 	/// An example of how to use the general purpose collision detection CollisionEngine2D class.
 	/// It generates a number of random squares with random velocities.
 	/// The squares are tinted green when not colliding with anything and red when colliding with something.
+	/// Remember that static-static collider pairs do not collide with each other, but static-kinetic and kinetic-kinetic collider pairs do.
 	/// </summary>
 	public class ExampleCollisionDetection : RenderTargetFriendlyGame
 	{
@@ -26,6 +27,30 @@ namespace ExampleCollisionDetection
 
 			Graphics.PreferredBackBufferWidth = 1600;
 			Graphics.PreferredBackBufferHeight = 900;
+
+			return;
+		}
+
+		protected override void BeforeInitialize()
+		{
+			AABBTree<SimpleCollider,FRectangle> T = new AABBTree<SimpleCollider,FRectangle>(a => a.Boundary,a => a.PreviousBoundary);
+
+			int len = 10;
+			SimpleCollider[] arr = new SimpleCollider[len];
+
+			Random rand = new Random(0);
+			Vector2 offset;
+
+			for(int i = 0;i < len;i++)
+			{
+				offset = new Vector2(rand.Next(1501),rand.Next(801));
+				arr[i] = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
+				T.Add(arr[i]);
+			}
+
+			T.Remove(arr[0]);
+			arr[0].ChangeBoundary(new FRectangle(0.0f,0.0f,100.0f,100.0f) + new Vector2(rand.Next(1501),rand.Next(801)));
+			T.Add(arr[0]);
 
 			return;
 		}
@@ -40,6 +65,7 @@ namespace ExampleCollisionDetection
 			Squares = new List<SimpleCollider>();
 			Detection = new CollisionEngine2D(0.0f,1600.0f,0.0f,900.0f);
 
+			// Add a bunch of random kinetic squares
 			for(int i = 0;i < 200;i++)
 			{
 				Vector2 offset = new Vector2(rand.Next(1501),rand.Next(801));
@@ -47,6 +73,22 @@ namespace ExampleCollisionDetection
 				SimpleCollider r = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,false);
 				r.Translate(offset);
 				r.Velocity = new Vector2(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized();
+
+				Squares.Add(r);
+				Detection.AddCollider(r);
+
+				Components.Add(r);
+			}
+
+			// Add a bunch of random static squares
+			// Statics do not intersect with each other, only with kinetic squares
+			for(int i = 0;i < 200;i++)
+			{
+				Vector2 offset = new Vector2(rand.Next(1501),rand.Next(801));
+
+				SimpleCollider r = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
+				r.Translate(offset);
+				//r.Velocity = new Vector2(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized(); // You CAN move static colliders if you want, but the point of them is that static things DO NOT move or do so VERY RARELY
 
 				Squares.Add(r);
 				Detection.AddCollider(r);
@@ -127,6 +169,7 @@ namespace ExampleCollisionDetection
 		public SimpleCollider(Game game, SpriteBatch? renderer, Color c, FRectangle bounds, bool is_static) : base(game,renderer,(int)MathF.Ceiling(bounds.Width),(int)MathF.Ceiling(bounds.Height),c)
 		{
 			Boundary = bounds;
+			PreviousBoundary = FRectangle.Empty;
 
 			ID = ICollider<ICollider2D>.NextID;
 
@@ -142,7 +185,12 @@ namespace ExampleCollisionDetection
 
 		public bool ChangeBoundary(FRectangle new_boundary)
 		{
+			PreviousBoundary = Boundary;
 			Boundary = new_boundary;
+
+			if(IsStatic)
+				OnStaticMovement(this);
+
 			return true;
 		}
 
@@ -156,12 +204,17 @@ namespace ExampleCollisionDetection
 		{get; protected set;}
 		
 		public float LeftBound => Boundary.Left;
-		
 		public float RightBound => Boundary.Right;
-		
 		public float BottomBound => Boundary.Bottom;
-		
 		public float TopBound => Boundary.Top;
+
+		public FRectangle PreviousBoundary
+		{get; protected set;}
+
+		public float PreviousLeftBound => PreviousBoundary.Left;
+		public float PreviousRightBound => PreviousBoundary.Right;
+		public float PreviousBottomBound => PreviousBoundary.Bottom;
+		public float PreviousTopBound => PreviousBoundary.Top;
 		
 		public uint ID
 		{get;}

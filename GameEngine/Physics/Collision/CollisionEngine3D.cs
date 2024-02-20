@@ -311,9 +311,7 @@ namespace GameEngine.Physics.Collision
 			if(c.IsStatic)
 			{
 				// Moving static colliders should be rare, so we don't need to worry too much about efficiency so long as we remain O(log n)
-				if(RemoveCollider(c))
-					AddCollider(c);
-
+				Statics.UpdateBoundary(c);
 				return;
 			}
 

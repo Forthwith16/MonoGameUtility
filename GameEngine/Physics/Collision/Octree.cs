@@ -121,10 +121,16 @@ namespace GameEngine.Physics.Collision
 		/// If <paramref name="c"/> does not belong to this tree, then this does nothing.
 		/// </summary>
 		/// <param name="c">The collider whose boundary needs updating.</param>
-		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
 		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
 		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
-		public bool UpdateBoundary(ICollider3D c, FPrism new_boundary) => Root.UpdateBoundary(c,new_boundary);
+		public bool UpdateBoundary(ICollider3D c)
+		{
+               if(!Root.RemoveByPreviousBoundary(c))
+				return false;
+
+			Add(c);
+			return true;
+          }
 
 		/// <summary>
 		/// Clears this tree.
@@ -214,7 +220,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="parent">The parent of the oct. If this is null, then this will be a root oct.</param>
 		protected Oct(FPrism bounds, Oct? parent)
 		{
-			BigColliders = new AABBTree<ICollider3D,FPrism>(c => c.Boundary,(c,nb) => c.ChangeBoundary(nb));
+			BigColliders = new AABBTree<ICollider3D,FPrism>(c => c.Boundary,c => c.PreviousBoundary);
 			
 			SmallTopRightNearColliders = new CollisionLinkedList<ICollider3D>();
 			SmallTopLeftNearColliders = new CollisionLinkedList<ICollider3D>();
@@ -785,6 +791,192 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
+		/// Removes <paramref name="c"/> from this oct.
+		/// If <paramref name="c"/> does not belong to this oct, then this does nothing.
+		/// </summary>
+		/// <param name="c">The collider to remove.</param>
+		/// <returns>Returns true if <paramref name="c"/> was removed and false otherwise.</returns>
+		public bool RemoveByPreviousBoundary(ICollider3D c)
+		{
+			bool ret;
+			
+			// Check if c belongs to a smaller oct
+			if(c.PreviousRightBound <= HalfX)
+			{
+				if(c.PreviousTopBound <= HalfY) // Bottom left
+				{
+					if(c.PreviousFarBound <= HalfZ) // Bottom left near
+					{
+						if(IsBottomLeftNearLeaf)
+							ret = SmallBottomLeftNearColliders.Remove(c);
+						else
+						{
+							ret = BottomLeftNear!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(BottomLeftNear.IsEmpty)
+									BottomLeftNear = null;
+							}
+						}
+
+						return ret;
+					}
+					else if(c.PreviousNearBound >= HalfZ) // Bottom left far
+					{
+						if(IsBottomLeftFarLeaf)
+							ret = SmallBottomLeftFarColliders.Remove(c);
+						else
+						{
+							ret = BottomLeftFar!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(BottomLeftFar.IsEmpty)
+									BottomLeftFar = null;
+							}
+						}
+
+						return ret;
+					}
+				}
+				else if(c.PreviousBottomBound >= HalfY) // Top left
+				{
+					if(c.PreviousFarBound <= HalfZ) // Top left near
+					{
+						if(IsTopLeftNearLeaf)
+							ret = SmallTopLeftNearColliders.Remove(c);
+						else
+						{
+							ret = TopLeftNear!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(TopLeftNear.IsEmpty)
+									TopLeftNear = null;
+							}
+						}
+
+						return ret;
+					}
+					else if(c.PreviousNearBound >= HalfZ) // Top left far
+					{
+						if(IsTopLeftFarLeaf)
+							ret = SmallTopLeftFarColliders.Remove(c);
+						else
+						{
+							ret = TopLeftFar!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(TopLeftFar.IsEmpty)
+									TopLeftFar = null;
+							}
+						}
+
+						return ret;
+					}
+				}
+			}
+			else if(c.PreviousLeftBound >= HalfX)
+			{
+				if(c.PreviousTopBound <= HalfY) // Bottom right
+				{
+					if(c.PreviousFarBound <= HalfZ) // Bottom right near
+					{
+						if(IsBottomRightNearLeaf)
+							ret = SmallBottomRightNearColliders.Remove(c);
+						else
+						{
+							ret = BottomRightNear!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(BottomRightNear.IsEmpty)
+									BottomRightNear = null;
+							}
+						}
+
+						return ret;
+					}
+					else if(c.PreviousNearBound >= HalfZ) // Bottom right far
+					{
+						if(IsBottomRightFarLeaf)
+							ret = SmallBottomRightFarColliders.Remove(c);
+						else
+						{
+							ret = BottomRightFar!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(BottomRightFar.IsEmpty)
+									BottomRightFar = null;
+							}
+						}
+
+						return ret;
+					}
+				}
+				else if(c.PreviousBottomBound >= HalfY) // Top right
+				{
+					if(c.PreviousFarBound <= HalfZ) // Top right near
+					{
+						if(IsTopRightNearLeaf)
+							ret = SmallTopRightNearColliders.Remove(c);
+						else
+						{
+							ret = TopRightNear!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(TopRightNear.IsEmpty)
+									TopRightNear = null;
+							}
+						}
+
+						return ret;
+					}
+					else if(c.PreviousNearBound >= HalfZ) // Top right far
+					{
+						if(IsTopRightFarLeaf)
+							ret = SmallTopRightFarColliders.Remove(c);
+						else
+						{
+							ret = TopRightFar!.RemoveByPreviousBoundary(c);
+
+							if(ret)
+							{
+								ChildCount--;
+
+								if(TopRightFar.IsEmpty)
+									TopRightFar = null;
+							}
+						}
+
+						return ret;
+					}
+				}
+			}
+
+			// Since we haven't returned yet, c must belong to this oct, so look for it here
+			return BigColliders.RemoveByPreviousBoundary(c);
+		}
+
+		/// <summary>
 		/// Determines if this oct (or its children) contains <paramref name="c"/>.
 		/// </summary>
 		/// <param name="c">The collider to look for.</param>
@@ -829,29 +1021,6 @@ namespace GameEngine.Physics.Collision
 
 			// Since we haven't returned yet, c must belong to this oct, so look for it here
 			return BigColliders.Contains(c);
-		}
-
-		/// <summary>
-		/// Updates the boundary of <paramref name="c"/> in this oct.
-		/// If <paramref name="c"/> does not belong to this oct, then this does nothing.
-		/// </summary>
-		/// <param name="c">The collider whose boundary needs updating.</param>
-		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
-		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
-		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
-		public bool UpdateBoundary(ICollider3D c, FPrism new_boundary)
-		{
-			// If we fail to remove c, then we don't have c and can't update it
-			if(!Remove(c))
-				return false;
-
-			// Now we need to update c
-			bool ret = c.ChangeBoundary(new_boundary);
-
-			// And lastly, we add c back in (regardless of if its boundary was successfully changed)
-			Add(c);
-
-			return ret;
 		}
 
 		/// <summary>

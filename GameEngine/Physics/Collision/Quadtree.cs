@@ -93,7 +93,7 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		/// <param name="c">The collider to remove.</param>
 		/// <returns>Returns true if <paramref name="c"/> is removed and false otherwise.</returns>
-		public bool Remove(ICollider2D c) => IsEmpty ? false : Root.Remove(c);
+		public bool Remove(ICollider2D c, bool use_current_boundary = true) => IsEmpty ? false : Root.Remove(c);
 
 		/// <summary>
 		/// Determines if this tree contains <paramref name="c"/>.
@@ -107,10 +107,16 @@ namespace GameEngine.Physics.Collision
 		/// If <paramref name="c"/> does not belong to this tree, then this does nothing.
 		/// </summary>
 		/// <param name="c">The collider whose boundary needs updating.</param>
-		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
 		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
 		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
-		public bool UpdateBoundary(ICollider2D c, FRectangle new_boundary) => Root.UpdateBoundary(c,new_boundary);
+		public bool UpdateBoundary(ICollider2D c)
+		{
+               if(!Root.RemoveByPreviousBoundary(c))
+				return false;
+
+			Add(c);
+			return true;
+          }
 
 		/// <summary>
 		/// Clears this tree.
@@ -197,7 +203,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="parent">The parent of the quad. If this is null, then this will be a root quad.</param>
 		protected Quad(FRectangle bounds, Quad? parent)
 		{
-			BigColliders = new AABBTree<ICollider2D,FRectangle>(c => c.Boundary,(c,nb) => c.ChangeBoundary(nb));
+			BigColliders = new AABBTree<ICollider2D,FRectangle>(c => c.Boundary,c => c.PreviousBoundary);
 			
 			SmallTopRightColliders = new CollisionLinkedList<ICollider2D>();
 			SmallTopLeftColliders = new CollisionLinkedList<ICollider2D>();
@@ -520,6 +526,110 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
+		/// Removes <paramref name="c"/> from this quad.
+		/// If <paramref name="c"/> does not belong to this quad, then this does nothing.
+		/// </summary>
+		/// <param name="c">The collider to remove.</param>
+		/// <returns>Returns true if <paramref name="c"/> was removed and false otherwise.</returns>
+		public bool RemoveByPreviousBoundary(ICollider2D c)
+		{
+			// Check if c belongs to a smaller quad
+			if(c.PreviousRightBound <= HalfX)
+			{
+				if(c.PreviousTopBound <= HalfY) // Bottom left
+				{
+					bool ret;
+					
+					if(IsBottomLeftLeaf)
+						ret = SmallBottomLeftColliders.Remove(c);
+					else
+					{
+						ret = BottomLeft!.RemoveByPreviousBoundary(c);
+
+						if(ret)
+						{
+							ChildCount--;
+
+							if(BottomLeft.IsEmpty)
+								BottomLeft = null;
+						}
+					}
+
+					return ret;
+				}
+				else if(c.PreviousBottomBound >= HalfY) // Top left
+				{
+					bool ret;
+					
+					if(IsTopLeftLeaf)
+						ret = SmallTopLeftColliders.Remove(c);
+					else
+					{
+						ret = TopLeft!.RemoveByPreviousBoundary(c);
+
+						if(ret)
+						{
+							ChildCount--;
+
+							if(TopLeft.IsEmpty)
+								TopLeft = null;
+						}
+					}
+
+					return ret;
+				}
+			}
+			else if(c.PreviousLeftBound >= HalfX)
+			{
+				if(c.PreviousTopBound <= HalfY) // Bottom right
+				{
+					bool ret;
+					
+					if(IsBottomRightLeaf)
+						ret = SmallBottomRightColliders.Remove(c);
+					else
+					{
+						ret = BottomRight!.RemoveByPreviousBoundary(c);
+
+						if(ret)
+						{
+							ChildCount--;
+
+							if(BottomRight.IsEmpty)
+								BottomRight = null;
+						}
+					}
+
+					return ret;
+				}
+				else if(c.PreviousBottomBound >= HalfY) // Top right
+				{
+					bool ret;
+					
+					if(IsTopRightLeaf)
+						ret = SmallTopRightColliders.Remove(c);
+					else
+					{
+						ret = TopRight!.RemoveByPreviousBoundary(c);
+
+						if(ret)
+						{
+							ChildCount--;
+
+							if(TopRight.IsEmpty)
+								TopRight = null;
+						}
+					}
+
+					return ret;
+				}
+			}
+
+			// Since we haven't returned yet, c must belong to this quad, so look for it here
+			return BigColliders.RemoveByPreviousBoundary(c);
+		}
+
+		/// <summary>
 		/// Determines if this quad (or its children) contains <paramref name="c"/>.
 		/// </summary>
 		/// <param name="c">The collider to look for.</param>
@@ -544,29 +654,6 @@ namespace GameEngine.Physics.Collision
 
 			// Since we haven't returned yet, c must belong to this quad, so look for it here
 			return BigColliders.Contains(c);
-		}
-
-		/// <summary>
-		/// Updates the boundary of <paramref name="c"/> in this quad.
-		/// If <paramref name="c"/> does not belong to this quad, then this does nothing.
-		/// </summary>
-		/// <param name="c">The collider whose boundary needs updating.</param>
-		/// <param name="new_boundary">The new boundary for <paramref name="c"/>.</param>
-		/// <returns>Returns true if <paramref name="c"/>'s boundary was changed and false otherwise.</returns>
-		/// <remarks><paramref name="c"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="c"/>.</remarks>
-		public bool UpdateBoundary(ICollider2D c, FRectangle new_boundary)
-		{
-			// If we fail to remove c, then we don't have c and can't update it
-			if(!Remove(c))
-				return false;
-
-			// Now we need to update c
-			bool ret = c.ChangeBoundary(new_boundary);
-
-			// And lastly, we add c back in (regardless of if its boundary was successfully changed)
-			Add(c);
-
-			return ret;
 		}
 
 		/// <summary>

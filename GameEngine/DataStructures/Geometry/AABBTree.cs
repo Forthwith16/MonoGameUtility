@@ -13,15 +13,15 @@ namespace GameEngine.DataStructures.Geometry
 		/// Creates an empty AABB tree.
 		/// </summary>
 		/// <param name="extractor">The means by which we extract bounds from <typeparamref name="V"/> types.</param>
-		/// <param name="updater">The means by which we update bounds in <typeparamref name="V"/> types.</param>
-		public AABBTree(BoundaryExtractor<V,B> extractor, BoundaryUpdator<V,B> updater)
+		/// <param name="extractor">The means by which we extract previous bounds from <typeparamref name="V"/> types.</param>
+		public AABBTree(BoundaryExtractor<V,B> extractor, BoundaryExtractor<V,B> previous_extractor)
 		{
 			Root = null;
 			Count = 0;
 
 			Extractor = extractor;
-			Updater = updater;
-
+			PreviousExtractor = previous_extractor;
+			
 			return;
 		}
 
@@ -146,29 +146,6 @@ namespace GameEngine.DataStructures.Geometry
 		}
 
 		/// <summary>
-		/// Updates the boundary of <paramref name="v"/> in this tree.
-		/// If <paramref name="v"/> does not belong to this tree, then this does nothing.
-		/// </summary>
-		/// <param name="v">The value whose boundary needs updating.</param>
-		/// <param name="new_boundary">The new boundary for <paramref name="v"/>.</param>
-		/// <returns>Returns true if <paramref name="v"/>'s boundary was changed and false otherwise.</returns>
-		/// <remarks><paramref name="v"/>'s membership is determined via the Remove method, which uses Query to locate <paramref name="v"/>.</remarks>
-		public bool UpdateBoundary(V v, B new_boundary)
-		{
-			// If we fail to remove v, then we don't have v and can't update it
-			if(!Remove(v))
-				return false;
-
-			// Now we need to update v
-			bool ret = Updater(v,new_boundary);
-
-			// And lastly, we add v back in (regardless of if its boundary was successfully changed)
-			Add(v);
-
-			return ret;
-		}
-
-		/// <summary>
 		/// Removes the first <paramref name="v"/> found from this tree (if any exist).
 		/// </summary>
 		/// <param name="v">The item to remove.</param>
@@ -183,6 +160,39 @@ namespace GameEngine.DataStructures.Geometry
 
 			// Find v
 			foreach(AABBTreeNode<V,B> n in Root!.Find(Extractor(v)))
+				if(v is null ? n.Value is null : v.Equals(n.Value))
+				{
+					remove_me = n;
+					break; // If there's duplicates, we only remove the first found
+				}
+
+			// If we didn't find v, we're done
+			if(remove_me is null)
+				return false;
+
+			// Remove our node
+			Root = remove_me.Remove(Root);
+			Count--;
+			
+			return true;
+		}
+
+		/// <summary>
+		/// Removes the first <paramref name="v"/> found from this tree (if any exist).
+		/// The search for it in this tree will uses its previous boundaries to find it.
+		/// </summary>
+		/// <param name="v">The item to remove.</param>
+		/// <returns>Returns true if <paramref name="v"/> was removed and false otherwise.</returns>
+		public bool RemoveByPreviousBoundary(V v)
+		{
+			// If we have nothing, we're done
+			if(IsEmpty)
+				return false;
+
+			AABBTreeNode<V,B>? remove_me = null;
+
+			// Find v
+			foreach(AABBTreeNode<V,B> n in Root!.Find(PreviousExtractor(v)))
 				if(v is null ? n.Value is null : v.Equals(n.Value))
 				{
 					remove_me = n;
@@ -265,6 +275,30 @@ namespace GameEngine.DataStructures.Geometry
 		public IEnumerator<V> GetEnumerator() => Query(TreeBoundary).GetEnumerator(); // Inefficient, yes, but you shouldn't be enumerating an AABB tree anyway except maybe when debugging
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+		public override string ToString() => Root is null ? "" : ToString(Root);
+
+		protected string ToString(AABBTreeNode<V,B> root)
+		{
+			if(root.IsLeaf)
+				return "(h: " + Height(root) + ", BF = " + root.BalanceFactor + ")\n";
+
+			return "(h: " + Height(root) + ", BF = " + root.BalanceFactor + ")\n" + ToString(root.Left!) + ToString(root.Right!);
+		}
+
+		/// <summary>
+		/// Calculates the (1 indexed) height of a node.
+		/// </summary>
+		protected int Height(AABBTreeNode<V,B>? root)
+		{
+			if(root is null)
+				return 0;
+
+			if(root.IsLeaf)
+				return 1;
+
+			return 1 + Math.Max(Height(root.Left!),Height(root.Right!));
+		}
+
 		/// <summary>
 		/// The number of items in this tree.
 		/// </summary>
@@ -301,9 +335,9 @@ namespace GameEngine.DataStructures.Geometry
 		{get; set;}
 
 		/// <summary>
-		/// The means by which we update a boundary in a <typeparamref name="V"/> type.
+		/// The means by which we extract previous bounding boxes from <typeparamref name="V"/> types.
 		/// </summary>
-		protected BoundaryUpdator<V,B> Updater
+		protected BoundaryExtractor<V,B> PreviousExtractor
 		{get; set;}
 	}
 
@@ -326,7 +360,7 @@ namespace GameEngine.DataStructures.Geometry
 			Left = null;
 			Right = null;
 
-			BalanceFactor = 0;
+			Height = 1;
 			return;
 		}
 
@@ -345,7 +379,7 @@ namespace GameEngine.DataStructures.Geometry
 			Left = null;
 			Right = null;
 
-			BalanceFactor = 0;
+			Height = 1;
 
 			if(parent.IsLeftChild)
 				Parent = new AABBTreeNode<V,B>(parent.Parent,parent,this,true); // The assignment is unncessary, but nullability analysis doesn't realize that
@@ -380,26 +414,20 @@ namespace GameEngine.DataStructures.Geometry
 			Right = right;
 			Right.Parent = this;
 
-			BalanceFactor = 0;
-			AABBTreeNode<V,B>? n = PropagateAddBalanceChange(this);
+			// Now we need to propagate the height and bounds changes upward
+			AABBTreeNode<V,B>? n = this;
 
-			// Check if we need to rotate; if so, pick the correct rotation
-			if(n is not null)
-				if(n.BalanceFactor < 0)
-					n = n.RotateRight();
-				else
-					n = n.RotateLeft();
-
-			// If we rotated, then we updated our bounds all the way up to n, so we can jump up one
-			if(n is not null)
-				n = n.Parent;
-
-			// Now that we've rotated, we need to propogate the bounds changes upward (if we're not already the root; the rotation fixed n's bounds)
 			while(n is not null)
 			{
-				// No AABBTree should ever be more than, say, 20 tall, so let's just blindly assign bounds and go upward
-				// It should be, if not faster than performing an equality check between the old and new bounds, then not much slower
-				n.UpdateBounds();
+				n.RepairBoundary();
+				n.Height = 1 + Math.Max(n.Left!.Height,n.Right!.Height);
+
+				// Check if we need to rotate; if so, pick the correct rotation
+				if(n.BalanceFactor == -2)
+					n = n.RotateRight();
+				else if(n.BalanceFactor == 2)
+					n = n.RotateLeft();
+
 				n = n.Parent;
 			}
 
@@ -445,64 +473,6 @@ namespace GameEngine.DataStructures.Geometry
 		}
 
 		/// <summary>
-		/// Propagates a balance change upward.
-		/// </summary>
-		/// <param name="n">The tree node to start the balance change at (its BalanceFactor will not change).</param>
-		/// <returns>Returns the node (if any) that requires rotation (AVL trees on insert only ever require one rotation). If no rotations are required, then this returns null.</returns>
-		protected AABBTreeNode<V,B>? PropagateAddBalanceChange(AABBTreeNode<V,B> n)
-		{
-			// Update the initial bounds
-			n.UpdateBounds();
-
-			while(!n.IsRoot)
-			{
-				// Update the bounds first to get it out of the way
-				n.Parent!.UpdateBounds();
-
-				if(n.IsLeftChild) // n is a left child, so we decreased the balance factor by 1
-					if(n.Parent.BalanceFactor <= 0)
-					{
-						if(--n.Parent.BalanceFactor < -1)
-							return n.Parent; // After a rotation, the tree will be back to the way it was before, so we don't need to update anything more
-					}
-					else
-					{
-						// +1 and -1 annihilate each other and we end propogation
-						n.Parent.BalanceFactor = 0;
-						return null;
-					}
-				else // n is a right child, so we increased the balance factor by 1
-					if(n.Parent.BalanceFactor >= 0)
-					{
-						if(++n.Parent.BalanceFactor > 1)
-							return n.Parent;
-					}
-					else
-					{
-						// -1 and +1 annihilate each other and we end propogation
-						n.Parent.BalanceFactor = 0;
-						return null;
-					}
-
-				n = n.Parent;
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Updates the bounds of this node.
-		/// </summary>
-		public void UpdateBounds()
-		{
-			if(IsLeaf)
-				return;
-
-			Bounds = Left!.Bounds.Union(Right!.Bounds); // We always have 0 or 2 children, so if we're not a leaf, both Left and Right must exist
-			return;
-		}
-
-		/// <summary>
 		/// Removes this leaf node from its tree.
 		/// If this is not a leaf, this does nothing and returns <paramref name="root"/>.
 		/// </summary>
@@ -510,11 +480,11 @@ namespace GameEngine.DataStructures.Geometry
 		/// <returns>Returns the new root of the tree. If there is nothing left in the tree, returns null.</returns>
 		public AABBTreeNode<V,B>? Remove(AABBTreeNode<V,B> root)
 		{
-			// If we're a leaf, get out of here
+			// If we're not a leaf, get out of here
 			if(!IsLeaf)
 				return root;
 
-			// If we're the root, we're done
+			// If we're to remove the root, we're done and there is no replacement root
 			if(IsRoot)
 				return null;
 
@@ -523,86 +493,47 @@ namespace GameEngine.DataStructures.Geometry
 			AABBTreeNode<V,B> sibling = Sibling!;
 
 			// Now disconnect this (and its parent) and move our sibling up
-			// Since it's its own tree doing its own thing, it's balance factor is already correct for its subtree
+			// Since it's its own tree doing its own thing, it's height is already correct for its subtree
 			sibling.Parent = Parent!.Parent;
 
+			// We need to special case how we handle the silbing now since we have to stitch it together with its new parent
 			if(sibling.IsRoot)
 				return sibling; // sibling is the root and there's nothing left to do
 			else // silbing is not the root and we need to do some further propagation
 				if(Parent.IsLeftChild)
 					sibling.Parent!.Left = sibling;
-				else // Parent isn't the root, so it must be a right child
+				else // Parent isn't the root, so it must be a right child if its not a left child
 					sibling.Parent!.Right = sibling;
 
-			// Now we need to propagate this balance change up the tree and repair the boundaries upward
-			AABBTreeNode<V,B> processed = sibling;
+			// Now we need to propagate the height change up the tree and repair the boundaries upward
+			AABBTreeNode<V,B> to_process = sibling;
 			
-			// Once we make a balance factor +1 or -1, then we change it away from 0
-			// In this case, the height of the subtree remains unchanged
-			// This is because it was 0 and balanced, but now one subsubtree is taller and maintaining the height, which means upper balance factors remain unchanged
-			bool not_satisfied = true;
-
-			// We'll loop until we've repaired our boundaries all the way up to the root (and performed any required rotations along the way)
-			// Since AABB trees are typically short and our runtime is log n for the initial query anyway, there's no harm in just going all the way back up and blindly assigning boundaries
 			do
 			{
-				// Going into this, we know that our parent is not null
-				AABBTreeNode<V,B> cur = processed.Parent;
+				// Going into the loop, we know to_process is not the root, so it must have a parent
+				to_process = to_process.Parent!;
 
-				// Repair our boundary first
-				cur.RepairBoundary();
+				// We need to fix the height and repair the boundary
+				to_process.RepairBoundary();
+				to_process.Height = 1 + Math.Max(to_process.Left!.Height,to_process.Right!.Height);
 
-				// If we've hit a +1 or -1, we no longer need to think about balance factors or rotations (see declaration above)
-				if(not_satisfied)
-				{
-					// Our balance factor changes depending on if we came from the left or right
-					// We do know that processed is for sure not the root though, so we can skip that check
-					if(processed.IsLeftChild)
-					{
-						if(++cur.BalanceFactor == 1) // ++ because the left side got smaller by 1 (i.e. -(-1))
-							not_satisfied = false;
-					}
-					else // We were a right child
-						if(--cur.BalanceFactor == -1) // -- because the right side got smaller by 1 (i.e. -(+1))
-							not_satisfied = false;
-
-					// If our balance factor is out of control, we'll just have to fix it
-					// After a rotation, we need to inspect and modify our new cur's balance factor
-					// It increases by 1 with a right rotation and decreases by 1 with a left rotation
-					// A rotation will end our balance factor concerns if it changes the balance factor to +1 or -1
-					// However, if it changes to 0, then we'll have lost 1 height from the subtree and need to keep going up
-					if(cur.BalanceFactor == 2)
-					{
-						cur = cur.RotateLeft(false);
-						cur.BalanceFactor--;
-
-						if(cur.BalanceFactor == -1)
-							not_satisfied = false;
-					}
-					else if(cur.BalanceFactor == -2)
-					{
-						cur = cur.RotateRight(false);
-						cur.BalanceFactor++;
-
-						if(cur.BalanceFactor == 1)
-							not_satisfied = false;
-					}
-				}
-
-				// Climb!
-				processed = cur;
+				// We may need to rotate our tree due to the balance change; if so, pick the right direction
+				if(to_process.BalanceFactor == -2)
+					to_process = to_process.RotateRight();
+				else if(to_process.BalanceFactor == 2)
+					to_process = to_process.RotateLeft();
 			}
-			while(processed.Parent is not null);
+			while(!to_process.IsRoot);
 
-			// We are now done and can just return our new root node
-			return processed;
+			// We guarantee that to_process is the root once the do-while loop ends, so just return it
+			return to_process;
 		}
 
 		/// <summary>
 		/// Repairs this node's boundary by unioning its children (this does not occur recursively in either direction).
 		/// If this node has no children, this does nothing.
 		/// </summary>
-		public void RepairBoundary()
+		protected void RepairBoundary()
 		{
 			if(IsLeaf)
 				return;
@@ -614,14 +545,13 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Rotates left with the rotation rooted at this node's current position.
 		/// </summary>
-		/// <param name="add">If true, this is an add rotation. If false, this is a remove rotation. A remove rotation will leave the balance factor of the promoted sibling node along for inspection and modification.</param>
 		/// <returns>Returns the new node that is now where this node was in the tree. This may be the new root of the tree.</returns>
 		/// <remarks>
 		/// It is assumed that this, Left, and Right are not leaves.
-		/// Similarly, the BalanceFactor for this must be 2 and Right must be 1 in magnitude.
+		/// Similarly, the BalanceFactor for this is assumed to be 2 and Right is assumed to be 1 in magnitude.
 		/// If this is not the case, then this method's behavior is undefined.
 		/// </remarks>
-		public AABBTreeNode<V,B> RotateLeft(bool add = true)
+		protected AABBTreeNode<V,B> RotateLeft()
 		{
 			// Give names to these things for convenience
 			AABBTreeNode<V,B>? parent = Parent;
@@ -660,17 +590,13 @@ namespace GameEngine.DataStructures.Geometry
 			r_child.Right = retained_right;
 			retained_right.Parent = r_child;
 
-			// The balance factors change for this and its old right child
-			BalanceFactor = 0;
-
-			// If this is an add rotation, then we'll set this to 0 as it should be
-			// Otherwise, we'll preserve the balance factor for remove to look at and modify as appropriate
-			if(add)
-				r_child.BalanceFactor = 0;
+			// The heights change for this and its old right child
+			Height = IsLeaf ? 1 : 1 + Math.Max(Left!.Height,Right!.Height);
+			r_child.Height = 1 + Math.Max(Height,retained_right.Height);
 
 			// Now update the bounds
-			UpdateBounds();
-			r_child.UpdateBounds();
+			RepairBoundary();
+			r_child.RepairBoundary();
 
 			// Return the old right child
 			return r_child;
@@ -679,14 +605,13 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Rotates right with the rotation rooted at this node's current position.
 		/// </summary>
-		/// <param name="add">If true, this is an add rotation. If false, this is a remove rotation. A remove rotation will leave the balance factor of the promoted sibling node along for inspection and modification.</param>
 		/// <returns>Returns the new node that is now where this node was in the tree. This may be the new root of the tree.</returns>
 		/// <remarks>
 		/// It is assumed that this, Left, and Right are not leaves.
-		/// Similarly, the BalanceFactor for this must be -2 and Left must be 1 in magnitude.
+		/// Similarly, the BalanceFactor for this is assumed to be -2 and Left is assumed to be 1 in magnitude.
 		/// If this is not the case, then this method's behavior is undefined.
 		/// </remarks>
-		public AABBTreeNode<V,B> RotateRight(bool add = true)
+		protected AABBTreeNode<V,B> RotateRight(bool add = true)
 		{
 			// Give names to these things for convenience
 			AABBTreeNode<V,B>? parent = Parent;
@@ -725,17 +650,13 @@ namespace GameEngine.DataStructures.Geometry
 			l_child.Left = retained_left;
 			retained_left.Parent = l_child;
 
-			// The balance factors change for this and its old left child
-			BalanceFactor = 0;
-
-			// If this is an add rotation, then we'll set this to 0 as it should be
-			// Otherwise, we'll preserve the balance factor for remove to look at and modify as appropriate
-			if(add)
-				l_child.BalanceFactor = 0;
+			// The heights change for this and its old left child
+			Height = IsLeaf ? 1 : 1 + Math.Max(Left!.Height,Right!.Height);
+			l_child.Height = 1 + Math.Max(Height,retained_left.Height);
 
 			// Now update the bounds
-			UpdateBounds();
-			l_child.UpdateBounds();
+			RepairBoundary();
+			l_child.RepairBoundary();
 			
 			// Return the old left child
 			return l_child;
@@ -789,11 +710,16 @@ namespace GameEngine.DataStructures.Geometry
 		public AABBTreeNode<V,B>? Sibling => IsRoot ? null : (IsLeftChild ? Parent!.Right : Parent!.Left);
 
 		/// <summary>
+		/// The (1-indexed) height of the tree at this node.
+		/// </summary>
+		public int Height
+		{get; protected set;}
+
+		/// <summary>
 		/// The balance factor of this node.
 		/// This is always equal to Right's height - Left's height.
 		/// </summary>
-		public sbyte BalanceFactor
-		{get; protected set;}
+		public int BalanceFactor => IsLeaf ? 0 : Right!.Height - Left!.Height;
 
 		/// <summary>
 		/// If true, then this is a root node.
@@ -834,14 +760,4 @@ namespace GameEngine.DataStructures.Geometry
 	/// <param name="value">The value to extract a bounding box from.</param>
 	/// <returns>Returns the bounding box of <paramref name="value"/>.</returns>
 	public delegate B BoundaryExtractor<V,B>(V value) where B : struct, IBoundingBox<B>;
-
-	/// <summary>
-	/// Updates the boundary of <paramref name="value"/> to be <paramref name="new_boundary"/>.
-	/// </summary>
-	/// <typeparam name="V">The type which has a bounding box.</typeparam>
-	/// <typeparam name="B">The type of the bounding box.</typeparam>
-	/// <param name="value">The value to place a new boundary into.</param>
-	/// <param name="new_boundary">The new boundary to place.</param>
-	/// <returns>Returns true if the boundary was successfully updated and false otherwise.</returns>
-	public delegate bool BoundaryUpdator<V,B>(V value, B new_boundary) where B : struct, IBoundingBox<B>;
 }
