@@ -85,6 +85,52 @@ namespace GameEngine.DataStructures.Geometry
 		/// </summary>
 		public static explicit operator Rectangle(FRectangle r) => new Rectangle((int)r.X,(int)r.Y,(int)MathF.Ceiling(r.Width),(int)MathF.Ceiling(r.Height));
 
+		/// <summary>
+		/// Produces a minimal axis-aligned rectangle which contains each point of <paramref name="points"/>.
+		/// </summary>
+		public static FRectangle BoundingBoxFromPoints(params Point[] points)
+		{
+			float lx = float.PositiveInfinity;
+			float ly = float.PositiveInfinity;
+
+			float hx = float.NegativeInfinity;
+			float hy = float.NegativeInfinity;
+
+			foreach(Point p in points)
+			{
+				lx = Math.Min(lx,p.X);
+				ly = Math.Min(ly,p.Y);
+
+				hx = Math.Max(hx,p.X);
+				hy = Math.Max(hy,p.Y);
+			}
+
+			return new FRectangle(lx,ly,hx - lx,hy - ly);
+		}
+
+		/// <summary>
+		/// Produces a minimal axis-aligned rectangle which contains each point of <paramref name="points"/>.
+		/// </summary>
+		public static FRectangle BoundingBoxFromPoints(params Vector2[] points)
+		{
+			float lx = float.PositiveInfinity;
+			float ly = float.PositiveInfinity;
+
+			float hx = float.NegativeInfinity;
+			float hy = float.NegativeInfinity;
+
+			foreach(Vector2 v in points)
+			{
+				lx = Math.Min(lx,v.X);
+				ly = Math.Min(ly,v.Y);
+
+				hx = Math.Max(hx,v.X);
+				hy = Math.Max(hy,v.Y);
+			}
+
+			return new FRectangle(lx,ly,hx - lx,hy - ly);
+		}
+
 		public static bool operator ==(FRectangle a, FRectangle b) => a.X == b.X && a.Y == b.Y && a.Width == b.Width && a.Height == b.Height;
 
 		public static bool operator !=(FRectangle a, FRectangle b) => !(a == b);
