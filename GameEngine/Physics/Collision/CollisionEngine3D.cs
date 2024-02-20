@@ -285,18 +285,6 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
-		/// Updates <paramref name="c"/>'s position in this collision engine independent of the Update method.
-		/// </summary>
-		/// <remarks>
-		/// Although this method works on both static and kinetic colliders, the latter is the intended usage.
-		/// The former's boundary data is updated automatically (if the static collider's callback routines are implemented correctly).
-		/// Regardless, the former runs in O(log n) time while the latter typically runs in O(1) time but can be as bad as O(n).
-		/// In either case, the current list of collisions is <b><u>NOT</u></b> updated.
-		/// For that, run the Update method.
-		/// </remarks>
-		public void RefreshKineticCollider(ICollider3D c) => RefreshCollider(c);
-
-		/// <summary>
 		/// Updates <paramref name="c"/>'s position in this collision engine.
 		/// </summary>
 		/// <remarks>
