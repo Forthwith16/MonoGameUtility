@@ -133,6 +133,7 @@ namespace GameEngine.Framework
 		/// </summary>
 		private void UpdateDebugDrawOrder(IDebugDrawable sender, int new_order, int old_order)
 		{
+			#if DEBUG
 			// Perform the removal logic first
 			if(!DebugComponents.TryGetValue(old_order,out HashSet<IDebugDrawable>? rs))
 				return;
@@ -149,7 +150,8 @@ namespace GameEngine.Framework
 
 			// If this fails, we're in lot of trouble regardless of what we do, so let's just hope it doesn't
 			rs.Add(sender);
-
+			#endif
+			
 			return;
 		}
 
@@ -204,6 +206,7 @@ namespace GameEngine.Framework
 		/// <returns>Returns true if the component was added and false otherwise.</returns>
 		protected bool AddDebugComponent(IDebugDrawable component)
 		{
+			#if DEBUG
 			HashSet<IDebugDrawable>? rs;
 
 			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
@@ -217,6 +220,9 @@ namespace GameEngine.Framework
 
 			component.OnDrawDebugOrderChanged += UpdateDebugDrawOrder;
 			return true;
+			#else
+			return false;
+			#endif
 		}
 
 		/// <summary>
@@ -226,6 +232,7 @@ namespace GameEngine.Framework
 		/// <returns>Returns true if the remove was successful and false otherwise.</returns>
 		protected bool RemoveDebugComponent(IDebugDrawable component)
 		{
+			#if DEBUG
 			HashSet<IDebugDrawable>? rs;
 
 			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
@@ -239,6 +246,9 @@ namespace GameEngine.Framework
 
 			component.OnDrawDebugOrderChanged -= UpdateDebugDrawOrder;
 			return true;
+			#else
+			return false;
+			#endif
 		}
 
 		/// <summary>
@@ -273,7 +283,7 @@ namespace GameEngine.Framework
 
 			PreDraw(delta);
 
-			#if DEBUG
+#if DEBUG
 			// Don't draw debug information if we don't request it
 			if(GlobalConstants.DrawDebugInformation)
 			{
@@ -284,7 +294,7 @@ namespace GameEngine.Framework
 						if(draw.Visible)
 							draw.DrawDebugInfo(delta);
 			}
-			#endif
+#endif
 
 			base.Draw(delta);
 			PostDraw(delta);
@@ -349,13 +359,13 @@ namespace GameEngine.Framework
 		protected SortedDictionary<int,HashSet<IRenderTargetDrawable>> RenderTargetComponents
 		{get; init;}
 
-		#if DEBUG
+#if DEBUG
 		/// <summary>
 		/// The set of components which draw debug information.
 		/// </summary>
 		protected SortedDictionary<int,HashSet<IDebugDrawable>> DebugComponents
 		{get; init;}
-		#endif
+#endif
 
 		/// <summary>
 		/// Compares IGUI objects by some draw order.
