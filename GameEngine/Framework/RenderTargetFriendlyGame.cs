@@ -274,12 +274,16 @@ namespace GameEngine.Framework
 			PreDraw(delta);
 
 			#if DEBUG
-			DrawDebugInfo(delta);
+			// Don't draw debug information if we don't request it
+			if(GlobalConstants.DrawDebugInformation)
+			{
+				DrawDebugInfo(delta);
 
-			foreach(HashSet<IDebugDrawable> ds in DebugComponents.Values)
-				foreach(IDebugDrawable draw in ds)
-					if(draw.Visible)
-						draw.DrawDebugInfo(delta);
+				foreach(HashSet<IDebugDrawable> ds in DebugComponents.Values)
+					foreach(IDebugDrawable draw in ds)
+						if(draw.Visible)
+							draw.DrawDebugInfo(delta);
+			}
 			#endif
 
 			base.Draw(delta);

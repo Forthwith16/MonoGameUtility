@@ -26,6 +26,14 @@ namespace GameEngine.Framework
 			return;
 		}
 
+		#region Debug Settings
+		/// <summary>
+		/// Flags if debug information should be drawn (true) or not (false).
+		/// Game classes are primarily responsible for checking this value, and RenderTargetFriendlyGames do this by default.
+		/// </summary>
+		public static bool DrawDebugInformation = true;
+		#endregion
+
 		#region GUI Input Settings
 		/// <summary>
 		/// The mouse left click binding for GUIs.
