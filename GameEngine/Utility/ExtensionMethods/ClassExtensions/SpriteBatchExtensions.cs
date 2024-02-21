@@ -89,6 +89,20 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Color tint, float thickness, float layer_depth, params Vector2[] points)
 		{
+			renderer.DrawPolygon(renderer.GetPixel(),tint,thickness,layer_depth,(IReadOnlyList<Vector2>)points);
+			return;
+		}
+
+		/// <summary>
+		/// Draws a polygon.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the line.</param>
+		/// <param name="tint">The color tint to draw the line texture with.</param>
+		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
+		public static void DrawPolygon(this SpriteBatch renderer, Color tint, float thickness, float layer_depth, IReadOnlyList<Vector2> points)
+		{
 			renderer.DrawPolygon(renderer.GetPixel(),tint,thickness,layer_depth,points);
 			return;
 		}
@@ -104,17 +118,32 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Texture2D line_texture, Color tint, float thickness, float layer_depth, params Vector2[] points)
 		{
+			renderer.DrawPolygon(line_texture,tint,thickness,layer_depth,(IReadOnlyList<Vector2>)points);
+			return;
+		}
+
+		/// <summary>
+		/// Draws a polygon.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the line.</param>
+		/// <param name="line_texture">The texture to draw the line with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
+		/// <param name="tint">The color tint to draw the line texture with.</param>
+		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
+		public static void DrawPolygon(this SpriteBatch renderer, Texture2D line_texture, Color tint, float thickness, float layer_depth, IReadOnlyList<Vector2> points)
+		{
 			// If we don't have a polygon or even a line, do nothing
-			if(points.Length < 2)
+			if(points.Count < 2)
 				return;
 
 			// Draw each side of the polygon
-			if(points.Length > 2)
-				for(int i = 1;i < points.Length; i++)
+			if(points.Count > 2)
+				for(int i = 1;i < points.Count;i++)
 					renderer.DrawLine(line_texture,points[i - 1],points[i],tint,thickness,layer_depth);
 
 			// Special case the most annoying case last to complete the polygon
-			renderer.DrawLine(line_texture,points[points.Length - 1],points[0],tint,thickness,layer_depth);
+			renderer.DrawLine(line_texture,points[points.Count - 1],points[0],tint,thickness,layer_depth);
 
 			return;
 		}
