@@ -34,16 +34,16 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <param name="a">The first point on the line. The line extends in the direction of <paramref name="b"/> from <paramref name="a"/>.</param>
 		/// <param name="b">The second point on the line. The line extends in the direction of <paramref name="b"/> from <paramref name="a"/>.</param>
 		/// <returns>Returns the sign of the cross product previous described which represents which side of the (directed) line the point lies on.</returns>
-		public static LineSide CrossSign(this Vector2 p, Vector2 a, Vector2 b)
+		public static LineSide DetermineLineSide(this Vector2 p, Vector2 a, Vector2 b)
 		{
 			float f = Cross(b - a,p - a);
 
 			if(f.CloseEnough(0.0f))
-				return LineSide.Zero;
+				return LineSide.Colinear;
 			else if(f > 0.0f)
-				return LineSide.Positive;
+				return LineSide.Counterclockwise;
 			else // f < 0.0f
-				return LineSide.Negative;
+				return LineSide.Clockwise;
 		}
 
 		/// <summary>
@@ -125,11 +125,16 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 
 	/// <summary>
 	/// The sign of the cross product of a point against a line, representing which 'side' of the line the point is on.
+	/// This is equivalent to which way the line must rotate to intersect with the point.
+	/// <para/>
+	/// The orientation here is with respect to the ordinary right-handed coordinate system where the z-axis points 'out of the screen'.
+	/// Screen coordinates have the y-axis pointing down instead, which causes the z-axis to point 'into the screen'.
+	/// This causes the apparent rotation direction on screen to disagree with the enum names here.
 	/// </summary>
 	public enum LineSide
 	{
-		Positive,
-		Zero,
-		Negative
+		Counterclockwise,
+		Colinear,
+		Clockwise
 	}
 }
