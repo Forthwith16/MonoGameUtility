@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Maths;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
@@ -82,9 +83,9 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <summary>
 		/// Draws a polygon.
 		/// </summary>
-		/// <param name="renderer">The means by which we will draw the line.</param>
-		/// <param name="tint">The color tint to draw the line texture with.</param>
-		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
 		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Color tint, float thickness, float layer_depth, params Vector2[] points)
@@ -96,9 +97,9 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <summary>
 		/// Draws a polygon.
 		/// </summary>
-		/// <param name="renderer">The means by which we will draw the line.</param>
-		/// <param name="tint">The color tint to draw the line texture with.</param>
-		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
 		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Color tint, float thickness, float layer_depth, IReadOnlyList<Vector2> points)
@@ -110,10 +111,10 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <summary>
 		/// Draws a polygon.
 		/// </summary>
-		/// <param name="renderer">The means by which we will draw the line.</param>
-		/// <param name="line_texture">The texture to draw the line with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
-		/// <param name="tint">The color tint to draw the line texture with.</param>
-		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="line_texture">The texture to draw the polygon with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
 		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Texture2D line_texture, Color tint, float thickness, float layer_depth, params Vector2[] points)
@@ -125,10 +126,10 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <summary>
 		/// Draws a polygon.
 		/// </summary>
-		/// <param name="renderer">The means by which we will draw the line.</param>
-		/// <param name="line_texture">The texture to draw the line with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
-		/// <param name="tint">The color tint to draw the line texture with.</param>
-		/// <param name="thickness">The thickness of the line.</param>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="line_texture">The texture to draw the polygon with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
 		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
 		/// <param name="points">The points of the polygon in clockwise or counterclockwise order. An extra line from the last to the first will be drawn to complete the polygon.</param>
 		public static void DrawPolygon(this SpriteBatch renderer, Texture2D line_texture, Color tint, float thickness, float layer_depth, IReadOnlyList<Vector2> points)
@@ -144,6 +145,104 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 
 			// Special case the most annoying case last to complete the polygon
 			renderer.DrawLine(line_texture,points[points.Count - 1],points[0],tint,thickness,layer_depth);
+
+			return;
+		}
+
+		/// <summary>
+		/// Draws a regular n-gon.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="center">The center of the polygon</param>
+		/// <param name="radius">The radius of circumcircle of the polygon.</param>
+		/// <param name="angle">The angle (in radians) to place the first point of the regular n-gon at with respect to the center. The angle is measured with respect to the usual right-handed coordinate plane.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="n">The number of sides to the n-gon.</param>
+		public static void DrawRegularNGon(this SpriteBatch renderer, Vector2 center, float radius, float angle, Color tint, float thickness, float layer_depth, int n)
+		{
+			renderer.DrawRegularNGon(renderer.GetPixel(),center,radius,angle,tint,thickness,layer_depth,n);
+			return;
+		}
+
+		/// <summary>
+		/// Draws a regular n-gon.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the polygon.</param>
+		/// <param name="line_texture">The texture to draw the polygon with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
+		/// <param name="center">The center of the polygon</param>
+		/// <param name="radius">The radius of circumcircle of the polygon.</param>
+		/// <param name="angle">The angle (in radians) to place the first point of the regular n-gon at with respect to the center. The angle is measured with respect to the usual right-handed coordinate plane.</param>
+		/// <param name="tint">The color tint to draw the polygon texture with.</param>
+		/// <param name="thickness">The thickness of the polygon.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="n">The number of sides to the n-gon.</param>
+		public static void DrawRegularNGon(this SpriteBatch renderer, Texture2D line_texture, Vector2 center, float radius, float angle, Color tint, float thickness, float layer_depth, int n)
+		{
+			// I don't know why you would want this, but just no
+			if(n < 3)
+				return;
+
+			Matrix2D rot = Matrix2D.Rotation(MathF.Tau / n);
+			Vector2 prev = Matrix2D.Rotation(angle) * rot * new Vector2(radius,0.0f);
+			Vector2 cur = rot * prev;
+			
+			for(int i = 0;i < n;i++)
+			{
+				renderer.DrawLine(line_texture,center + prev,center + cur,tint,thickness,layer_depth);
+
+				prev = cur;
+				cur = rot * cur;
+			}
+
+			return;
+		}
+
+		/// <summary>
+		/// Draws a circle by approximating it with a sequence of drawn lines.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the circle.</param>
+		/// <param name="center">The center of the circle</param>
+		/// <param name="radius">The radius of the circle.</param>
+		/// <param name="tint">The color tint to draw the circle texture with.</param>
+		/// <param name="thickness">The thickness of the circle.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="approximation_points">The number of points to draw the circle with. In practice, we draw a regular <paramref name="approximation_points"/>-gon to approximate the circle.</param>
+		public static void DrawCircle(this SpriteBatch renderer, Vector2 center, float radius, Color tint, float thickness, float layer_depth, int approximation_points = 20)
+		{
+			renderer.DrawCircle(renderer.GetPixel(),center,radius,tint,thickness,layer_depth,approximation_points);
+			return;
+		}
+
+		/// <summary>
+		/// Draws a circle by approximating it with a sequence of drawn lines.
+		/// </summary>
+		/// <param name="renderer">The means by which we will draw the circle.</param>
+		/// <param name="line_texture">The texture to draw the circle with. Often, users will want this to be a single pixel, in which case omit this parameter.</param>
+		/// <param name="center">The center of the circle</param>
+		/// <param name="radius">The radius of the circle.</param>
+		/// <param name="tint">The color tint to draw the circle texture with.</param>
+		/// <param name="thickness">The thickness of the circle.</param>
+		/// <param name="layer_depth">The layer depth to draw at. This value should lie in the interval [0,1], where smaller values are considered the 'back' and larger values the 'front'.</param>
+		/// <param name="approximation_points">The number of points to draw the circle with. In practice, we draw a regular <paramref name="approximation_points"/>-gon to approximate the circle.</param>
+		public static void DrawCircle(this SpriteBatch renderer, Texture2D line_texture, Vector2 center, float radius, Color tint, float thickness, float layer_depth, int approximation_points = 20)
+		{
+			// I don't know why you would want this, but just no
+			if(approximation_points < 3)
+				return;
+
+			Matrix2D rot = Matrix2D.Rotation(MathF.Tau / approximation_points);
+			Vector2 cur = rot * new Vector2(0.0f,radius);
+			Vector2 prev = new Vector2(0.0f,radius);
+			
+			for(int i = 0;i < approximation_points;i++)
+			{
+				renderer.DrawLine(line_texture,center + prev,center + cur,tint,thickness,layer_depth);
+
+				prev = cur;
+				cur = rot * cur;
+			}
 
 			return;
 		}

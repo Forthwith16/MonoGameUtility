@@ -97,9 +97,8 @@ namespace GameEngine.Maths
 		public bool Decompose(out Vector2 translation, out float rotation, out Vector2 scale)
 		{
 			Matrix m = this;
-			bool b = m.Decompose(out Vector3 s,out Quaternion r, out Vector3 t);
-
-			if(!b)
+			
+			if(!m.Decompose(out Vector3 s,out Quaternion r, out Vector3 t))
 			{
 				translation = Vector2.Zero;
 				rotation = 0.0f;
