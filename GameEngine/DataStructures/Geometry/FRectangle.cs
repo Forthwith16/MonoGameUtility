@@ -393,6 +393,26 @@ namespace GameEngine.DataStructures.Geometry
 		public float Top => Y + Height;
 
 		/// <summary>
+		/// The bottom-left corner of this rectangle.
+		/// </summary>
+		public Vector2 BottomLeft => new Vector2(Left,Bottom);
+
+		/// <summary>
+		/// The bottom-right corner of this rectangle.
+		/// </summary>
+		public Vector2 BottomRight => new Vector2(Right,Bottom);
+
+		/// <summary>
+		/// The top-left corner of this rectangle.
+		/// </summary>
+		public Vector2 TopLeft => new Vector2(Left,Top);
+
+		/// <summary>
+		/// The top-right corner of this rectangle.
+		/// </summary>
+		public Vector2 TopRight => new Vector2(Right,Top);
+
+		/// <summary>
 		/// The center of this rectangle.
 		/// </summary>
 		public Vector2 Center => new Vector2(X + Width / 2.0f,Y + Height / 2.0f);
