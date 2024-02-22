@@ -121,6 +121,16 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 			Vector2 projection = me.Projection(line);
 			return 2.0f * projection - me;
 		}
+
+		/// <summary>
+		/// The rejection vector of <paramref name="me"/> projected onto <paramref name="from"/>.
+		/// This is the component of <paramref name="me"/> perpendicular to the axis <paramref name="from"/>.
+		/// </summary>
+		/// <param name="me">The vector being projected onto <paramref name="from"/>.</param>
+		/// <param name="from">The projection axis.</param>
+		/// <returns>Returns the component of <paramref name="me"/> perpendicular to <paramref name="from"/>.</returns>
+		public static Vector2 Rejection(this Vector2 me, Vector2 from)
+		{return me - me.Projection(from);}
 	}
 
 	/// <summary>
