@@ -1,0 +1,17 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 05.03.2011 14:19:39
+
+newmtl 07___Default
+	Ns 39.999996
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.427451 0.427451 0.427451
+	Kd 0.427451 0.427451 0.427451
+	Ks 0.990000 0.990000 0.990000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka Difuse Dragao.jpg
+	map_Kd Difuse Dragao.jpg
+	map_bump -bm 3.000000 Map__2_Normal_Bump.tga

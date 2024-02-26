@@ -44,7 +44,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleQueryCollider", "Exa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleSteeringBehavior", "ExampleSteeringBehavior\ExampleSteeringBehavior.csproj", "{7CC10B76-DFA0-4EA4-BD41-4F853B1B7521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamplePrimitiveDrawing", "ExamplePrimitiveDrawing\ExamplePrimitiveDrawing.csproj", "{28039A8E-1D5F-4FF7-BE7E-A9B9903EBC62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamplePrimitiveDrawing", "ExamplePrimitiveDrawing\ExamplePrimitiveDrawing.csproj", "{28039A8E-1D5F-4FF7-BE7E-A9B9903EBC62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleShaders", "ExampleShaders\ExampleShaders.csproj", "{28CBB990-301F-43CD-911F-7B195F2CAD23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,6 +122,10 @@ Global
 		{28039A8E-1D5F-4FF7-BE7E-A9B9903EBC62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28039A8E-1D5F-4FF7-BE7E-A9B9903EBC62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28039A8E-1D5F-4FF7-BE7E-A9B9903EBC62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28CBB990-301F-43CD-911F-7B195F2CAD23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28CBB990-301F-43CD-911F-7B195F2CAD23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28CBB990-301F-43CD-911F-7B195F2CAD23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28CBB990-301F-43CD-911F-7B195F2CAD23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
