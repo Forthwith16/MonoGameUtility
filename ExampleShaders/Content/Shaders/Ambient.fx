@@ -60,7 +60,7 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 
 // This will be the main function for our pixel (fragment) shader
 // Like with the vertex shader, you can call this whatever you want, but usually you want to pick a suitable name
-// The extra : COLOR0 allows us to return the color directly rather than defining a struct with the color singleton inside of it
+// The extra : COLOR0 is the semantics that tells the compiler we're returning the pixel color
 float4 MainPS(VertexShaderOutput input) : COLOR0
 {
 	// Because we are only doing ambient lighting, the pixel shader is nearly trivial

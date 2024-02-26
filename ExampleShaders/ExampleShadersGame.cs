@@ -5,6 +5,7 @@ using GameEngine.GUI.Components;
 using GameEngine.Input;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
+using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -73,6 +74,8 @@ namespace ExampleShaders
 
 			// Now load some shaders
 			AmbientEffect = Content.Load<Effect>("Shaders/Ambient");
+			DiffuseEffect = Content.Load<Effect>("Shaders/Diffuse");
+			PixelDiffuseEffect = Content.Load<Effect>("Shaders/PixelDiffuse");
 
 			// Create the background for the menu options
 			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
@@ -86,29 +89,44 @@ namespace ExampleShaders
 			// The menu is what does the actual game mode selection
 			Menu = new RadioButtons(this,"menu",null);
 			Menu.AddRadioButton(CreateMenuOption("Default","Models in MonoGame have a default shader known as a BasicEffect.\nIt will perform most every basic common task, including lighting, texture mapping, fog, etc...\nYou will want to use custom shaders for specialized tasks and improvements over the basics."));
-			Menu.AddRadioButton(CreateMenuOption("Ambient Light Shader","Uses a shader that applies only ambient light to the model.\nThis light source comes from nowhere and everywhere.\nOmnipresent, it applies lighting equally to all fragments."));
-			
+			Menu.AddRadioButton(CreateMenuOption("Ambient","Uses a shader that applies only ambient light to the model.\nThis light source comes from nowhere and everywhere.\nOmnipresent, it applies lighting equally to all fragments."));
+			Menu.AddRadioButton(CreateMenuOption("Diffuse","Uses a shader that applies diffuse and ambient light to the model.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
+			Menu.AddRadioButton(CreateMenuOption("Pixel Diffuse","Uses a shader that applies diffuse and ambient light to the model in the pixel shader for superior results.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
 
 			Menu.SelectionChanged += LoadGameMode;
 			Menu.Translate(Bounds.Width + 20.0f,20.0f);
 			GUISystem.Add(Menu);
 			
 			// Now create the sliders we'll need intermitently
-			R = CreateSlider("Red",new Color(0.75f,0.0f,0.0f,1.0f),"The red value of a custom light color.");
+			// The color picker sliders
+			R = CreateSlider("Red",new Color(0.75f,0.0f,0.0f,1.0f),0,255,"The red value of a custom light color.");
 			R.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 5);
 			GUISystem.Add(R);
 
-			G = CreateSlider("Green",new Color(0.0f,0.75f,0.0f,1.0f),"The green value of a custom light color.");
+			G = CreateSlider("Green",new Color(0.0f,0.75f,0.0f,1.0f),0,255,"The green value of a custom light color.");
 			G.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 4);
 			GUISystem.Add(G);
 
-			B = CreateSlider("Blue",new Color(0.0f,0.0f,0.75f,1.0f),"The blue value of a custom light color.");
+			B = CreateSlider("Blue",new Color(0.0f,0.0f,0.75f,1.0f),0,255,"The blue value of a custom light color.");
 			B.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 3);
 			GUISystem.Add(B);
 
-			Intensity = CreateSlider("Intensity",new Color(0.75f,0.75f,0.75f,1.0f),"The intensity of a light source.");
+			Intensity = CreateSlider("Intensity",new Color(0.75f,0.75f,0.75f,1.0f),0,255,"The intensity of a light source.");
 			Intensity.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 2);
 			GUISystem.Add(Intensity);
+
+			// The direction sliders
+			X = CreateSlider("X",new Color(0.75f,0.0f,0.0f,1.0f),-1000,1000,"The x component of the directional light.");
+			X.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 9);
+			GUISystem.Add(X);
+
+			Y = CreateSlider("Y",new Color(0.0f,0.75f,0.0f,1.0f),-1000,1000,"The y component of the directional light.");
+			Y.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 8);
+			GUISystem.Add(Y);
+
+			Z = CreateSlider("Z",new Color(0.0f,0.0f,0.75f,1.0f),-1000,1000,"The z component of the directional light.");
+			Z.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 7);
+			GUISystem.Add(Z);
 
 			// Set the initial button to none AFTER assigning the selection change event so that we can finish loading via it
 			Menu.SelectedRadioButton = "Default";
@@ -166,7 +184,7 @@ namespace ExampleShaders
 		/// <param name="base_color">The base color for knobs.</param>
 		/// <param name="tool_tip">The tool tip to display.</param>
 		/// <returns>Returns a new slider.</returns>
-		protected Slider CreateSlider(string name, Color base_color, string tool_tip)
+		protected Slider CreateSlider(string name, Color base_color, int min, int max, string tool_tip)
 		{
 			const int slider_width = 260;
 			
@@ -203,7 +221,7 @@ namespace ExampleShaders
 			else
 				tt = null;
 
-			return new Slider(this,name,bar,knob,0,255,tt);
+			return new Slider(this,name,bar,knob,min,max,tt);
 		}
 
 		/// <summary>
@@ -221,38 +239,16 @@ namespace ExampleShaders
 			switch(new_selection)
 			{
 			case "Default":
-				loaded = dragon!;
-				loaded.UseBasicEffect = true;
-
-				R!.Visible = false;
-				G!.Visible = false;
-				B!.Visible = false;
-				Intensity!.Visible = false;
-
+				LoadDefault();
 				break;
-			case "Ambient Light Shader":
-				loaded = dragon!;
-				
-				R!.Visible = true;
-				G!.Visible = true;
-				B!.Visible = true;
-				Intensity!.Visible = true;
-
-				loaded.UseBasicEffect = false;
-				loaded.Shader = AmbientEffect;
-				loaded.ShaderParameterization = (model,mesh,part,effect) =>
-				{
-					// We need to set the uniform values of our shader here
-					effect.Parameters["World"].SetValue(model.World);// * mesh.ParentBone.Transform); // We're supposed to use the mesh bone here, but it seems that we don't actually want that here for some reason
-					effect.Parameters["View"].SetValue(model.View);
-					effect.Parameters["Projection"].SetValue(model.Projection);
-					
-					effect.Parameters["AmbientColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
-					effect.Parameters["AmbientIntensity"].SetValue(Intensity.SliderPosition);
-
-					return;
-				};
-
+			case "Ambient":
+				LoadAmbient();
+				break;
+			case "Diffuse":
+				LoadDiffuse();
+				break;
+			case "Pixel Diffuse":
+				LoadPixelDiffuse();
 				break;
 			}
 			
@@ -270,6 +266,132 @@ namespace ExampleShaders
 			Components.Add(BoundingBox);
 			Components.Add(MenuBackground);
 			
+			return;
+		}
+
+		protected void LoadDefault()
+		{
+			loaded = dragon!;
+			loaded.UseBasicEffect = true;
+
+			R!.Visible = false;
+			G!.Visible = false;
+			B!.Visible = false;
+			Intensity!.Visible = false;
+
+			X!.Visible = false;
+			Y!.Visible = false;
+			Z!.Visible = false;
+
+			return;
+		}
+
+		protected void LoadAmbient()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = true;
+			G!.Visible = true;
+			B!.Visible = true;
+			Intensity!.Visible = true;
+
+			X!.Visible = false;
+			Y!.Visible = false;
+			Z!.Visible = false;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = AmbientEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				// We need to set the uniform values of our shader here
+				effect.Parameters["World"].SetValue(model.World);// * mesh.ParentBone.Transform); // We're supposed to use the mesh bone here, but it seems that we don't actually want that here for some reason
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+					
+				effect.Parameters["AmbientColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(Intensity.SliderPosition);
+
+				return;
+			};
+
+			return;
+		}
+
+		protected void LoadDiffuse()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = true;
+			G!.Visible = true;
+			B!.Visible = true;
+			Intensity!.Visible = true;
+
+			X!.Visible = true;
+			Y!.Visible = true;
+			Z!.Visible = true;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = DiffuseEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				// We need to set the uniform values of our shader here
+				effect.Parameters["World"].SetValue(model.World);// * mesh.ParentBone.Transform); // We're supposed to use the mesh bone here, but it seems that we don't actually want that here for some reason
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["NormalMatrix"].SetValue(Matrix.Transpose(Matrix.Invert(model.World))); // We should be using the parent bone's transform here too, but apparently not, I guess
+					
+				effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+
+				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
+
+				effect.Parameters["DiffuseLightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["DiffuseColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["DiffuseIntensity"].SetValue(Intensity.SliderPosition);
+
+				return;
+			};
+
+			return;
+		}
+
+		protected void LoadPixelDiffuse()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = true;
+			G!.Visible = true;
+			B!.Visible = true;
+			Intensity!.Visible = true;
+
+			X!.Visible = true;
+			Y!.Visible = true;
+			Z!.Visible = true;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = PixelDiffuseEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				// We need to set the uniform values of our shader here
+				effect.Parameters["World"].SetValue(model.World);// * mesh.ParentBone.Transform); // We're supposed to use the mesh bone here, but it seems that we don't actually want that here for some reason
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["NormalMatrix"].SetValue(Matrix.Transpose(Matrix.Invert(model.World))); // We should be using the parent bone's transform here too, but apparently not, I guess
+					
+				effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+
+				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
+
+				effect.Parameters["DiffuseLightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["DiffuseColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["DiffuseIntensity"].SetValue(Intensity.SliderPosition);
+
+				return;
+			};
+
 			return;
 		}
 
@@ -377,6 +499,10 @@ namespace ExampleShaders
 		protected Slider? B;
 		protected Slider? Intensity;
 		
+		protected Slider? X;
+		protected Slider? Y;
+		protected Slider? Z;
+
 		protected Boundary Bounds;
 		protected RectangleComponent? BoundingBox;
 
@@ -395,6 +521,7 @@ namespace ExampleShaders
 
 		// Shaders
 		protected Effect? AmbientEffect;
-
+		protected Effect? DiffuseEffect;
+		protected Effect? PixelDiffuseEffect;
 	}
 }
