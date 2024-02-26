@@ -72,9 +72,9 @@ namespace GameEngine.GUI.Components
 
 			if(SliderMinValue == SliderMaxValue)
 				_sMv++;
-
-			SliderValue = SliderMinValue;
+			
 			StateChanged += (a,b,c) => {};
+			SliderValue = SliderMinValue;
 
 			Clicking = false;
 			StillClicking = false;
