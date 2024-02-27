@@ -89,9 +89,21 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Diffuse.fx
 
+#begin Shaders/Phong.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/Phong.fx
+
 #begin Shaders/PixelDiffuse.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Shaders/PixelDiffuse.fx
+
+#begin Shaders/Specular.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/Specular.fx
 

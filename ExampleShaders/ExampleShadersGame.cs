@@ -76,6 +76,8 @@ namespace ExampleShaders
 			AmbientEffect = Content.Load<Effect>("Shaders/Ambient");
 			DiffuseEffect = Content.Load<Effect>("Shaders/Diffuse");
 			PixelDiffuseEffect = Content.Load<Effect>("Shaders/PixelDiffuse");
+			SpecularEffect = Content.Load<Effect>("Shaders/Specular");
+			PhongEffect = Content.Load<Effect>("Shaders/Phong");
 
 			// Create the background for the menu options
 			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
@@ -92,13 +94,16 @@ namespace ExampleShaders
 			Menu.AddRadioButton(CreateMenuOption("Ambient","Uses a shader that applies only ambient light to the model.\nThis light source comes from nowhere and everywhere.\nOmnipresent, it applies lighting equally to all fragments."));
 			Menu.AddRadioButton(CreateMenuOption("Diffuse","Uses a shader that applies diffuse and ambient light to the model.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
 			Menu.AddRadioButton(CreateMenuOption("Pixel Diffuse","Uses a shader that applies diffuse and ambient light to the model in the pixel shader for superior results.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
+			Menu.AddRadioButton(CreateMenuOption("Specular","Uses a shader that applies specular and ambient light to the model.\nThe light source comes from a directional light."));
+			Menu.AddRadioButton(CreateMenuOption("Phong","Uses a shader that applies full phong lighting to the model.\nThis includes ambient light, diffuse light, and specular light.\nThe light is obtained from a single directional light."));
 
 			Menu.SelectionChanged += LoadGameMode;
 			Menu.Translate(Bounds.Width + 20.0f,20.0f);
 			GUISystem.Add(Menu);
-			
+
 			// Now create the sliders we'll need intermitently
 			// The color picker sliders
+			#region RBGI Selector
 			R = CreateSlider("Red",new Color(0.75f,0.0f,0.0f,1.0f),0,255,"The red value of a custom light color.");
 			R.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 5);
 			GUISystem.Add(R);
@@ -114,8 +119,10 @@ namespace ExampleShaders
 			Intensity = CreateSlider("Intensity",new Color(0.75f,0.75f,0.75f,1.0f),0,255,"The intensity of a light source.");
 			Intensity.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 2);
 			GUISystem.Add(Intensity);
+			#endregion
 
 			// The direction sliders
+			#region Direction Selector
 			X = CreateSlider("X",new Color(0.75f,0.0f,0.0f,1.0f),-1000,1000,"The x component of the directional light.");
 			X.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 9);
 			GUISystem.Add(X);
@@ -127,6 +134,12 @@ namespace ExampleShaders
 			Z = CreateSlider("Z",new Color(0.0f,0.0f,0.75f,1.0f),-1000,1000,"The z component of the directional light.");
 			Z.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 7);
 			GUISystem.Add(Z);
+			#endregion
+
+			// Misc selectors
+			Shininess = CreateSlider("Shiny",new Color(0.0f,0.0f,0.75f,1.0f),0,999,"The degree of shininess of the object.");
+			Shininess.Translate(Bounds.Width + 20.0f,Bounds.Height - 20.0f * 11);
+			GUISystem.Add(Shininess);
 
 			// Set the initial button to none AFTER assigning the selection change event so that we can finish loading via it
 			Menu.SelectedRadioButton = "Default";
@@ -250,6 +263,12 @@ namespace ExampleShaders
 			case "Pixel Diffuse":
 				LoadPixelDiffuse();
 				break;
+			case "Specular":
+				LoadSpecular();
+				break;
+			case "Phong":
+				LoadPhong();
+				break;
 			}
 			
 			return;
@@ -283,6 +302,7 @@ namespace ExampleShaders
 			Y!.Visible = false;
 			Z!.Visible = false;
 
+			Shininess!.Visible = false;
 			return;
 		}
 
@@ -298,6 +318,8 @@ namespace ExampleShaders
 			X!.Visible = false;
 			Y!.Visible = false;
 			Z!.Visible = false;
+			
+			Shininess!.Visible = false;
 
 			loaded.UseBasicEffect = false;
 			loaded.Shader = AmbientEffect;
@@ -329,6 +351,8 @@ namespace ExampleShaders
 			X!.Visible = true;
 			Y!.Visible = true;
 			Z!.Visible = true;
+			
+			Shininess!.Visible = false;
 
 			loaded.UseBasicEffect = false;
 			loaded.Shader = DiffuseEffect;
@@ -368,6 +392,8 @@ namespace ExampleShaders
 			X!.Visible = true;
 			Y!.Visible = true;
 			Z!.Visible = true;
+			
+			Shininess!.Visible = false;
 
 			loaded.UseBasicEffect = false;
 			loaded.Shader = PixelDiffuseEffect;
@@ -389,6 +415,101 @@ namespace ExampleShaders
 				effect.Parameters["DiffuseColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
 				effect.Parameters["DiffuseIntensity"].SetValue(Intensity.SliderPosition);
 
+				return;
+			};
+
+			return;
+		}
+
+		protected void LoadSpecular()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = true;
+			G!.Visible = true;
+			B!.Visible = true;
+			Intensity!.Visible = true;
+
+			X!.Visible = true;
+			Y!.Visible = true;
+			Z!.Visible = true;
+
+			Shininess!.Visible = true;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = SpecularEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				effect.Parameters["World"].SetValue(model.World);
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["NormalMatrix"].SetValue(Matrix.Transpose(Matrix.Invert(model.World)));
+					
+				effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+
+				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
+
+				effect.Parameters["LightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+
+				// The new specular components
+				effect.Parameters["Shininess"].SetValue(MathF.Pow(2.0f,1.0f / (1.0f - (Shininess.SliderPosition == 1.0f ? float.Epsilon : Shininess.SliderPosition))) - 2.0f);
+				effect.Parameters["SpecularColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["SpecularIntensity"].SetValue(Intensity.SliderPosition);
+
+				// The view vector is the direction we're looking
+				// Since we're using a LookAt matrix from (0,5,-10) looking at the point (0,0,0), we just need to normalize (0,-5,10) to get the direction we're looking
+				// This will be in the camera's local space (not even in View space), so we'll need to transform this to world space in the shader
+				// We could do this here, but the view vector is constant, and if we're using it to draw many things with different model matrices to get to world space, then it would stop being constant
+				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				
+				return;
+			};
+
+			return;
+		}
+
+		protected void LoadPhong()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = false;
+			G!.Visible = false;
+			B!.Visible = false;
+			Intensity!.Visible = false;
+
+			X!.Visible = true;
+			Y!.Visible = true;
+			Z!.Visible = true;
+
+			Shininess!.Visible = true;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = PhongEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				effect.Parameters["World"].SetValue(model.World);
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["NormalMatrix"].SetValue(Matrix.Transpose(Matrix.Invert(model.World)));
+					
+				effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+
+				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
+
+				effect.Parameters["LightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["LightColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["LightIntensity"].SetValue(0.5f);
+
+				effect.Parameters["Shininess"].SetValue(MathF.Pow(2.0f,1.0f / (1.0f - (Shininess.SliderPosition == 1.0f ? float.Epsilon : Shininess.SliderPosition))) - 2.0f);
+				effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["SpecularIntensity"].SetValue(0.5f);
+
+				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				
 				return;
 			};
 
@@ -503,6 +624,8 @@ namespace ExampleShaders
 		protected Slider? Y;
 		protected Slider? Z;
 
+		protected Slider? Shininess;
+
 		protected Boundary Bounds;
 		protected RectangleComponent? BoundingBox;
 
@@ -523,5 +646,7 @@ namespace ExampleShaders
 		protected Effect? AmbientEffect;
 		protected Effect? DiffuseEffect;
 		protected Effect? PixelDiffuseEffect;
+		protected Effect? SpecularEffect;
+		protected Effect? PhongEffect;
 	}
 }
