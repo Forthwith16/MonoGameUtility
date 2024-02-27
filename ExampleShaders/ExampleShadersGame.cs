@@ -67,6 +67,7 @@ namespace ExampleShaders
 			dragon = new SimpleModel(this,Content.Load<Model>("Models/dragon/dragon"));
 			dragon.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),Vector3.Zero,Vector3.Up);
 			dragon.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),AspectRatio,1.0f,1000.0f);
+			dragon_texture = Content.Load<Texture2D>("Models/dragon/Difuse Dragao");
 
 			mimikyu = new SimpleModel(this,Content.Load<Model>("Models/mimikyu"));
 			mimikyu.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),Vector3.Zero,Vector3.Up);
@@ -78,6 +79,8 @@ namespace ExampleShaders
 			PixelDiffuseEffect = Content.Load<Effect>("Shaders/PixelDiffuse");
 			SpecularEffect = Content.Load<Effect>("Shaders/Specular");
 			PhongEffect = Content.Load<Effect>("Shaders/Phong");
+			TextureEffect = Content.Load<Effect>("Shaders/Texture");
+			TextureLightingEffect = Content.Load<Effect>("Shaders/TextureLighting");
 
 			// Create the background for the menu options
 			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
@@ -96,6 +99,8 @@ namespace ExampleShaders
 			Menu.AddRadioButton(CreateMenuOption("Pixel Diffuse","Uses a shader that applies diffuse and ambient light to the model in the pixel shader for superior results.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
 			Menu.AddRadioButton(CreateMenuOption("Specular","Uses a shader that applies specular and ambient light to the model.\nThe light source comes from a directional light."));
 			Menu.AddRadioButton(CreateMenuOption("Phong","Uses a shader that applies full phong lighting to the model.\nThis includes ambient light, diffuse light, and specular light.\nThe light is obtained from a single directional light."));
+			Menu.AddRadioButton(CreateMenuOption("Texture","A shader that simply copy-pastes a texture onto its model.\nNo lighting is applied."));
+			Menu.AddRadioButton(CreateMenuOption("Texture Lighting","A shader that applies texture color data to phong lighting."));
 
 			Menu.SelectionChanged += LoadGameMode;
 			Menu.Translate(Bounds.Width + 20.0f,20.0f);
@@ -268,6 +273,12 @@ namespace ExampleShaders
 				break;
 			case "Phong":
 				LoadPhong();
+				break;
+			case "Texture":
+				LoadTexture();
+				break;
+			case "Texture Lighting":
+				LoadTextureLighting();
 				break;
 			}
 			
@@ -516,6 +527,83 @@ namespace ExampleShaders
 			return;
 		}
 
+		protected void LoadTexture()
+		{
+			loaded = dragon!;
+
+			R!.Visible = false;
+			G!.Visible = false;
+			B!.Visible = false;
+			Intensity!.Visible = false;
+
+			X!.Visible = false;
+			Y!.Visible = false;
+			Z!.Visible = false;
+
+			Shininess!.Visible = false;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = TextureEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				effect.Parameters["World"].SetValue(model.World);
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+				
+				effect.Parameters["ModelTexture"].SetValue(dragon_texture);
+
+				return;
+			};
+
+			return;
+		}
+
+		protected void LoadTextureLighting()
+		{
+			loaded = dragon!;
+			
+			R!.Visible = false;
+			G!.Visible = false;
+			B!.Visible = false;
+			Intensity!.Visible = false;
+
+			X!.Visible = true;
+			Y!.Visible = true;
+			Z!.Visible = true;
+
+			Shininess!.Visible = false;
+
+			loaded.UseBasicEffect = false;
+			loaded.Shader = TextureLightingEffect;
+			loaded.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				effect.Parameters["World"].SetValue(model.World);
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["NormalMatrix"].SetValue(Matrix.Transpose(Matrix.Invert(model.World)));
+					
+				effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+
+				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
+
+				effect.Parameters["LightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["LightColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["LightIntensity"].SetValue(1.0f);
+
+				effect.Parameters["Shininess"].SetValue(20.0f);
+				effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+				effect.Parameters["SpecularIntensity"].SetValue(0.2f);
+
+				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				
+				effect.Parameters["ModelTexture"].SetValue(dragon_texture);
+				
+				return;
+			};
+		}
+
 		protected override void Update(GameTime delta)
 		{
 			if(Input!["Exit"].CurrentDigitalValue)
@@ -640,6 +728,7 @@ namespace ExampleShaders
 
 		protected SimpleModel? doughnut;
 		protected SimpleModel? dragon;
+		protected Texture2D? dragon_texture;
 		protected SimpleModel? mimikyu;
 
 		// Shaders
@@ -648,5 +737,7 @@ namespace ExampleShaders
 		protected Effect? PixelDiffuseEffect;
 		protected Effect? SpecularEffect;
 		protected Effect? PhongEffect;
+		protected Effect? TextureEffect;
+		protected Effect? TextureLightingEffect;
 	}
 }
