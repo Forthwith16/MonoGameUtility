@@ -80,7 +80,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR0
 	// We provide the view vector (the camera's forward vector) in the camera's local space
 	// We need to get it into the same coordinate system as the reflection vector, which is in world space
 	// So we need to multiply by the world matrix and then renormalize it
-	float3 v = normalize(mul(float4(ViewVector,1.0f),World).xyz);
+	float3 v = normalize(mul(float4(ViewVector,0.0f),World).xyz);
 	
 	// To calculate the specular component, we multiply color by intensity and then take shininess into account
 	// We multiply by the angle between r and v taken to the Shininess power

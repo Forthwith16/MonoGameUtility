@@ -76,7 +76,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR0
 	float diffuse = LightColor * LightIntensity * diffusion_effectivity;
 	
 	float3 r = reflect(LightDirection,n);
-	float3 v = normalize(mul(float4(ViewVector,1.0f),World).xyz);
+	float3 v = normalize(mul(float4(ViewVector,0.0f),World).xyz);
 	float4 specular = SpecularIntensity * SpecularColor * max(pow(dot(r,v),Shininess),0.0f);
 
 	// How you choose to combine texture colors with lighting data is a matter of preference and a matter of how you're modeling lighting
