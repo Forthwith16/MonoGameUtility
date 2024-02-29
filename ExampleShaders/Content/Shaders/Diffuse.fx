@@ -1,4 +1,5 @@
 ﻿#if OPENGL
+	#define SV_POSITION POSITION
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
@@ -25,9 +26,9 @@ matrix NormalMatrix;
 float4 AmbientColor;
 float AmbientIntensity;
 
-float3 DiffuseLightDirection; // This must be a unit vector for correct results (though you can embed DiffuseIntensity into the length of this if clever)
-float4 DiffuseColor;
-float DiffuseIntensity;
+float3 LightDirection; // This must be a unit vector for correct results (though you can embed DiffuseIntensity into the length of this if clever)
+float4 LightColor;
+float LightIntensity;
 
 struct VertexShaderInput
 {
@@ -37,7 +38,7 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
+	float4 Position : SV_POSITION;
 	float4 Color : COLOR0; // We'll be passing off a diffuse color to the pixel shader (better but slower lighting results would not bother with this)
 };
 
@@ -56,14 +57,14 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 	// To determine how much light we see, we need to determine how well aligned the surface we're drawing is with the light source
 	// With a directional light, this is pretty easy, since the light direction is always the same
 	// The only thing that changes is the normal vector for our vertex, so we need to calculate what that looks like in world space (which is where the light direction is)
-	float4 normal = normalize(mul(input.Normal,NormalMatrix));
+	float3 normal = normalize(mul(input.Normal,NormalMatrix).xyz);
 	
-	// Diffuse light is most effective when the directional light is parallel, not effective at all when perpendicular, and nonsensical when anti-parallel
-	// It scales with the cos of the angle between the light direction and the normal, which happens to be the dot product (assuming the normal and light direction are unit vectors)
-	float diffusion_effectivity = dot(normal.xyz,DiffuseLightDirection);
+	// Diffuse light is most effective when the directional light is anti-parallel to the normal, not effective at all when perpendicular, and nonsensical when parallel
+	// It scales with the cos of the angle between the (additive inverse of the) light direction and the normal, which happens to be the dot product (assuming the normal and light direction are unit vectors)
+	float diffusion_effectivity = max(dot(normal,-LightDirection),0.0f);
 	
 	// The saturate function will clamp each component of the color to between 0 and 1
-	output.Color = saturate(DiffuseColor * DiffuseIntensity * diffusion_effectivity);
+	output.Color = saturate(LightColor * LightIntensity * diffusion_effectivity);
 	
 	return output;
 }

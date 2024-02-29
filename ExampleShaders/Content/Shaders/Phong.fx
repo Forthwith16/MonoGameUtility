@@ -1,9 +1,10 @@
 ﻿#if OPENGL
-#define VS_SHADERMODEL vs_3_0
-#define PS_SHADERMODEL ps_3_0
+	#define SV_POSITION POSITION
+	#define VS_SHADERMODEL vs_3_0
+	#define PS_SHADERMODEL ps_3_0
 #else
-#define VS_SHADERMODEL vs_4_0_level_9_1
-#define PS_SHADERMODEL ps_4_0_level_9_1
+	#define VS_SHADERMODEL vs_4_0_level_9_1
+	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
 matrix World;
@@ -23,7 +24,7 @@ float Shininess;
 float4 SpecularColor;
 float SpecularIntensity;
 
-float3 ViewVector;
+float3 CameraPosition;
 
 struct VertexShaderInput
 {
@@ -33,8 +34,9 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
-	float4 Normal : TEXCOORD0;
+	float4 Position : SV_Position;
+	float4 WorldPosition : TEXCOORD0;
+	float4 Normal : TEXCOORD1;
 };
 
 VertexShaderOutput MainVS(VertexShaderInput input)
@@ -43,7 +45,7 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 	
 	float4 wpos = mul(input.Position,World);
 	float4 vpos = mul(wpos,View);
-	output.Position = mul(vpos,Projection);
+	output.Position = output.WorldPosition = mul(vpos,Projection);
 	
 	output.Normal = mul(input.Normal,NormalMatrix);
 	
@@ -59,15 +61,12 @@ float4 MainPS(VertexShaderOutput input) : COLOR0
 	// In effect, all materials are (1,1,1)
 	float3 n = normalize(input.Normal.xyz);
 	
-	if(dot(n,LightDirection) <= 0.0f)
-		return saturate(AmbientColor * AmbientIntensity);
-	
-	float diffusion_effectivity = dot(n,LightDirection);
-	float diffuse = LightColor * LightIntensity * diffusion_effectivity;
+	float diffusion_effectivity = max(dot(n,-LightDirection),0.0f);
+	float4 diffuse = LightColor * LightIntensity * diffusion_effectivity;
 	
 	float3 r = reflect(LightDirection,n);
-	float3 v = normalize(mul(float4(ViewVector,0.0f),World).xyz);
-	float4 specular = SpecularIntensity * SpecularColor * max(pow(dot(r,v),Shininess),0.0f);
+	float3 v = normalize(CameraPosition - input.WorldPosition.xyz);
+	float4 specular = SpecularIntensity * SpecularColor * pow(max(dot(r,v),0.0f),Shininess);
 
 	return saturate(AmbientColor * AmbientIntensity + diffuse + specular);
 }

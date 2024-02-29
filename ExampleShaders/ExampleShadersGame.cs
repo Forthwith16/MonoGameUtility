@@ -381,9 +381,9 @@ namespace ExampleShaders
 
 				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
 
-				effect.Parameters["DiffuseLightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
-				effect.Parameters["DiffuseColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
-				effect.Parameters["DiffuseIntensity"].SetValue(Intensity.SliderPosition);
+				effect.Parameters["LightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["LightColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["LightIntensity"].SetValue(Intensity.SliderPosition);
 
 				return;
 			};
@@ -422,9 +422,9 @@ namespace ExampleShaders
 
 				Vector3 dir = new Vector3(X.SliderValue,Y.SliderValue,Z.SliderValue).Normalized();
 
-				effect.Parameters["DiffuseLightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
-				effect.Parameters["DiffuseColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
-				effect.Parameters["DiffuseIntensity"].SetValue(Intensity.SliderPosition);
+				effect.Parameters["LightDirection"].SetValue(dir == Vector3.Zero ? Vector3.Left : dir);
+				effect.Parameters["LightColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
+				effect.Parameters["LightIntensity"].SetValue(Intensity.SliderPosition);
 
 				return;
 			};
@@ -469,11 +469,8 @@ namespace ExampleShaders
 				effect.Parameters["SpecularColor"].SetValue(new Color(R.SliderValue,G.SliderValue,B.SliderValue,255).ToVector4());
 				effect.Parameters["SpecularIntensity"].SetValue(Intensity.SliderPosition);
 
-				// The view vector is the direction we're looking
-				// Since we're using a LookAt matrix from (0,5,-10) looking at the point (0,0,0), we just need to normalize (0,-5,10) to get the direction we're looking
-				// This will be in the camera's local space (not even in View space), so we'll need to transform this to world space in the shader
-				// We could do this here, but the view vector is constant, and if we're using it to draw many things with different model matrices to get to world space, then it would stop being constant
-				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				// We asked for the camera position, which doesn't move in our case, so just pass it along
+				effect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f,5.0f,-10.0f));
 				
 				return;
 			};
@@ -519,7 +516,7 @@ namespace ExampleShaders
 				effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
 				effect.Parameters["SpecularIntensity"].SetValue(0.5f);
 
-				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				effect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f,5.0f,-10.0f));
 				
 				return;
 			};
@@ -596,7 +593,7 @@ namespace ExampleShaders
 				effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
 				effect.Parameters["SpecularIntensity"].SetValue(0.2f);
 
-				effect.Parameters["ViewVector"].SetValue(new Vector3(0.0f,-5.0f,10.0f).Normalized());
+				effect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f,5.0f,-10.0f));
 				
 				effect.Parameters["ModelTexture"].SetValue(dragon_texture);
 				

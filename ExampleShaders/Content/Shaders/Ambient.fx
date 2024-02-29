@@ -1,6 +1,7 @@
 ﻿// Don't worry about these for now
 // The meaning of these constants will be dealt with later
 #if OPENGL
+	#define SV_POSITION POSITION
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
@@ -40,7 +41,10 @@ struct VertexShaderInput
 // In this case, it will be identical in appearance to the input, but the meaning of Position will be different
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
+	// SV_POSITION is a special semantic that is the output position of the vertex that gets turned into an (x,y) position on the screen (plus a depth value)
+	// Prior to Direct3D 10, this would provide the general (x,y,z,w) component of the position but does not now
+	// If you want the interpolated position of a fragment in the pixel shader, you will need to pass the world position as a separate output float4
+	float4 Position : SV_POSITION;
 };
 
 // This will be the main function for our vertex shader

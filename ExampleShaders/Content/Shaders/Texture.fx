@@ -1,4 +1,5 @@
 ﻿#if OPENGL
+	#define SV_POSITION POSITION
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
@@ -43,7 +44,7 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
+	float4 Position : SV_Position;
 	float2 TextureCoordinate : TEXCOORD0;
 };
 

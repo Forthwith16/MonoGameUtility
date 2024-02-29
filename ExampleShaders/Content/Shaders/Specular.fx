@@ -1,9 +1,10 @@
 ﻿#if OPENGL
-#define VS_SHADERMODEL vs_3_0
-#define PS_SHADERMODEL ps_3_0
+	#define SV_POSITION POSITION
+	#define VS_SHADERMODEL vs_3_0
+	#define PS_SHADERMODEL ps_3_0
 #else
-#define VS_SHADERMODEL vs_4_0_level_9_1
-#define PS_SHADERMODEL ps_4_0_level_9_1
+	#define VS_SHADERMODEL vs_4_0_level_9_1
+	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
 matrix World;
@@ -29,9 +30,9 @@ float4 SpecularColor;
 // It represents what proportion of incident light is actually reflected via the specular component
 float SpecularIntensity;
 
-// The view vector is needed to determine how we're looking at the object (specifically, this is the camera's forward vector in its local space)
+// The camera position (in world space) is needed to determine how we're looking at the object
 // We CAN calculate this here in the shader using the View matrix, but it's easier to do it once CPU side and then send it off to the GPU as a constant
-float3 ViewVector;
+float3 CameraPosition;
 
 struct VertexShaderInput
 {
@@ -41,8 +42,9 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
-	float4 Normal : TEXCOORD0;
+	float4 Position : SV_Position;
+	float4 WorldPosition : TEXCOORD0; // The choice to have this variable is partially documented in Ambient.fx; since Position will not be the interpolated (x,y,z,w) positional value, we need a separate output variable to keep that data around for us
+	float4 Normal : TEXCOORD1;
 };
 
 VertexShaderOutput MainVS(VertexShaderInput input)
@@ -51,7 +53,7 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 	
 	float4 wpos = mul(input.Position,World);
 	float4 vpos = mul(wpos,View);
-	output.Position = mul(vpos,Projection);
+	output.Position = output.WorldPosition = mul(vpos,Projection);
 	
 	// We will not normalize the normal vector here since when we lerp, it will undo that work
 	output.Normal = mul(input.Normal,NormalMatrix);
@@ -67,7 +69,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR0
 	
 	// Check if we are casting light onto a surface that faces the light
 	// We need the light direction and normal to be facing toward each other, meaning their dot product is negative
-	if(dot(n,LightDirection) <= 0.0f)
+	if(dot(n,-LightDirection) <= 0.0f)
 		return saturate(AmbientColor * AmbientIntensity);
 	
 	// This is the reflection vector
@@ -77,15 +79,13 @@ float4 MainPS(VertexShaderOutput input) : COLOR0
 	// ...or we can just use the intrinsic reflect function of HLSL
 	float3 r = reflect(LightDirection,n);
 	
-	// We provide the view vector (the camera's forward vector) in the camera's local space
-	// We need to get it into the same coordinate system as the reflection vector, which is in world space
-	// So we need to multiply by the world matrix and then renormalize it
-	float3 v = normalize(mul(float4(ViewVector,0.0f),World).xyz);
+	// We provide the camera position in world space and have to obtain the vector that points toward it from wherever this fragment is
+	float3 v = normalize(CameraPosition - input.WorldPosition.xyz);
 	
 	// To calculate the specular component, we multiply color by intensity and then take shininess into account
 	// We multiply by the angle between r and v taken to the Shininess power
 	// This will make objects VERY shiny when r and v are nearly parallel, and the shininess fades off as we go further away
-	float4 specular = SpecularIntensity * SpecularColor * max(pow(dot(r,v),Shininess),0.0f);
+	float4 specular = SpecularIntensity * SpecularColor * pow(max(dot(r,v),0.0f),Shininess);
 	
 	// Below are variations on how you might calculate the specular component
 	// In this variation, we ensure that specular color cannot produce colors that are not available from our directional light

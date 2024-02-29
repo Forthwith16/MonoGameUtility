@@ -1,4 +1,5 @@
 ﻿#if OPENGL
+	#define SV_POSITION POSITION
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
@@ -15,9 +16,9 @@ matrix NormalMatrix;
 float4 AmbientColor;
 float AmbientIntensity;
 
-float3 DiffuseLightDirection;
-float4 DiffuseColor;
-float DiffuseIntensity;
+float3 LightDirection;
+float4 LightColor;
+float LightIntensity;
 
 struct VertexShaderInput
 {
@@ -27,7 +28,7 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-	float4 Position : POSITION0;
+	float4 Position : SV_POSITION;
 	float4 Normal : TEXCOORD0; // It doesn't really matter what semantic you use (which is why glsl is better) so long as you match their SIZE NOT TYPE: https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
 };
 
@@ -47,8 +48,8 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR0
 {
-	float diffusion_effectivity = dot(normalize(input.Normal).xyz,DiffuseLightDirection);
-	return saturate(DiffuseColor * DiffuseIntensity * diffusion_effectivity + AmbientColor * AmbientIntensity);;
+	float diffusion_effectivity = max(dot(normalize(input.Normal.xyz),-LightDirection),0.0f);
+	return saturate(LightColor * LightIntensity * diffusion_effectivity + AmbientColor * AmbientIntensity);;
 }
 
 technique PixelDiffuse
