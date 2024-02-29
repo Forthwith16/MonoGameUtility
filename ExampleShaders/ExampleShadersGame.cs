@@ -16,6 +16,14 @@ namespace ExampleShaders
 	/// <summary>
 	/// Shows how to use shaders, which are known as Effects in MonoGame.
 	/// Included are several shaders that have various effects.
+	/// <para/>
+	/// WASD + QE will rotate the model.
+	/// <para/>
+	/// The arrow keys will move the model.
+	/// <para/>
+	/// IJKL + UO will move the look at target.
+	/// <para/>
+	/// Escape closes the program.
 	/// </summary>
 	public class ExampleShadersGame : RenderTargetFriendlyGame
 	{
@@ -55,23 +63,49 @@ namespace ExampleShaders
 			Input.AddKeyInput("RZL",Keys.Q);
 			Input.AddKeyInput("RZR",Keys.E);
 
+			Input.AddKeyInput("IT",Keys.I);
+			Input.AddKeyInput("KT",Keys.K);
+			Input.AddKeyInput("JT",Keys.J);
+			Input.AddKeyInput("LT",Keys.L);
+			Input.AddKeyInput("OT",Keys.O);
+			Input.AddKeyInput("UT",Keys.U);
+
 			// This will ensure the mouse is drawn on top of models
 			Mouse!.DepthRecord = DepthStencilState.Default;
 			Mouse.Blend = BlendState.NonPremultiplied;
 
 			// Load some models
 			doughnut = new SimpleModel(this,Content.Load<Model>("Models/doughnut"));
-			doughnut.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),Vector3.Zero,Vector3.Up);
+			doughnut.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
 			doughnut.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),AspectRatio,1.0f,1000.0f);
 
 			dragon = new SimpleModel(this,Content.Load<Model>("Models/dragon/dragon"));
-			dragon.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),Vector3.Zero,Vector3.Up);
+			dragon.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
 			dragon.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),AspectRatio,1.0f,1000.0f);
 			dragon_texture = Content.Load<Texture2D>("Models/dragon/Difuse Dragao");
 
 			mimikyu = new SimpleModel(this,Content.Load<Model>("Models/mimikyu"));
-			mimikyu.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),Vector3.Zero,Vector3.Up);
+			mimikyu.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
 			mimikyu.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),AspectRatio,1.0f,1000.0f);
+
+			Skybox = new SimpleModel(this,Content.Load<Model>("Models/cube"));
+			SkyboxTexture = Content.Load<TextureCube>("Skyboxes/Sunset");
+			Skybox.World = Matrix.CreateScale(500.0f);
+			Skybox.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
+			Skybox.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),AspectRatio,1.0f,1000.0f);
+			Skybox.Shader = SkyboxEffect = Content.Load<Effect>("Shaders/Skybox");
+			Skybox.UseBasicEffect = false;
+			Skybox.ShaderParameterization = (model,mesh,part,effect) =>
+			{
+				effect.Parameters["World"].SetValue(model.World);
+				effect.Parameters["View"].SetValue(model.View);
+				effect.Parameters["Projection"].SetValue(model.Projection);
+
+				effect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f,5.0f,-10.0f));
+
+				effect.Parameters["SkyboxTexture"].SetValue(SkyboxTexture);
+				return;
+			};
 
 			// Now load some shaders
 			AmbientEffect = Content.Load<Effect>("Shaders/Ambient");
@@ -662,6 +696,31 @@ namespace ExampleShaders
 					z_rot += MathF.Tau;
 			}
 
+			float tspeed = 2.0f;
+
+			if(Input["IT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Up;
+
+			if(Input["KT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Down;
+
+			if(Input["JT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Right;
+
+			if(Input["LT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Left;
+
+			if(Input["OT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Forward;
+
+			if(Input["UT"].CurrentDigitalValue)
+				target += tspeed * deltat * Vector3.Backward;
+
+			if(loaded is not null)
+				loaded.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
+
+			Skybox!.View = Matrix.CreateLookAt(new Vector3(0.0f,5.0f,-10.0f),target,Vector3.Up);
+
 			base.Update(delta);
 			return;
 		}
@@ -674,6 +733,11 @@ namespace ExampleShaders
 			GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 			GraphicsDevice.BlendState = BlendState.Opaque;
 			GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+
+			// Draw the skybox
+			// Note that the skybox cube has inverted faces so that the 'outside' of the cube is actually inside it
+			// This means we will see the cube when inside it and it will be culled when we're outside it
+			Skybox!.Draw(delta);
 
 			// Draw our 3D model, whatever that is
 			if(loaded is not null)
@@ -719,6 +783,7 @@ namespace ExampleShaders
 		// Models
 		protected SimpleModel? loaded;
 		protected Vector3 pos = new Vector3(1.5f,0.0f,0.0f);
+		protected Vector3 target = Vector3.Zero;
 		protected float x_rot = 0.0f;
 		protected float y_rot = 0.0f;
 		protected float z_rot = 0.0f;
@@ -728,6 +793,10 @@ namespace ExampleShaders
 		protected Texture2D? dragon_texture;
 		protected SimpleModel? mimikyu;
 
+		// Skybox
+		protected SimpleModel? Skybox;
+		protected TextureCube? SkyboxTexture;
+
 		// Shaders
 		protected Effect? AmbientEffect;
 		protected Effect? DiffuseEffect;
@@ -736,5 +805,7 @@ namespace ExampleShaders
 		protected Effect? PhongEffect;
 		protected Effect? TextureEffect;
 		protected Effect? TextureLightingEffect;
+		
+		protected Effect? SkyboxEffect;
 	}
 }

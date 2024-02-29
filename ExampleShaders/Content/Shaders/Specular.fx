@@ -51,9 +51,9 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 {
 	VertexShaderOutput output;
 	
-	float4 wpos = mul(input.Position,World);
-	float4 vpos = mul(wpos,View);
-	output.Position = output.WorldPosition = mul(vpos,Projection);
+	output.WorldPosition = mul(input.Position,World);
+	float4 vpos = mul(output.WorldPosition,View);
+	output.Position = mul(vpos,Projection);
 	
 	// We will not normalize the normal vector here since when we lerp, it will undo that work
 	output.Normal = mul(input.Normal,NormalMatrix);

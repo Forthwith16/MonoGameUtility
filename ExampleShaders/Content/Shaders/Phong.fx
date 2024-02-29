@@ -43,9 +43,9 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 {
 	VertexShaderOutput output;
 	
-	float4 wpos = mul(input.Position,World);
-	float4 vpos = mul(wpos,View);
-	output.Position = output.WorldPosition = mul(vpos,Projection);
+	output.WorldPosition = mul(input.Position,World);
+	float4 vpos = mul(output.WorldPosition,View);
+	output.Position = mul(vpos,Projection);
 	
 	output.Normal = mul(input.Normal,NormalMatrix);
 	
