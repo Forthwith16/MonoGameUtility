@@ -5,6 +5,8 @@ namespace GameEngine.Framework
 	/// <summary>
 	/// Represents something that may need to drawn additional information during debugging.
 	/// Any functionality added in debug mode will only be utilized if compiling for debugging (or otherwise defining the symbol DEBUG).
+	/// <para/>
+	/// To disable debug drawing in debug compiliations, set <see cref="GlobalConstants.DrawDebugInformation"/> to false.
 	/// </summary>
 	public interface IDebugDrawable
 	{
