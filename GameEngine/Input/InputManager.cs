@@ -28,6 +28,14 @@ namespace GameEngine.Input
 			GamepadThree = GamePadState.Default;
 			GamepadFour = GamePadState.Default;
 
+			// Assign the default fetch functions
+			KeyboardFetch = Keyboard.GetState;
+			MouseFetch = Mouse.GetState;
+			GamePadOneFetch = () => GamePad.GetState(PlayerIndex.One); // These will default if the controller isn't connected
+			GamePadTwoFetch = () => GamePad.GetState(PlayerIndex.Two);
+			GamePadThreeFetch = () => GamePad.GetState(PlayerIndex.Three);
+			GamePadFourFetch = () => GamePad.GetState(PlayerIndex.Four);
+			
 			CurrentTime = 0.0f;
 			return;
 		}
@@ -35,33 +43,18 @@ namespace GameEngine.Input
 		public override void Update(GameTime delta)
 		{
 			// Update the keyboard state
-			Keys = Keyboard.GetState();
+			Keys = KeyboardFetch();
 			
 			// Update the mouse state
 			PreviousMouse = CurrentMouse;
-			CurrentMouse = Mouse.GetState();
+			CurrentMouse = MouseFetch();
 			
 			// Update the gamepad states
-			if(GamePad.GetCapabilities(PlayerIndex.One).IsConnected)
-				GamepadOne = GamePad.GetState(PlayerIndex.One);
-			else
-				GamepadOne = GamePadState.Default;
-
-			if(GamePad.GetCapabilities(PlayerIndex.Two).IsConnected)
-				GamepadTwo = GamePad.GetState(PlayerIndex.Two);
-			else
-				GamepadTwo = GamePadState.Default;
-
-			if(GamePad.GetCapabilities(PlayerIndex.Three).IsConnected)
-				GamepadThree = GamePad.GetState(PlayerIndex.Three);
-			else
-				GamepadThree = GamePadState.Default;
-
-			if(GamePad.GetCapabilities(PlayerIndex.Four).IsConnected)
-				GamepadFour = GamePad.GetState(PlayerIndex.Four);
-			else
-				GamepadFour = GamePadState.Default;
-
+			GamepadOne = GamePadOneFetch();
+			GamepadTwo = GamePadTwoFetch();
+			GamepadThree = GamePadThreeFetch();
+			GamepadFour = GamePadFourFetch();
+			
 			// Update the time
 			CurrentTime += (float)delta.ElapsedGameTime.TotalSeconds;
 
@@ -198,6 +191,14 @@ namespace GameEngine.Input
 		{get; protected set;}
 
 		/// <summary>
+		/// The means by which we obtain keyboard input.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public KeyboardStateFetcher KeyboardFetch
+		{get; set;}
+
+		/// <summary>
 		/// The current mouse state.
 		/// </summary>
 		public MouseState CurrentMouse
@@ -210,10 +211,26 @@ namespace GameEngine.Input
 		{get; protected set;}
 
 		/// <summary>
+		/// The means by which we obtain mouse input.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public MouseStateFetcher MouseFetch
+		{get; set;}
+
+		/// <summary>
 		/// The current state of the first gamepad.
 		/// </summary>
 		public GamePadState GamepadOne
 		{get; protected set;}
+
+		/// <summary>
+		/// The means by which we obtain game pad input for the first game pad.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public GamePadStateFetcher GamePadOneFetch
+		{get; set;}
 
 		/// <summary>
 		/// The current state of the first gamepad.
@@ -222,16 +239,40 @@ namespace GameEngine.Input
 		{get; protected set;}
 
 		/// <summary>
+		/// The means by which we obtain game pad input for the second game pad.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public GamePadStateFetcher GamePadTwoFetch
+		{get; set;}
+
+		/// <summary>
 		/// The current state of the third gamepad.
 		/// </summary>
 		public GamePadState GamepadThree
 		{get; protected set;}
 
 		/// <summary>
+		/// The means by which we obtain game pad input for the third game pad.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public GamePadStateFetcher GamePadThreeFetch
+		{get; set;}
+
+		/// <summary>
 		/// The current state of the fourth gamepad.
 		/// </summary>
 		public GamePadState GamepadFour
 		{get; protected set;}
+
+		/// <summary>
+		/// The means by which we obtain game pad input for the fourth game pad.
+		/// This will default to simply grabbing MonoGame's input.
+		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// </summary>
+		public GamePadStateFetcher GamePadFourFetch
+		{get; set;}
 
 		/// <summary>
 		/// The current time (in seconds) according to this input manager.
@@ -284,7 +325,7 @@ namespace GameEngine.Input
 		/// </summary>
 		public void Update()
 		{
-			// First thing's first, uneat this input (regardless of if it was before or not
+			// First thing's first, uneat this input (regardless of if it was before or not)
 			Eaten = false;
 
 			// The first update doesn't care about previous values, but it makes the code far more readable to just drop two clock cycles on it anyway
@@ -614,4 +655,22 @@ namespace GameEngine.Input
 		Twice,
 		Ready
 	}
+
+	/// <summary>
+	/// Obtains the state of the keyboard.
+	/// </summary>
+	/// <remarks>This abstraction allows for total/partial keyboard input faking or just pulling the actual input values.</remarks>
+	public delegate KeyboardState KeyboardStateFetcher();
+
+	/// <summary>
+	/// Obtains the state of the mouse.
+	/// </summary>
+	/// <remarks>This abstraction allows for total/partial mouse input faking or just pulling the actual input values.</remarks>
+	public delegate MouseState MouseStateFetcher();
+
+	/// <summary>
+	/// Obtains the state of a gamepad.
+	/// </summary>
+	/// <remarks>This abstraction allows for total/partial gamepad input faking or just pulling the actual input values.</remarks>
+	public delegate GamePadState GamePadStateFetcher();
 }
