@@ -26,7 +26,44 @@ namespace GameEngine.GameComponents
 			Renderer = renderer;
 			Tint = c ?? Color.White;
 			Effect = SpriteEffects.None;
+			LayerDepth = 0.0f;
 
+			Initialized = false;
+			return;
+		}
+
+		/// <summary>
+		/// Makes a deep copy of <paramref name="other"/>.
+		/// This will not copy events, however, nor will it initialize or dispose of the copy if <paramref name="other"/> is in either state.
+		/// The parent will be <b><u>shallow</u></b> copied, whether it is null or otherwise.
+		/// </summary>
+		protected DrawableAffineComponent(DrawableAffineComponent other) : base(other.Game)
+		{
+			Visible = other.Visible;
+			Enabled = other.Enabled;
+			
+			UpdateOrder = other.UpdateOrder;
+			DrawOrder = other.DrawOrder;
+
+			_t = other._t;
+			_w = other._w;
+			_it = other._it;
+			_iw = other._iw;
+
+			WorldRevision = other.WorldRevision;
+			ParentWorldRevision = other.ParentWorldRevision;
+
+			StaleInverse = other.StaleInverse;
+			InverseWorldRevision = other.InverseWorldRevision;
+			ParentInverseWorldRevision = other.InverseWorldRevision;
+
+			_p = other._p;
+
+			Renderer = other.Renderer;
+			Tint = other.Tint;
+			Effect = other.Effect;
+			LayerDepth = other.LayerDepth;
+			
 			Initialized = false;
 			return;
 		}

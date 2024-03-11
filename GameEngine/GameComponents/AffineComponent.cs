@@ -24,6 +24,45 @@ namespace GameEngine.GameComponents
 			return;
 		}
 
+		/// <summary>
+		/// Makes a deep copy of <paramref name="other"/>.
+		/// This will not copy events, however, nor will it initialize or dispose of the copy if <paramref name="other"/> is in either state.
+		/// The parent will be <b><u>shallow</u></b> copied, whether it is null or otherwise.
+		/// </summary>
+		protected AffineComponent(AffineComponent other) : base(other.Game)
+		{
+			Enabled = other.Enabled;
+			UpdateOrder = other.UpdateOrder;
+
+			_t = other._t;
+			_w = other._w;
+			_it = other._it;
+			_iw = other._iw;
+
+			WorldRevision = other.WorldRevision;
+			ParentWorldRevision = other.ParentWorldRevision;
+
+			StaleInverse = other.StaleInverse;
+			InverseWorldRevision = other.InverseWorldRevision;
+			ParentInverseWorldRevision = other.InverseWorldRevision;
+
+			_p = other._p;
+
+			Initialized = false;
+			return;
+		}
+
+		public override void Initialize()
+		{
+			if(Initialized)
+				return;
+
+			Initialized = true;
+			base.Initialize();
+
+			return;
+		}
+
 		public Matrix2D Transform
 		{
 			get => _t;
@@ -171,5 +210,12 @@ namespace GameEngine.GameComponents
 		}
 
 		protected IAffineComponent2D? _p;
+
+		/// <summary>
+		/// If true, then this has been initialized.
+		/// If false, it has not.
+		/// </summary>
+		public bool Initialized
+		{get; protected set;}
 	}
 }
