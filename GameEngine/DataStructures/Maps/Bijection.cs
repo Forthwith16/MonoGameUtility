@@ -158,11 +158,12 @@ namespace GameEngine.DataStructures.Maps
 		}
 
 		/// <summary>
-		/// Obtains the output of f(<paramref name="key"/>).
+		/// Sets or obtains the output of f(<paramref name="key"/>).
+		/// When setting, this will replace already extant values.
 		/// </summary>
 		/// <param name="key">The input value.</param>
 		/// <returns>Returns the output when <paramref name="key"/> is provided as input.</returns>
-		/// <exception cref="ArgumentException">Thrown during a set if the provided value is already in the image and this is not an identity assignment.</exception>
+		/// <exception cref="ArgumentException">Thrown if replacing a value that could not be removed for some reason.</exception>
 		/// <exception cref="KeyNotFoundException">Thrown in a get operation if <paramref name="key"/> does not belong to the domain.</exception>
 		public V this[K key]
 		{
@@ -174,10 +175,12 @@ namespace GameEngine.DataStructures.Maps
 				if(InverseMap.ContainsKey(value))
 					if(Map.TryGetValue(key,out V? v) && v.Equals(value))
 						return;
-					else
+					else if(!Remove(key))
 						throw new ArgumentException();
 
 				Map[key] = value;
+				InverseMap[value] = key;
+
 				return;
 			}
 		}
