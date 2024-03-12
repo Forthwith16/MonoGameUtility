@@ -1,5 +1,6 @@
 ﻿using GameEngine.DataStructures.Geometry;
 using GameEngine.Physics.Collision.Colliders;
+using Microsoft.Xna.Framework;
 
 namespace GameEngine.Physics.Collision
 {
@@ -10,8 +11,10 @@ namespace GameEngine.Physics.Collision
 	/// Note that this class is not a GameObject.
 	/// It is intended for use by other systems to detect collisions.
 	/// It should be updated after all GameObjects have updated but before these systems (such as a physics system) utilizes it.
+	/// It is given an initialization and disposable framework for those who desire them, but it is not necessary to utilize these features.
+	/// The engine internally makes no reference to them, though a derived class perhaps might.
 	/// </remarks>
-	public class CollisionEngine2D
+	public class CollisionEngine2D : IGameComponent, IDisposable
 	{
 		/// <summary>
 		/// Creates a new 2D collision engine.
@@ -21,7 +24,48 @@ namespace GameEngine.Physics.Collision
 		/// <param name="bottom">The initial bottom bound of the world. This should be strictly less than <paramref name="top"/>.</param>
 		/// <param name="top">The initial top bound of the world. This should be strictly greater than <paramref name="bottom"/>.</param>
 		public CollisionEngine2D(float left, float right, float bottom, float top) : this(new FRectangle(left,bottom,right - left,top - bottom))
-		{return;}
+		{
+			Initialized = false;
+			Disposed = false;
+			
+			return;
+		}
+
+		/// <summary>
+		/// The finalizer.
+		/// </summary>
+		~CollisionEngine2D()
+		{
+			Dispose(false);
+			return;
+		}
+
+		/// <summary>
+		/// Initializes the collision engine.
+		/// </summary>
+		public virtual void Initialize()
+		{
+			Initialized = true;
+			return;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+
+			return;
+		}
+
+		/// <summary>
+		/// Performs the actual disposal logic.
+		/// </summary>
+		/// <param name="disposing">If true, we are disposing of this. If false, then this has already been disposed and is in a finalizer call.</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			Disposed = true;
+			return;
+		}
 
 		/// <summary>
 		/// Creates a new 2D collision engine.
@@ -615,6 +659,18 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		protected CollisionLinkedList<(ICollider2D,ICollider2D)> Collisions
 		{get; set;}
+
+		/// <summary>
+		/// If true, this component has been initialized.
+		/// </summary>
+		public bool Initialized
+		{get; protected set;}
+
+		/// <summary>
+		/// If true, this component has been disposed.
+		/// </summary>
+		public bool Disposed
+		{get; protected set;}
 	}
 
 	/// <summary>

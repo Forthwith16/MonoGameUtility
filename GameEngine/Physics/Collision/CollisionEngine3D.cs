@@ -1,5 +1,6 @@
 ﻿using GameEngine.DataStructures.Geometry;
 using GameEngine.Physics.Collision.Colliders;
+using Microsoft.Xna.Framework;
 
 namespace GameEngine.Physics.Collision
 {
@@ -10,8 +11,10 @@ namespace GameEngine.Physics.Collision
 	/// Note that this class is not a GameObject.
 	/// It is intended for use by other systems to detect collisions.
 	/// It should be updated after all GameObjects have updated but before these systems (such as a physics system) utilizes it.
+	/// It is given an initialization and disposable framework for those who desire them, but it is not necessary to utilize these features.
+	/// The engine internally makes no reference to them, though a derived class perhaps might.
 	/// </remarks>
-	public class CollisionEngine3D
+	public class CollisionEngine3D : IGameComponent, IDisposable
 	{
 		/// <summary>
 		/// Creates a new 3D collision engine.
@@ -23,7 +26,48 @@ namespace GameEngine.Physics.Collision
 		/// <param name="near">The initial near bound of the world. This should be strictly less than <paramref name="far"/>.</param>
 		/// <param name="far">The initial far bound of the world. This should be strictly greater than <paramref name="near"/>.</param>
 		public CollisionEngine3D(float left, float right, float bottom, float top, float near, float far) : this(new FPrism(left,bottom,near,right - left,top - bottom,far - near))
-		{return;}
+		{
+			Initialized = false;
+			Disposed = false;
+			
+			return;
+		}
+
+		/// <summary>
+		/// The finalizer.
+		/// </summary>
+		~CollisionEngine3D()
+		{
+			Dispose(false);
+			return;
+		}
+
+		/// <summary>
+		/// Initializes the collision engine.
+		/// </summary>
+		public virtual void Initialize()
+		{
+			Initialized = true;
+			return;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+
+			return;
+		}
+
+		/// <summary>
+		/// Performs the actual disposal logic.
+		/// </summary>
+		/// <param name="disposing">If true, we are disposing of this. If false, then this has already been disposed and is in a finalizer call.</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			Disposed = true;
+			return;
+		}
 
 		/// <summary>
 		/// Creates a new 3D collision engine.
@@ -684,6 +728,18 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		protected CollisionLinkedList<(ICollider3D,ICollider3D)> Collisions
 		{get; set;}
+
+		/// <summary>
+		/// If true, this component has been initialized.
+		/// </summary>
+		public bool Initialized
+		{get; protected set;}
+
+		/// <summary>
+		/// If true, this component has been disposed.
+		/// </summary>
+		public bool Disposed
+		{get; protected set;}
 	}
 
 	/// <summary>
