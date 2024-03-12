@@ -44,7 +44,9 @@ namespace GameEngine.GameComponents
 			return;
 		}
 
-
+		/// <summary>
+		/// Performs any content loading actions.
+		/// </summary>
 		public virtual void LoadContent()
 		{return;}
 
