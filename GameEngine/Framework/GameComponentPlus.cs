@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace GameEngine.GameComponents
+namespace GameEngine.Framework
 {
 	/// <summary>
 	/// The GameComponentPlus is a GameComponent that is documented.
