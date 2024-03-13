@@ -3,28 +3,27 @@
 namespace GameEngine.GameComponents
 {
 	/// <summary>
-	/// A GameComponent that does not require knowledge of what Game it belongs to.
-	/// <para/>
-	/// In general, BareGameComponents are not meant to be added to a Game.
-	/// Rather, they are intended to have their Initialize, Update, and Dispose calls made manually via a parent class managing them.
+	/// The GameComponentPlus is a GameComponent that is documented.
+	/// Huzzah!
 	/// </summary>
-	public abstract class BareGameComponent : IGameComponent, IUpdateable, IDisposable
+	public abstract class GameComponentPlus : IGameComponent, IUpdateable, IDisposable
 	{
 		/// <summary>
 		/// Creates a new component.
 		/// </summary>
-		protected BareGameComponent()
+		protected GameComponentPlus(Game game)
 		{
 			Initialized = false;
 			Disposed = false;
-
+			
+			Game = game;
 			return;
 		}
 
 		/// <summary>
 		/// The finalizer.
 		/// </summary>
-		~BareGameComponent()
+		~GameComponentPlus()
 		{
 			Dispose(false);
 			return;
@@ -35,20 +34,9 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public virtual void Initialize()
 		{
-			if(Initialized)
-				return;
-			
-			LoadContent();
 			Initialized = true;
-
 			return;
 		}
-
-		/// <summary>
-		/// Performs any content loading actions.
-		/// </summary>
-		public virtual void LoadContent()
-		{return;}
 
 		/// <summary>
 		/// Updates this component.
@@ -74,6 +62,12 @@ namespace GameEngine.GameComponents
 			Disposed = true;
 			return;
 		}
+
+		/// <summary>
+		/// The game this component will belong to.
+		/// </summary>
+		public Game Game
+		{get; private set;}
 
 		/// <summary>
 		/// If true, this component has been initialized.
@@ -133,7 +127,7 @@ namespace GameEngine.GameComponents
 			}
 		}
 
-		private int _uo;
+		private int _uo = 0;
 
 		/// <summary>
 		/// Called when this component's enabled state changes.
