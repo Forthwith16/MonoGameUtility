@@ -1,4 +1,5 @@
 ﻿using GameEngine.DataStructures.Geometry;
+using GameEngine.GameComponents;
 using GameEngine.Physics.Collision.Colliders;
 using Microsoft.Xna.Framework;
 
@@ -8,13 +9,12 @@ namespace GameEngine.Physics.Collision
 	/// A collision engine for 2D applications.
 	/// </summary>
 	/// <remarks>
-	/// Note that this class is not a GameObject.
-	/// It is intended for use by other systems to detect collisions.
-	/// It should be updated after all GameObjects have updated but before these systems (such as a physics system) utilizes it.
-	/// It is given an initialization and disposable framework for those who desire them, but it is not necessary to utilize these features.
-	/// The engine internally makes no reference to them, though a derived class perhaps might.
+	/// Note that this while this class is a GameComponent, it is a system.
+	/// It does not interact with any of the standard features, such as Initialize, Dispose, etc.
+	/// If you add it to a game, you <b>can</b> set its update order if desired.
+	/// It also maintains the state information expected of a GameComponent, even if it doesn't use it internally.
 	/// </remarks>
-	public class CollisionEngine2D : IGameComponent, IDisposable
+	public class CollisionEngine2D : BareGameComponent
 	{
 		/// <summary>
 		/// Creates a new 2D collision engine.
@@ -24,54 +24,13 @@ namespace GameEngine.Physics.Collision
 		/// <param name="bottom">The initial bottom bound of the world. This should be strictly less than <paramref name="top"/>.</param>
 		/// <param name="top">The initial top bound of the world. This should be strictly greater than <paramref name="bottom"/>.</param>
 		public CollisionEngine2D(float left, float right, float bottom, float top) : this(new FRectangle(left,bottom,right - left,top - bottom))
-		{
-			Initialized = false;
-			Disposed = false;
-			
-			return;
-		}
-
-		/// <summary>
-		/// The finalizer.
-		/// </summary>
-		~CollisionEngine2D()
-		{
-			Dispose(false);
-			return;
-		}
-
-		/// <summary>
-		/// Initializes the collision engine.
-		/// </summary>
-		public virtual void Initialize()
-		{
-			Initialized = true;
-			return;
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-
-			return;
-		}
-
-		/// <summary>
-		/// Performs the actual disposal logic.
-		/// </summary>
-		/// <param name="disposing">If true, we are disposing of this. If false, then this has already been disposed and is in a finalizer call.</param>
-		protected virtual void Dispose(bool disposing)
-		{
-			Disposed = true;
-			return;
-		}
+		{return;}
 
 		/// <summary>
 		/// Creates a new 2D collision engine.
 		/// </summary>
 		/// <param name="world_bounds">The initial boundary of the world. This value will expand if necessary.</param>
-		public CollisionEngine2D(FRectangle world_bounds)
+		public CollisionEngine2D(FRectangle world_bounds) : base()
 		{
 			Statics = new Quadtree(world_bounds);
 			
@@ -480,6 +439,12 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
+		/// Determines what is colliding this frame.
+		/// </summary>
+		/// <param name="delta">The elapsed game time. It will be ignored.</param>
+		public override void Update(GameTime delta) => Update();
+
+		/// <summary>
 		/// Runs a sweep and prune algorithm to determine which kinetic colliders collide with each other.
 		/// </summary>
 		/// <returns>Returns the set of pairwise kinetic collisions in the simulation. Each collision (a,b) will satisfy a < b (where a and b are collider IDs located in Kinetics), so no symmetric collisions will be included.</returns>
@@ -659,18 +624,6 @@ namespace GameEngine.Physics.Collision
 		/// </summary>
 		protected CollisionLinkedList<(ICollider2D,ICollider2D)> Collisions
 		{get; set;}
-
-		/// <summary>
-		/// If true, this component has been initialized.
-		/// </summary>
-		public bool Initialized
-		{get; protected set;}
-
-		/// <summary>
-		/// If true, this component has been disposed.
-		/// </summary>
-		public bool Disposed
-		{get; protected set;}
 	}
 
 	/// <summary>
