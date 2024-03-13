@@ -312,7 +312,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// If two floats are within this distance, they are to be considered equal.
 		/// </summary>
-		public const float EPSILON = 0.00000001f;
+		public const float EPSILON = 0.00001f;
 		
 		/// <summary>
 		/// If a float squared is at most this, then it should be considered zero
