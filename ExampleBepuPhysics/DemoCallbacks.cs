@@ -165,7 +165,7 @@ namespace ExampleBepuPhysics
 			pairMaterial.FrictionCoefficient = FrictionCoefficient;
 			pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
 			pairMaterial.SpringSettings = ContactSpringiness;
-
+			
 			return true;
 		}
 
