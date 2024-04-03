@@ -111,7 +111,7 @@ namespace ExampleBepuPhysics
 
 			space.Statics[RampHandle].GetDescription(out StaticDescription ramp);
 			Ramp!.World = Matrix.CreateScale(3.0f,1.0f,1.0f) * Matrix.CreateFromQuaternion(new Quaternion(ramp.Pose.Orientation.X,ramp.Pose.Orientation.Y,ramp.Pose.Orientation.Z,ramp.Pose.Orientation.W)) * Matrix.CreateTranslation(ramp.Pose.Position + SVector3.UnitX);
-
+			
 			base.Update(delta);
 			return;
 		}
