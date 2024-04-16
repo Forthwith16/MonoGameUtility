@@ -22,6 +22,21 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		}
 
 		/// <summary>
+		/// Determines the Euclidean distance between two points.
+		/// </summary>
+		/// <param name="a">The first point.</param>
+		/// <param name="b">The second point. If this is null, it defaults to the origin (0,0).</param>
+		/// <returns>Returns the taxicab distance between points <paramref name="a"/> and <paramref name="b"/>.</returns>
+		public static float Distance(this Point a, Point? b = null)
+		{
+			if(b is null)
+				return MathF.Sqrt(a.X * a.X + a.Y * a.Y);
+			
+			Point p = b.Value - a;
+			return MathF.Sqrt(p.X * p.X + p.Y * p.Y);
+		}
+
+		/// <summary>
 		/// Creates a new point that is the additive inverse of this point.
 		/// </summary>
 		/// <param name="p">The point to negate.</param>
