@@ -50,7 +50,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleShaders", "ExampleSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleBepuPhysics", "ExampleBepuPhysics\ExampleBepuPhysics.csproj", "{CD9BF089-5BDD-477A-B425-C90F906C5545}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleCaveGeneration", "ExampleCaveGeneration\ExampleCaveGeneration.csproj", "{D6FAF2C4-96AB-445C-853C-559FDF9CA0AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleCaveGeneration", "ExampleCaveGeneration\ExampleCaveGeneration.csproj", "{D6FAF2C4-96AB-445C-853C-559FDF9CA0AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAStar", "ExampleAStar\ExampleAStar.csproj", "{FEC48E0D-BAB2-4F66-B4F0-28A08722E403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,6 +140,10 @@ Global
 		{D6FAF2C4-96AB-445C-853C-559FDF9CA0AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6FAF2C4-96AB-445C-853C-559FDF9CA0AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6FAF2C4-96AB-445C-853C-559FDF9CA0AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEC48E0D-BAB2-4F66-B4F0-28A08722E403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEC48E0D-BAB2-4F66-B4F0-28A08722E403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEC48E0D-BAB2-4F66-B4F0-28A08722E403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEC48E0D-BAB2-4F66-B4F0-28A08722E403}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
