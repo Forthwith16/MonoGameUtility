@@ -24,7 +24,7 @@ namespace ExampleAStar
 			Height = 50;
 			TileWidth = 20;
 
-			Graphics.PreferredBackBufferWidth = ((Width << 1) + 2) * TileWidth;
+			Graphics.PreferredBackBufferWidth = (Width * 3 + 4) * TileWidth;
 			Graphics.PreferredBackBufferHeight = Height * TileWidth;
 
 			Rocks = new bool[Width,Height];
@@ -33,6 +33,11 @@ namespace ExampleAStar
 
 			Search = 0;
 			
+			HTerrain = new RectangleComponent[Width,Height];
+			HQ = new PriorityQueue<FDistancePoint,float>(Comparer<float>.Create((a,b) => a.CompareTo(b)));
+			HPrev = new Dictionary<Point,FDistancePoint>();
+			HDone = true;
+
 			ATerrain = new RectangleComponent[Width,Height];
 			AQ = new PriorityQueue<FDistancePoint,float>(Comparer<float>.Create((a,b) => a.CompareTo(b)));
 			APrev = new Dictionary<Point,FDistancePoint>();
@@ -49,7 +54,7 @@ namespace ExampleAStar
 		protected override void LoadContent()
 		{
 			// Title will not persist if set in the constructor, so we'll set it here
-			Window.Title = "A* vs. Dijkstra";
+			Window.Title = "Zero-cost A* vs A* vs. Dijkstra";
 
 			Renderer = new SpriteBatch(GraphicsDevice);
 			Input = new InputManager();
@@ -79,6 +84,7 @@ namespace ExampleAStar
 			SetCaveToRocks();
 			SelectStartEnd();
 
+			InitializeH();
 			InitializeAStar();
 			InitializeDijkstra();
 			
@@ -93,12 +99,15 @@ namespace ExampleAStar
 				for(int j = 0;j < Height;j++)
 				{
 					Rocks[i,j] = rand.NextSingle() <= RockThreshold;
+					
+					Components.Add(HTerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
+					HTerrain[i,j].Translate(new Vector2(TileWidth * i,TileWidth * j));
 
 					Components.Add(ATerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
-					ATerrain[i,j].Translate(new Vector2(TileWidth * i,TileWidth * j));
+					ATerrain[i,j].Translate(new Vector2(TileWidth * (Width + 2 + i),TileWidth * j));
 
 					Components.Add(DTerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
-					DTerrain[i,j].Translate(new Vector2(TileWidth * (Width + 2 + i),TileWidth * j));
+					DTerrain[i,j].Translate(new Vector2(TileWidth * (2 * Width + 4 + i),TileWidth * j));
 				}
 
 			return;
@@ -112,13 +121,15 @@ namespace ExampleAStar
 				for(int j = 0;j < Height;j++)
 					if(Rocks[i,j])
 					{
+						HTerrain[i,j].Tint = Color.Black;
 						ATerrain[i,j].Tint = Color.Black;
 						DTerrain[i,j].Tint = Color.Black;
 					}
 					else
 					{
 						Grass.Add(new Point(i,j));
-
+						
+						HTerrain[i,j].Tint = Color.Green;
 						ATerrain[i,j].Tint = Color.Green;
 						DTerrain[i,j].Tint = Color.Green;
 					}
@@ -142,6 +153,9 @@ namespace ExampleAStar
 			Grass[0] = ptemp;
 
 			Destination = Grass[1 + rand.Next(Grass.Count - 1)];
+			
+			HTerrain[Source.X,Source.Y].Tint = Color.Blue;
+			HTerrain[Destination.X,Destination.Y].Tint = Color.Red;
 
 			ATerrain[Source.X,Source.Y].Tint = Color.Blue;
 			ATerrain[Destination.X,Destination.Y].Tint = Color.Red;
@@ -152,13 +166,25 @@ namespace ExampleAStar
 			return;
 		}
 
+		private void InitializeH()
+		{
+			HQ.Clear();
+			HPrev.Clear();
+
+			HQ.Enqueue(new FDistancePoint(Source,0),Source.Distance(Destination));
+			HPrev[Source] = new FDistancePoint(null,0);
+
+			HDone = false;
+			return;
+		}
+
 		private void InitializeAStar()
 		{
 			AQ.Clear();
 			APrev.Clear();
 
-			AQ.Enqueue(new FDistancePoint(Source,0.0f),Source.Distance(Destination));
-			APrev[Source] = new FDistancePoint(null,float.NaN);
+			AQ.Enqueue(new FDistancePoint(Source,0),Source.Distance(Destination));
+			APrev[Source] = new FDistancePoint(null,0);
 
 			ADone = false;
 			return;
@@ -212,11 +238,86 @@ namespace ExampleAStar
 
 		private void StepSearch()
 		{
+			if(!HDone)
+				StepH();
+
 			if(!ADone)
 				StepAStar();
 
 			if(!DDone)
 				StepDijkstra();
+
+			return;
+		}
+		
+		private void StepH()
+		{
+			FDistancePoint next;
+
+			if(HQ.Count == 0 || (next = HQ.Dequeue()).Location!.Value == Destination)
+			{
+				MarkHPath();
+
+				HDone = true;
+				return;
+			}
+
+			// Skip visited vertices but don't count that as a step
+			// Also note that next.Location is never null
+			if(HPrev.TryGetValue(next.Location!.Value,out FDistancePoint me) && me.Visited)
+			{
+				StepH();
+				return;
+			}
+
+			// Mark ourselves as visited (structs are passed by value, so we need to assign it like so)
+			me.Visited = true;
+			HPrev[next.Location.Value] = me;
+
+			// Special case source coloring (can't get to destination here)
+			if(next.Location.Value != Source)
+				HTerrain[next.Location.Value.X,next.Location.Value.Y].Tint = Color.Cyan;
+
+			Point[] neighbors = new Point[] {next.Location.Value + new Point(0,1),next.Location.Value + new Point(0,-1),next.Location.Value + new Point(1,0),next.Location.Value + new Point(-1,0)};
+			
+			foreach(Point p in neighbors)
+			{
+				// Grab the distance to p
+				float pdistance = p.Distance(Destination);
+
+				// If we are out of bounds or if we've already found a shorter path to this neighbor, skip it
+				// If the neighbor has no predecessor, it is Source and we should skip it since you can't get to Source faster than starting there (this case should never come up)
+				// We also skip rocks
+				if(p.X < 0 || p.X >= Width || p.Y < 0 || p.Y >= Height || Rocks[p.X,p.Y] || HPrev.TryGetValue(p,out FDistancePoint n) && (n.Visited || n.Distance <= next.Distance + 1))
+					continue;
+
+				HQ.Enqueue(new FDistancePoint(p,next.Distance + 1),pdistance);
+				HPrev[p] = new FDistancePoint(next.Location,next.Distance + 1);
+
+				// We shouldn't overwrite visited colors here since we skip visited vertices
+				if(p == Destination)
+					HTerrain[p.X,p.Y].Tint = Color.PaleVioletRed;
+				else
+					HTerrain[p.X,p.Y].Tint = Color.Purple;
+			}
+
+			return;
+		}
+
+		private void MarkHPath()
+		{
+			HTerrain[Destination.X,Destination.Y].Tint = Color.Red;
+
+			if(!HPrev.ContainsKey(Destination))
+				return;
+
+			FDistancePoint p = HPrev[Destination];
+
+			while(p.Location.HasValue && p.Location.Value != Source)
+			{
+				HTerrain[p.Location.Value.X,p.Location.Value.Y].Tint = Color.Yellow;
+				p = HPrev[p.Location.Value];
+			}
 
 			return;
 		}
@@ -237,7 +338,7 @@ namespace ExampleAStar
 			// Also note that next.Location is never null
 			if(APrev.TryGetValue(next.Location!.Value,out FDistancePoint me) && me.Visited)
 			{
-				StepDijkstra();
+				StepAStar();
 				return;
 			}
 
@@ -254,7 +355,8 @@ namespace ExampleAStar
 			foreach(Point p in neighbors)
 			{
 				// Grab the distance to p
-				float pdistance = p.Distance(Destination);
+				int pdistance = next.Distance + 1;
+				float hpdistance = pdistance + p.Distance(Destination);
 
 				// If we are out of bounds or if we've already found a shorter path to this neighbor, skip it
 				// If the neighbor has no predecessor, it is Source and we should skip it since you can't get to Source faster than starting there (this case should never come up)
@@ -262,7 +364,7 @@ namespace ExampleAStar
 				if(p.X < 0 || p.X >= Width || p.Y < 0 || p.Y >= Height || Rocks[p.X,p.Y] || APrev.TryGetValue(p,out FDistancePoint n) && (n.Visited || n.Distance <= pdistance))
 					continue;
 
-				AQ.Enqueue(new FDistancePoint(p,pdistance),pdistance);
+				AQ.Enqueue(new FDistancePoint(p,pdistance),hpdistance);
 				APrev[p] = new FDistancePoint(next.Location,pdistance);
 
 				// We shouldn't overwrite visited colors here since we skip visited vertices
@@ -386,6 +488,11 @@ namespace ExampleAStar
 		private readonly List<Point> Grass;
 		private readonly float RockThreshold;
 
+		private readonly RectangleComponent[,] HTerrain;
+		private readonly PriorityQueue<FDistancePoint,float> HQ;
+		private readonly Dictionary<Point,FDistancePoint> HPrev;
+		private bool HDone;
+
 		private readonly RectangleComponent[,] ATerrain;
 		private readonly PriorityQueue<FDistancePoint,float> AQ;
 		private readonly Dictionary<Point,FDistancePoint> APrev;
@@ -427,7 +534,7 @@ namespace ExampleAStar
 
 	public struct FDistancePoint : IEquatable<FDistancePoint>
 	{
-		public FDistancePoint(Point? loc, float dist)
+		public FDistancePoint(Point? loc, int dist)
 		{
 			Location = loc;
 			Distance = dist;
@@ -445,7 +552,7 @@ namespace ExampleAStar
 		public override string? ToString() => Location is null ? "NaL" : Location.ToString();
 
 		public Point? Location;
-		public float Distance;
+		public int Distance;
 		public bool Visited;
 	}
 }
