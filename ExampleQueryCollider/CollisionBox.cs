@@ -1,6 +1,7 @@
 ﻿using GameEngine.DataStructures.Geometry;
 using GameEngine.GameComponents;
 using GameEngine.Physics.Collision.Colliders;
+using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

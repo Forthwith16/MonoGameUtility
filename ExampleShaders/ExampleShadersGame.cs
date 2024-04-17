@@ -3,6 +3,7 @@ using GameEngine.GameComponents;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.Input;
+using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;

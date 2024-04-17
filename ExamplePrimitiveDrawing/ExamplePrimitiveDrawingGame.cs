@@ -1,4 +1,4 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,7 +26,7 @@ namespace ExamplePrimitiveDrawing
 		protected override void LoadContent()
 		{
 			Renderer = new SpriteBatch(GraphicsDevice);
-			DoublePixel = RectangleComponent.GenerateTexture(this,2,1,(x,y) => x == 0 ? Color.Blue : Color.Green);
+			DoublePixel = ColorFunctions.GenerateTexture(this,2,1,(x,y) => x == 0 ? Color.Blue : Color.Green);
 
 			return;
 		}

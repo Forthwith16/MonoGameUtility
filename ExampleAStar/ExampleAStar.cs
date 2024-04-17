@@ -282,16 +282,13 @@ namespace ExampleAStar
 			
 			foreach(Point p in neighbors)
 			{
-				// Grab the distance to p
-				float pdistance = p.Distance(Destination);
-
 				// If we are out of bounds or if we've already found a shorter path to this neighbor, skip it
 				// If the neighbor has no predecessor, it is Source and we should skip it since you can't get to Source faster than starting there (this case should never come up)
 				// We also skip rocks
 				if(p.X < 0 || p.X >= Width || p.Y < 0 || p.Y >= Height || Rocks[p.X,p.Y] || HPrev.TryGetValue(p,out FDistancePoint n) && (n.Visited || n.Distance <= next.Distance + 1))
 					continue;
 
-				HQ.Enqueue(new FDistancePoint(p,next.Distance + 1),pdistance);
+				HQ.Enqueue(new FDistancePoint(p,next.Distance + 1),p.Distance(Destination));
 				HPrev[p] = new FDistancePoint(next.Location,next.Distance + 1);
 
 				// We shouldn't overwrite visited colors here since we skip visited vertices

@@ -69,22 +69,22 @@ namespace ExampleAnimation
 
 		protected override void Update(GameTime delta)
 		{
-			if(Input["Back"].CurrentDigitalValue)
+			if(Input!["Back"].CurrentDigitalValue)
 				Exit();
 
 			float speed = 200.0f * (float)delta.ElapsedGameTime.TotalSeconds;
 
 			if(Input["L"].CurrentDigitalValue)
-				_image.Transform = _image.Transform.Translate(-speed,0.0f);
+				_image!.Transform = _image.Transform.Translate(-speed,0.0f);
 
 			if(Input["R"].CurrentDigitalValue)
-				_image.Transform = _image.Transform.Translate(speed,0.0f);
+				_image!.Transform = _image.Transform.Translate(speed,0.0f);
 
 			if(Input["U"].CurrentDigitalValue)
-				_image.Transform = _image.Transform.Translate(0.0f,-speed);
+				_image!.Transform = _image.Transform.Translate(0.0f,-speed);
 
 			if(Input["D"].CurrentDigitalValue)
-				_image.Transform = _image.Transform.Translate(0.0f,speed);
+				_image!.Transform = _image.Transform.Translate(0.0f,speed);
 
 			base.Update(delta);
 			return;
@@ -104,8 +104,8 @@ namespace ExampleAnimation
 			return;
 		}
 		
-		private SpriteBatch _spriteBatch;
-		private ImageComponent _image;
-		protected InputManager Input;
+		private SpriteBatch? _spriteBatch;
+		private ImageComponent? _image;
+		protected InputManager? Input;
 	}
 }

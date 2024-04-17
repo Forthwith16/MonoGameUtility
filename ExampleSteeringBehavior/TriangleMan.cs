@@ -2,6 +2,7 @@
 using GameEngine.GameComponents;
 using GameEngine.Input;
 using GameEngine.Maths;
+using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
