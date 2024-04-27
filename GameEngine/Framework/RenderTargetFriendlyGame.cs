@@ -322,7 +322,7 @@ namespace GameEngine.Framework
 		{return;}
 
 		/// <summary>
-		/// Called after render targets are drawn to but before ordinary Draw calls are made.
+		/// Called after render targets are drawn to but before debug and ordinary Draw calls are made.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected virtual void PreDraw(GameTime delta)
@@ -336,7 +336,7 @@ namespace GameEngine.Framework
 		{return;}
 
 		/// <summary>
-		/// Called after both render targets are drawn to and ordinary Draw calls are made.
+		/// Called after render targets are drawn to, debug drawing is finished, and ordinary Draw calls are made.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected virtual void PostDraw(GameTime delta)
