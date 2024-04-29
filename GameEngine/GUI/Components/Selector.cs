@@ -643,7 +643,7 @@ namespace GameEngine.GUI.Components
 		{
 			get => _sii;
 
-			protected set
+			set
 			{
 				if(value < -1 || value >= Count || value == _sii)
 					return;
