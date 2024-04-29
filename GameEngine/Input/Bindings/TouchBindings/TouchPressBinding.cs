@@ -19,13 +19,13 @@ namespace GameEngine.Input.Bindings.TouchBindings
 
 			if(Pressed)
 			{
-				DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Pressed;
-				AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Pressed ? 1.0f : 0.0f;
+				DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && (state.CurrentTouch[ID].State == TouchLocationState.Moved || state.CurrentTouch[ID].State == TouchLocationState.Pressed);
+				AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && (state.CurrentTouch[ID].State == TouchLocationState.Moved || state.CurrentTouch[ID].State == TouchLocationState.Pressed) ? 1.0f : 0.0f;
 			}
 			else // Released
 			{
-				DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Released;
-				AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Released ? 1.0f : 0.0f;
+				DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Released || state.CurrentTouch.Count <= ID;
+				AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && state.CurrentTouch[ID].State == TouchLocationState.Released || state.CurrentTouch.Count <= ID ? 1.0f : 0.0f;
 			}
 			
 			return;
