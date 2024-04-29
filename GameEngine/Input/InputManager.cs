@@ -1,6 +1,7 @@
 ﻿using GameEngine.GameComponents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace GameEngine.Input
 {
@@ -27,7 +28,7 @@ namespace GameEngine.Input
 			GamepadTwo = GamePadState.Default;
 			GamepadThree = GamePadState.Default;
 			GamepadFour = GamePadState.Default;
-
+			
 			// Assign the default fetch functions
 			KeyboardFetch = Keyboard.GetState;
 			MouseFetch = Mouse.GetState;
@@ -35,6 +36,7 @@ namespace GameEngine.Input
 			GamePadTwoFetch = () => GamePad.GetState(PlayerIndex.Two);
 			GamePadThreeFetch = () => GamePad.GetState(PlayerIndex.Three);
 			GamePadFourFetch = () => GamePad.GetState(PlayerIndex.Four);
+			TouchPanelFetch = () => TouchPanel.GetState();
 			
 			CurrentTime = 0.0f;
 			return;
@@ -55,6 +57,10 @@ namespace GameEngine.Input
 			GamepadThree = GamePadThreeFetch();
 			GamepadFour = GamePadFourFetch();
 			
+			// Update the touch state
+			PreviousTouch = CurrentTouch;
+			CurrentTouch = TouchPanelFetch();
+
 			// Update the time
 			CurrentTime += (float)delta.ElapsedGameTime.TotalSeconds;
 
@@ -272,6 +278,27 @@ namespace GameEngine.Input
 		/// Changing this value will allow for total/partial input spoofing, but this can be dangerous if improperly done.
 		/// </summary>
 		public GamePadStateFetcher GamePadFourFetch
+		{get; set;}
+
+		/// <summary>
+		/// The current state of the touch input.
+		/// </summary>
+		public TouchCollection CurrentTouch
+		{get; protected set;}
+
+		/// <summary>
+		/// The previous state of the touch input.
+		/// </summary>
+		public TouchCollection PreviousTouch
+		{get; protected set;}
+
+		/// <summary>
+		/// The means by which we obtain touch input.
+		/// This will default to simply grabbing MonoGame's default touch panel input.
+		/// Changing this will allow for total/partial input spoofing, but this can be dangerous if improperly done.
+		/// It can also change the Window the touch input is coming from.
+		/// </summary>
+		public TouchPanelStateFetcher TouchPanelFetch
 		{get; set;}
 
 		/// <summary>
@@ -673,4 +700,10 @@ namespace GameEngine.Input
 	/// </summary>
 	/// <remarks>This abstraction allows for total/partial gamepad input faking or just pulling the actual input values.</remarks>
 	public delegate GamePadState GamePadStateFetcher();
+
+	/// <summary>
+	/// Obtains the state of the touch panel.
+	/// </summary>
+	/// <returns>This abstraction allows for total/partial touch input faking or just pulling the actual input values. It also allows us to differentiate between touch inputs from different Window sources.</returns>
+	public delegate TouchCollection TouchPanelStateFetcher();
 }

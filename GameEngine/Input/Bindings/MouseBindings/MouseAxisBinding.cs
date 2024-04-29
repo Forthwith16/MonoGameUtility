@@ -51,7 +51,7 @@ namespace GameEngine.Input.Bindings.MouseBindings
 		}
 
 		public override string ToString()
-		{return base.ToString() + " (" + (Delta ? " Delta" : "") + (XAxis ? "X" : "Y") + "-Axis)";}
+		{return base.ToString() + " (" + (Delta ? "Delta " : "") + (XAxis ? "X" : "Y") + "-Axis)";}
 
 		/// <summary>
 		/// If true, we use the mouse x-axis.

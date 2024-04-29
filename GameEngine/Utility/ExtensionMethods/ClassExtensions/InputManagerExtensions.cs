@@ -2,6 +2,7 @@
 using GameEngine.Input.Bindings;
 using GameEngine.Input.Bindings.GamePadBindings;
 using GameEngine.Input.Bindings.MouseBindings;
+using GameEngine.Input.Bindings.TouchBindings;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -226,6 +227,45 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 				input.PutBinding(name,new GamePadStickBinding(gamepad,left,threshold,invert));
 			else
 				return input.AddBinding(name,new GamePadStickBinding(gamepad,left,threshold,invert));
+
+			return true;
+		}
+
+		/// <summary>
+		/// Adds a touch press binding with <paramref name="input"/>.
+		/// </summary>
+		/// <param name="input">The input manager to add the binding to.</param>
+		/// <param name="name">The name of the binding to create.</param>
+		/// <param name="id">The touch ID to bind.</param>
+		/// <param name="pressed">If true, then a touch press is required. If false, then a touch release is required.</param>
+		/// <param name="put">If true, we will put the binding into <paramref name="input"/>. If false, we will add the binding instead.</param>
+		/// <returns>Returns true if the binding was added and false otherwise.</returns>
+		public static bool AddTouchPressInput(this InputManager input, string name, int id, bool pressed = true, bool put = false)
+		{
+			if(put)
+				input.PutBinding(name,new TouchPressBinding(id,pressed));
+			else
+				return input.AddBinding(name,new TouchPressBinding(id,pressed));
+
+			return true;
+		}
+
+		/// <summary>
+		/// Adds a touch axis binding with <paramref name="input"/>.
+		/// </summary>
+		/// <param name="input">The input manager to add the binding to.</param>
+		/// <param name="name">The name of the binding to create.</param>
+		/// <param name="id">The touch ID to bind.</param>
+		/// <param name="x">If true, this binds the touch x-axis. If false, this binds the touch y-axis.</param>
+		/// <param name="delta">If true, we bind touch deltas. If false, we bind absolute touch positions.</param>
+		/// <param name="put">If true, we will put the binding into <paramref name="input"/>. If false, we will add the binding instead.</param>
+		/// <returns>Returns true if the binding was added and false otherwise.</returns>
+		public static bool AddTouchAxisInput(this InputManager input, string name, int id, bool x, bool delta = true, bool put = false)
+		{
+			if(put)
+				input.PutBinding(name,new TouchAxisBinding(id,x,delta));
+			else
+				return input.AddBinding(name,new TouchAxisBinding(id,x,delta));
 
 			return true;
 		}

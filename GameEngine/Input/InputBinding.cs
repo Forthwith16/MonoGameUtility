@@ -133,6 +133,12 @@ namespace GameEngine.Input
 		/// </summary>
 		public virtual bool IsGamepadBinding
 		{get => false;}
+
+		/// <summary>
+		/// True iff this is a pure touch binding.
+		/// </summary>
+		public virtual bool IsTouchBinding
+		{get => false;}
 	}
 
 	/// <summary>
