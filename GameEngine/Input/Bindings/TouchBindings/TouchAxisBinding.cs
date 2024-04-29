@@ -1,5 +1,4 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
-using Microsoft.Xna.Framework.Input.Touch;
 
 namespace GameEngine.Input.Bindings.TouchBindings
 {
@@ -28,26 +27,26 @@ namespace GameEngine.Input.Bindings.TouchBindings
 			if(XAxis)
 				if(Delta)
 				{
-					DigitalEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) && !cur.XDelta(prev).CloseEnough(0.0f);
-					AnalogEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) ? cur.XDelta(prev) : 0.0f;
+					DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID && !state.CurrentTouch[ID].XDelta(state.PreviousTouch[ID]).CloseEnough(0.0f);
+					AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID ? state.CurrentTouch[ID].XDelta(state.PreviousTouch[ID]) : 0.0f;
 				}
 				else
 				{
 					// There's no good way to turn an absolute touch position into a boolean without context or intent, so let's just go with if it's moved, it counts
-					DigitalEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) && !cur.XDelta(prev).CloseEnough(0.0f);
-					AnalogEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) ? cur.Position.X : 0.0f;
+					DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID && !state.CurrentTouch[ID].XDelta(state.PreviousTouch[ID]).CloseEnough(0.0f);
+					AnalogEvaluation = (state) => state.CurrentTouch.Count > ID ? state.CurrentTouch[ID].Position.X : 0.0f;
 				}
 			else // YAxis
 				if(Delta)
 				{
-					DigitalEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) && !cur.YDelta(prev).CloseEnough(0.0f);
-					AnalogEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) ? cur.YDelta(prev) : 0.0f;
+					DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID && !state.CurrentTouch[ID].YDelta(state.PreviousTouch[ID]).CloseEnough(0.0f);
+					AnalogEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID ? state.CurrentTouch[ID].YDelta(state.PreviousTouch[ID]) : 0.0f;
 				}
 				else
 				{
 					// There's no good way to turn an absolute touch position into a boolean without context or intent, so let's just go with if it's moved, it counts
-					DigitalEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) && state.PreviousTouch.FindById(ID,out TouchLocation prev) && !cur.YDelta(prev).CloseEnough(0.0f);
-					AnalogEvaluation = (state) => state.CurrentTouch.FindById(ID,out TouchLocation cur) ? cur.Position.Y : 0.0f;
+					DigitalEvaluation = (state) => state.CurrentTouch.Count > ID && state.PreviousTouch.Count > ID && !state.CurrentTouch[ID].YDelta(state.PreviousTouch[ID]).CloseEnough(0.0f);
+					AnalogEvaluation = (state) => state.CurrentTouch.Count > ID ? state.CurrentTouch[ID].Position.Y : 0.0f;
 				}
 
 			return;
