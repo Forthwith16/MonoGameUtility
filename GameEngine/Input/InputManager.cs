@@ -21,7 +21,7 @@ namespace GameEngine.Input
 		public InputManager()
 		{
 			Records = new Dictionary<string,DynamicInputRecord>();
-			Bindings = new LinkedList<string>();
+			Bindings = new List<string>();
 
 			// In case this are different from the default constructor's values
 			GamepadOne = GamePadState.Default;
@@ -104,7 +104,7 @@ namespace GameEngine.Input
 		{
 			if(Records.TryAdd(name,new DynamicInputRecord(this,binding)))
 			{
-				Bindings.AddLast(name);
+				Bindings.Add(name);
 				return true;
 			}
 
@@ -182,7 +182,7 @@ namespace GameEngine.Input
 		/// We update the bindings in the order they appear here.
 		/// </summary>
 		/// <remarks>We don't expect to be adding/remove bindings very often, so this data structure is perfect for traversal while retaining order.</remarks>
-		protected LinkedList<string> Bindings
+		protected List<string> Bindings
 		{get; init;}
 
 		/// <summary>
