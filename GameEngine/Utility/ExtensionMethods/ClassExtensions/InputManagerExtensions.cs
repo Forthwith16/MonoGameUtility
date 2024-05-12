@@ -46,6 +46,25 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 
 		#region Raw Input Bindings
 		/// <summary>
+		/// Adds a custom binding with <paramref name="input"/>.
+		/// </summary>
+		/// <param name="input">The input manager to add the binding to.</param>
+		/// <param name="name">The name of the binding to create.</param>
+		/// <param name="digital">The means by which this input is evaluated digitally.</param>
+		/// <param name="analog">The means by which this input's analog value is obtained.</param>
+		/// <param name="put">If true, we will put the binding into <paramref name="input"/>. If false, we will add the binding instead.</param>
+		/// <returns>Returns true if the binding was added and false otherwise.</returns>
+		public static bool AddCustomBinding(this InputManager input, string name, InputDigitalValue digital, InputAnalogValue analog, bool put = false)
+		{
+			if(put)
+				input.PutBinding(name,new CustomBinding(digital,analog));
+			else
+				return input.AddBinding(name,new CustomBinding(digital,analog));
+			
+			return true;
+		}
+
+		/// <summary>
 		/// Adds an key binding with <paramref name="input"/>.
 		/// </summary>
 		/// <param name="input">The input manager to add the binding to.</param>
@@ -627,6 +646,42 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 				return input.AddBinding(name,new CustomBinding(capture_me.DigitalEvaluation,(state) => capture_me.DigitalEvaluation(state) ? no_capture_me.AnalogEvaluation(state) : 0.0f));
 
 			return true;
+		}
+
+		/// <summary>
+		/// Adds a axis binding with <paramref name="input"/>.
+		/// It simulates an axis by binding two digital inputs to a single new input <paramref name="name"/>.
+		/// The axis is negative when <paramref name="negative"/> is true and positive when <paramref name="positive"/> is true.
+		/// If both are true, then the axis is zero.
+		/// <para/>
+		/// The digital evaluation of this input is simply the logical or of <paramref name="negative"/> and <paramref name="positive"/>.
+		/// </summary>
+		/// <param name="input">The input manager to add the binding to.</param>
+		/// <param name="name">The name of the binding to create.</param>
+		/// <param name="negative">The digital input that makes the axis go negative.</param>
+		/// <param name="positive">The digital input that makes the axis go positive.</param>
+		/// <param name="scale">The magnitude of the axis when <paramref name="negative"/> or <paramref name="positive"/> moves it away from zero.</param>
+		/// <param name="put">If true, we will put the binding into <paramref name="input"/>. If false, we will add the binding instead.</param>
+		/// <returns>Returns true if the binding was added and false otherwise.</returns>
+		public static bool AddDigitalAxis(this InputManager input, string name, string negative, string positive, float scale = 1.0f, bool put = false)
+		{
+			float nscale = -scale; // Do this once and capture it
+
+			return input.AddCustomBinding(name,(state) => state[negative].CurrentDigitalValue || state[positive].CurrentDigitalValue,(state) =>
+			{
+				if(state[negative].CurrentDigitalValue)
+					if(state[positive].CurrentDigitalValue)
+						return 0.0f; // If both are true, they cancel each other out
+					else // Positive is false
+						return nscale;
+				else // Negative is false
+					if(state[positive].CurrentDigitalValue)
+						return scale;
+					else // Positive is false
+						return 0.0f;
+
+				return 0.0f; // We shouldn't be able to get here, but just in case
+			},put);
 		}
 
 		/// <summary>
