@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Texture
@@ -167,6 +168,34 @@ namespace GameEngine.Texture
 		/// <param name="average_alpha">If true, then the average alpha value will be used isntead of the sum. Otherwise, the sum will be used for the alpha channel.</param>
 		/// <returns>Returns a color function that computes <paramref name="f1"/> + <paramref name="f2"/>.</returns>
 		public static ColorFunction Sum(ColorFunction f1, ColorFunction f2, bool average_alpha = true) => Mix(f1,f2,(a,b) => new Color(a.R + b.R,a.G + b.G,a.B + b.B,average_alpha ? (a.A + b.A) >> 1 : a.A + b.A));
+
+		/// <summary>
+		/// Creates a compound ColorFunction that places the <paramref name="f1"/> colors over the <paramref name="f2"/> colors.
+		/// </summary>
+		/// <param name="f1">The top colors.</param>
+		/// <param name="f2">The bottom colors.</param>
+		/// <param name="premultiplied">If true, <paramref name="f1"/> and <paramref name="f2"/> are treated as premultiplied color outputs, i.e. emmision and occlusion. If false, then they produce true RGBA values.</param>
+		/// <returns>Returns the new blended ColorFunction.</returns>
+		public static ColorFunction AlphaMultiplyOver(ColorFunction f1, ColorFunction f2, bool premultiplied = false)
+		{
+			if(premultiplied)
+				return Mix(f1,f2,(a,b) =>
+				{
+					Vector4 va = a.ToVector4();
+					return new Color(va + b.ToVector4() * (1.0f - va.W));
+				});
+
+			return Mix(f1,f2,(a,b) =>
+			{
+				Vector4 va = a.ToVector4();
+				Vector4 vb = b.ToVector4();
+				
+				float am1 = 1.0f - va.W;
+				float a0 = va.W + vb.W * am1;
+
+				return new Color(new Vector4((va.Shed() * va.W + vb.W * am1 * vb.Shed()) / a0,a0));
+			});
+		}
 
 		/// <summary>
 		/// Creates a ColorFunction that mixes two ColorFunctions together.
