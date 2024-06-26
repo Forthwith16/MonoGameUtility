@@ -157,10 +157,37 @@ namespace GameEngine.Texture
 				return new Color(v,v,v,c.W);
 			};
 		}
+
+		/// <summary>
+		/// Creates a ColorFunction that sums two ColorFunctions together.
+		/// Colors clamp between black and white if overflowing or (somehow) underflowing.
+		/// </summary>
+		/// <param name="f1">The first color function.</param>
+		/// <param name="f2">The second color function.</param>
+		/// <param name="average_alpha">If true, then the average alpha value will be used isntead of the sum. Otherwise, the sum will be used for the alpha channel.</param>
+		/// <returns>Returns a color function that computes <paramref name="f1"/> + <paramref name="f2"/>.</returns>
+		public static ColorFunction Sum(ColorFunction f1, ColorFunction f2, bool average_alpha = true) => Mix(f1,f2,(a,b) => new Color(a.R + b.R,a.G + b.G,a.B + b.B,average_alpha ? (a.A + b.A) >> 1 : a.A + b.A));
+
+		/// <summary>
+		/// Creates a ColorFunction that mixes two ColorFunctions together.
+		/// </summary>
+		/// <param name="f1">The first color function.</param>
+		/// <param name="f2">The second color function.</param>
+		/// <param name="mixer">The means by which we mix colors.</param>
+		/// <returns>Returns a color function that mixes <paramref name="f1"/> and <paramref name="f2"/>.</returns>
+		public static ColorFunction Mix(ColorFunction f1, ColorFunction f2, ColorMixer mixer) => (x,y) => mixer(f1(x,y),f2(x,y));
 	}
 
 	/// <summary>
 	/// Transforms a position (<paramref name="x"/>,<paramref name="y"/>) into a color.
 	/// </summary>
 	public delegate Color ColorFunction(int x, int y);
+
+	/// <summary>
+	/// Mixes two colors together.
+	/// </summary>
+	/// <param name="a">The first color.</param>
+	/// <param name="b">The second color.</param>
+	/// <returns>Returns a mixture of <paramref name="a"/> and <paramref name="b"/>.</returns>
+	public delegate Color ColorMixer(Color a, Color b);
 }
