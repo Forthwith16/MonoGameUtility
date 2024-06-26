@@ -131,6 +131,21 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <returns>Returns the component of <paramref name="me"/> perpendicular to <paramref name="from"/>.</returns>
 		public static Vector2 Rejection(this Vector2 me, Vector2 from)
 		{return me - me.Projection(from);}
+
+		/// <summary>
+		/// Sheds the last component of this vector.
+		/// </summary>
+		public static Vector2 Shed(this Vector3 me) => new Vector2(me.X,me.Y);
+
+		/// <summary>
+		/// Sheds the last component of this vector.
+		/// </summary>
+		public static Vector3 Shed(this Vector4 me) => new Vector3(me.X,me.Y,me.Z);
+
+		/// <summary>
+		/// Sheds the last two components of this vector.
+		/// </summary>
+		public static Vector2 Shed2(this Vector4 me) => new Vector2(me.X,me.Y);
 	}
 
 	/// <summary>
