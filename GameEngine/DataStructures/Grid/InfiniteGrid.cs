@@ -239,6 +239,16 @@ namespace GameEngine.DataStructures.Grid
 		IEnumerator IEnumerable.GetEnumerator() => Grid.GetEnumerator();
 
 		/// <summary>
+		/// Sweeps across the grid from left to right (and internally to a column low to high).
+		/// </summary>
+		public IEnumerator<Point> SweepRight() => HorizontalList.GetEnumerator();
+
+		/// <summary>
+		/// Sweeps across the grid from low to high (and internally to a row left to right).
+		/// </summary>
+		public IEnumerator<Point> SweepUp() => VerticalList.GetEnumerator();
+
+		/// <summary>
 		/// Indexes into this grid at position (<paramref name="x"/>,<paramref name="y"/>).
 		/// </summary>
 		/// <param name="x">The x position to index into.</param>
