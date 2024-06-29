@@ -731,10 +731,11 @@ namespace GameEngine.GUI
 		}
 
 		/// <summary>
-		/// Jumps the active component to the one provided.]
+		/// Jumps the active component to the one provided.
 		/// </summary>
 		/// <param name="component">The component to jump to. If this is null, the active component will be set to null.</param>
 		/// <returns>Returns true if the jump was successful and false otherwise.</returns>
+		/// <remarks>This <b>does not</b> trigger an OnFocusedComponentChanged event since that only occurs when a click occurs.</remarks>
 		public bool JumpToComponent(IGUI? component)
 		{
 			// If the component we were provided is not owned by this, do nothing
