@@ -14,7 +14,7 @@ namespace GameEngine.Events
 	{
 		/// <summary>
 		/// Creates a new event.
-		/// This event indicates that neither digital nor mouse movement resulted in the focused component changing.
+		/// This event indicates that neither digital nor mouse movement resulted in the focused component changing (but the focused component <b>did</b> still change).
 		/// </summary>
 		/// <param name="src">The source of the state change.</param>
 		/// <param name="fc">The focused component.</param>

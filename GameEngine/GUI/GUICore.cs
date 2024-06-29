@@ -277,7 +277,7 @@ namespace GameEngine.GUI
 							IGUI? lfc = FocusedComponent;
 							FocusedComponent = null;
 
-							OnFocusedComponentChanged(this,new FocusedComponentChangedEvent(this,null,lfc));
+							OnFocusedComponentChanged(this,new FocusedComponentChangedEvent(this,null,lfc,true));
 						}
 					}
 					else if(ActiveComponent.Enabled) // ActiveComponent is not null in this case
