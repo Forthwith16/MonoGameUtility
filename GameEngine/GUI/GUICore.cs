@@ -371,8 +371,7 @@ namespace GameEngine.GUI
 							if(!screen.Contains(bounds))
 							{
 								// Record the best area so far
-								Rectangle area;
-								Rectangle.Intersect(ref bounds,ref screen,out area);
+								Rectangle.Intersect(ref bounds,ref screen,out Rectangle area);
 								int best_area = area.Area();
 
 								// Shift the bounds to the default
