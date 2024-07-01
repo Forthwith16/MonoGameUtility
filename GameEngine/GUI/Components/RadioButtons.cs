@@ -71,6 +71,7 @@ namespace GameEngine.GUI.Components
 			_srb = null;
 
 			// Initialize the navigation variables
+			_uda = true;
 			_udn = true;
 
 			DefaultExternalLeft = null;
@@ -711,6 +712,10 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		protected void AlignAllButtons()
 		{
+			// If we're not managing the button alignments, nevermind
+			if(!UseDefaultAlignment)
+				return;
+
 			// Precalculate these for convenience more than anything, since they should be fast
 			int W = ButtonGrid.MaxX;
 			int H = ButtonGrid.MaxY;
@@ -1156,6 +1161,37 @@ namespace GameEngine.GUI.Components
 		/// An event called when the selected radio button from this group is changed.
 		/// </summary>
 		public event RadioSelectionChanged SelectionChanged;
+
+		/// <summary>
+		/// If true, then the position of each radio button will be spaced out into their designated grid locations.
+		/// This will be done by calculating the width of each column and height of each row and then padding each row/column appropriately.
+		/// See HorizontalPadding and VerticalPadding.
+		/// <para/>
+		/// If false, then the position of each radio button is left up to the user to assign.
+		/// When this is the case, all alignment settings are ignored.
+		/// The parent of each radio button is assigned to this, however, so only relative positions need be assigned.
+		/// <para/>
+		/// When this toggles from false to true, every radio button will be immediately aligned to the grid.
+		/// </summary>
+		public bool UseDefaultAlignment
+		{
+			get => _uda;
+
+			set
+			{
+				if(_uda == value)
+					return;
+				
+				_uda = value;
+
+				if(_uda)
+					AlignAllButtons();
+
+				return;
+			}
+		}
+
+		protected bool _uda;
 
 		/// <summary>
 		/// If true, then navigation links will be automatically assigned.
