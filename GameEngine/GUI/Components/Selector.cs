@@ -141,7 +141,7 @@ namespace GameEngine.GUI.Components
 		}
 
 		/// <summary>
-		/// This handles active component change events so that we can redirect to the selected radio button (or the 'first' radio button) if this gains focus.
+		/// This handles active component change events so that we can redirect to the correct element of this GUI component when it is selected.
 		/// </summary>
 		/// <param name="sender">The GUICore whose active component changed.</param>
 		/// <param name="value">The event data.</param>

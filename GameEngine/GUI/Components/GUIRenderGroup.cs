@@ -14,6 +14,9 @@ namespace GameEngine.GUI.Components
 	/// <para/>
 	/// This GUI component's render target <b><u>MUST</u></b> be drawn before its containing GUICore, otherwise it will interrupt the GUICore's render target draw.
 	/// To accomplish this, set its RenderTargetDrawOrder to a lower value than its containing GUICore's.
+	/// <para/>
+	/// Note that because this is first rendered to a texture and then draw to the screen from that texture, its first rendering is all of the resolution it has available.
+	/// Ensure that the render quality is sufficiently high to permit any rotation/scaling required of it.
 	/// </summary>
 	/// <remarks>
 	///	Using Immediate mode for GUICore is incompatible with ComponentGroups (and other nested renderers) since Immediate mode SpriteBatches set the GraphicsDevice state immediately.
