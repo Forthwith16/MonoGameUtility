@@ -316,6 +316,17 @@ namespace GameEngine.GUI.Components
 				c.Parent = this;
 				c.Renderer = Renderer;
 				c.DrawOrder = DrawOrder + 1;
+				c.Enabled = Enabled;
+
+				c.StateChanged += (a,b) =>
+				{
+					if(b)
+						SelectedRadioButton = c.Name;
+					else if(SelectedRadioButton == c.Name) // !b
+						a.Checked = true; // We can't unselect a radio button
+
+					return;
+				};
 
 				if(c.Text is not null)
 				{
