@@ -942,6 +942,8 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The selected radio button's name.
 		/// If this value is null, no radio button is selected.
+		/// <para/>
+		/// Setting this to an invalid selection does nothing.
 		/// </summary>
 		public string? SelectedRadioButton
 		{
