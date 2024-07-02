@@ -109,7 +109,8 @@ namespace GameEngine.GUI
 		}
 
 		/// <summary>
-		/// Loads any additional content before LoadContent starts.
+		/// Loads any content for this GUI component.
+		/// This is called before Tooltip is initialized/loaded.
 		/// </summary>
 		protected abstract void LoadAdditionalContent();
 
@@ -124,7 +125,8 @@ namespace GameEngine.GUI
 		}
 
 		/// <summary>
-		/// Peforms additional update logic before Update starts.
+		/// Peforms custom Update logic.
+		/// This occurs before Tooltip is updated.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Update call.</param>
 		protected abstract void UpdateAddendum(GameTime delta);
@@ -140,7 +142,8 @@ namespace GameEngine.GUI
 		}
 
 		/// <summary>
-		/// Peforms additional update logic before Draw starts.
+		/// Peforms custom Draw logic.
+		/// This occurs before Tooltip is drawn.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected abstract void DrawAddendum(GameTime delta);
