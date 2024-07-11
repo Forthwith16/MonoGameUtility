@@ -30,6 +30,9 @@ namespace GameEngine.DataStructures.Collections
 		/// </summary>
 		public void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			Initialized = true;
 
 			foreach(T component in Components.Keys)
