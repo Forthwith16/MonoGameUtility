@@ -18,6 +18,7 @@ namespace GameEngine.Framework
 
 		/// <summary>
 		/// The debug draw order for drawing debug information.
+		/// Smaller values are typically drawn before larger values.
 		/// </summary>
 		public int DrawDebugOrder
 		{get; set;}

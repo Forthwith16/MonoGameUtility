@@ -21,7 +21,7 @@ namespace GameEngine.Framework
 
 		/// <summary>
 		/// The order IRenderTargetDrawables should be drawn in.
-		/// Lower values are drawn before larger values.
+		/// Smaller values are typically drawn before larger values.
 		/// </summary>
 		public int RenderTargetDrawOrder
 		{get; set;}
