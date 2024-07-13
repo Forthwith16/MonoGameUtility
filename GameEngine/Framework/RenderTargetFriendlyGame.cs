@@ -68,8 +68,6 @@ namespace GameEngine.Framework
 
 		protected sealed override void Initialize()
 		{
-			Initialized = true;
-
 			BeforeInitialize();
 			
 			// Replace the system mouse with a custom one
@@ -80,25 +78,26 @@ namespace GameEngine.Framework
 			
 			PreInitialize();
 			base.Initialize();
+			Initialized = true;
 			PostInitialize();
 
 			return;
 		}
 
 		/// <summary>
-		/// Called before any initialization occurs (but after Initialized is set to true).
+		/// Called before any initialization occurs (also before Initialized is set to true).
 		/// </summary>
 		protected virtual void BeforeInitialize()
 		{return;}
 
 		/// <summary>
-		/// Called after mouse initialization but before the base game Initialize is called.
+		/// Called after mouse initialization but before the base game Initialize is called (also before Initialized is set to true).
 		/// </summary>
 		protected virtual void PreInitialize()
 		{return;}
 
 		/// <summary>
-		/// Called after mouse initialization and after the base game Initialize is finished.
+		/// Called after mouse initialization and after the base game Initialize is finished (and after Initialized is set to true).
 		/// </summary>
 		protected virtual void PostInitialize()
 		{return;}
