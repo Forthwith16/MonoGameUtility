@@ -31,7 +31,7 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// In this way, positive numbers go up instead of going toward 0 like with an int cast.
 		/// </summary>
 		/// <param name="v">The vector to floor.</param>
-		public static Point Ceiling(this Vector2 v) => new Point((int)MathF.Ceiling(v.X),(int)MathF.Ceiling(v.Y));
+		public static Point ToCeilingPoint(this Vector2 v) => new Point((int)MathF.Ceiling(v.X),(int)MathF.Ceiling(v.Y));
 		 
 		/// <summary>
 		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/>.
@@ -76,7 +76,7 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// In this way, negative numbers go down instead of going toward 0 like with an int cast.
 		/// </summary>
 		/// <param name="v">The vector to floor.</param>
-		public static Point Floor(this Vector2 v) => new Point((int)MathF.Floor(v.X),(int)MathF.Floor(v.Y));
+		public static Point ToFloorPoint(this Vector2 v) => new Point((int)MathF.Floor(v.X),(int)MathF.Floor(v.Y));
 
 		/// <summary>
 		/// Returns a new normalized version of this vector.
