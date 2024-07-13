@@ -27,6 +27,22 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		{return a.X * b.Y - a.Y * b.X;}
 
 		/// <summary>
+		/// Turns this vector into a Point using the ceiling function.
+		/// In this way, positive numbers go up instead of going toward 0 like with an int cast.
+		/// </summary>
+		/// <param name="v">The vector to floor.</param>
+		public static Point Ceiling(this Vector2 v) => new Point((int)MathF.Ceiling(v.X),(int)MathF.Ceiling(v.Y));
+		 
+		/// <summary>
+		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/>.
+		/// </summary>
+		/// <param name="a">The first vector.</param>
+		/// <param name="b">The second vector.</param>
+		/// <returns>Returns the cross product.</returns>
+		public static Vector3 Cross(this Vector3 a, Vector3 b)
+		{return new Vector3(a.Y * b.Z - a.Z * b.Y,a.Z * b.X - a.X * b.Z,a.X * b.Y - a.Y * b.X);}
+
+		/// <summary>
 		/// Determines which 'side' of a (directed) line defined by the vector from <paramref name="a"/> to <paramref name="b"/> that a point <paramref name="p"/> lies on.
 		/// This is done by determining the sign of (b - a).Cross(p - a).
 		/// </summary>
@@ -47,15 +63,6 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		}
 
 		/// <summary>
-		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/>.
-		/// </summary>
-		/// <param name="a">The first vector.</param>
-		/// <param name="b">The second vector.</param>
-		/// <returns>Returns the cross product.</returns>
-		public static Vector3 Cross(this Vector3 a, Vector3 b)
-		{return new Vector3(a.Y * b.Z - a.Z * b.Y,a.Z * b.X - a.X * b.Z,a.X * b.Y - a.Y * b.X);}
-
-		/// <summary>
 		/// Computes the dot product of <paramref name="a"/> and <paramref name="b"/>.
 		/// </summary>
 		/// <param name="a">The first vector.</param>
@@ -63,6 +70,13 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <returns>Returns the dot product of the inputs.</returns>
 		public static float Dot(this Vector2 a, Vector2 b)
 		{return a.X * b.X + a.Y * b.Y;}
+
+		/// <summary>
+		/// Turns this vector into a Point using the floor function.
+		/// In this way, negative numbers go down instead of going toward 0 like with an int cast.
+		/// </summary>
+		/// <param name="v">The vector to floor.</param>
+		public static Point Floor(this Vector2 v) => new Point((int)MathF.Floor(v.X),(int)MathF.Floor(v.Y));
 
 		/// <summary>
 		/// Returns a new normalized version of this vector.
