@@ -25,13 +25,6 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <returns>Returns the value of the (only non-zero) z-component of the cross product.</returns>
 		public static float Cross(this Vector2 a, Vector2 b)
 		{return a.X * b.Y - a.Y * b.X;}
-
-		/// <summary>
-		/// Turns this vector into a Point using the ceiling function.
-		/// In this way, positive numbers go up instead of going toward 0 like with an int cast.
-		/// </summary>
-		/// <param name="v">The vector to floor.</param>
-		public static Point ToCeilingPoint(this Vector2 v) => new Point((int)MathF.Ceiling(v.X),(int)MathF.Ceiling(v.Y));
 		 
 		/// <summary>
 		/// Computes the cross product of <paramref name="a"/> and <paramref name="b"/>.
@@ -70,13 +63,6 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// <returns>Returns the dot product of the inputs.</returns>
 		public static float Dot(this Vector2 a, Vector2 b)
 		{return a.X * b.X + a.Y * b.Y;}
-
-		/// <summary>
-		/// Turns this vector into a Point using the floor function.
-		/// In this way, negative numbers go down instead of going toward 0 like with an int cast.
-		/// </summary>
-		/// <param name="v">The vector to floor.</param>
-		public static Point ToFloorPoint(this Vector2 v) => new Point((int)MathF.Floor(v.X),(int)MathF.Floor(v.Y));
 
 		/// <summary>
 		/// Returns a new normalized version of this vector.
@@ -160,6 +146,27 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		/// Sheds the last two components of this vector.
 		/// </summary>
 		public static Vector2 Shed2(this Vector4 me) => new Vector2(me.X,me.Y);
+
+		/// <summary>
+		/// Turns this vector into a Point using the ceiling function.
+		/// In this way, positive numbers go up instead of going toward 0 like with an int cast.
+		/// </summary>
+		/// <param name="v">The vector to floor.</param>
+		public static Point ToCeilingPoint(this Vector2 v) => new Point((int)MathF.Ceiling(v.X),(int)MathF.Ceiling(v.Y));
+
+		/// <summary>
+		/// Turns this vector into a Point using the floor function.
+		/// In this way, negative numbers go down instead of going toward 0 like with an int cast.
+		/// </summary>
+		/// <param name="v">The vector to floor.</param>
+		public static Point ToFloorPoint(this Vector2 v) => new Point((int)MathF.Floor(v.X),(int)MathF.Floor(v.Y));
+
+		/// <summary>
+		/// Turns this vector into a Point using the round function.
+		/// In this way, numbers go to the nearest integer instead of going toward 0 like with an int cast.
+		/// </summary>
+		/// <param name="v">The vector to floor.</param>
+		public static Point ToNearestPoint(this Vector2 v) => new Point((int)MathF.Round(v.X),(int)MathF.Round(v.Y));
 	}
 
 	/// <summary>
