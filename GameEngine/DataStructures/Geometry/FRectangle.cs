@@ -83,7 +83,7 @@ namespace GameEngine.DataStructures.Geometry
 		/// <summary>
 		/// Converts an FRectangle into a Rectangle.
 		/// </summary>
-		public static explicit operator Rectangle(FRectangle r) => new Rectangle((int)r.X,(int)r.Y,(int)MathF.Ceiling(r.Width),(int)MathF.Ceiling(r.Height));
+		public static explicit operator Rectangle(FRectangle r) => new Rectangle((int)MathF.Floor(r.X),(int)MathF.Floor(r.Y),(int)MathF.Ceiling(r.Width),(int)MathF.Ceiling(r.Height));
 
 		/// <summary>
 		/// Produces a minimal axis-aligned rectangle which contains each point of <paramref name="points"/>.
