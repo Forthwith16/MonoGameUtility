@@ -65,6 +65,12 @@ namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 		{return a.X * b.X + a.Y * b.Y;}
 
 		/// <summary>
+		/// Turns this vector into its fractional components.
+		/// </summary>
+		/// <param name="v">The vector to fractionalize.</param>
+		public static Vector2 Fractionalize(this Vector2 v) => new Vector2(v.X - MathF.Truncate(v.X),v.Y - MathF.Truncate(v.Y));
+
+		/// <summary>
 		/// Returns a new normalized version of this vector.
 		/// </summary>
 		/// <returns>Returns the normalized vector or the zero vector if this was the zero vector.</returns>
