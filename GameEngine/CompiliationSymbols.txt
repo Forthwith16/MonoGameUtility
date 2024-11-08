@@ -1,0 +1,19 @@
+﻿The following compiliation symbols can be used to alter how the code is built.
+They should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).
+
+///////////////////////////
+If this symbol is defined, then the game will draw debug information (when DrawDebugInformation in this class is set to true).
+This symbol is defined automatically when building a debuggable executable.
+When building for release, Release is defined instead.
+///////////////////////////
+#define Debug
+///////////////////////////
+
+///////////////////////////
+If this symbol is defined, then game components that are added to the game during a RenderTargetFriendlyGame's base.Initialize call will be collected.
+After the initialization call finishes, Initialize will be called on all late additions until there are none left.
+This guards against missing game component initialization.
+This can happen if game components are inserted into a game's Components before the current one being processed (due to how MonoGame initializes game components) or if added at any time during LoadContent.
+///////////////////////////
+#define VerifyMidInitializationComponentAdds
+///////////////////////////

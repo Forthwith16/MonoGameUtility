@@ -14,6 +14,14 @@ namespace GameEngine.Framework
 		/// </summary>
 		protected RenderTargetFriendlyGame() : base()
 		{
+			// Initialize initialzation data
+			Initialized = false;
+			Initializing = false;
+
+			#if VerifyMidInitializationComponentAdds
+			MidInitializationAdds = new Queue<IGameComponent>();
+			#endif
+
 			// Create the graphics device manager
 			Graphics = new GraphicsDeviceManager(this);
 			
@@ -41,7 +49,10 @@ namespace GameEngine.Framework
 				// This will take care of initialization for anything that gets added
 				if(Initialized)
 					b.GameComponent.Initialize();
-
+				#if VerifyMidInitializationComponentAdds
+				else if(Initializing)
+					MidInitializationAdds.Enqueue(b.GameComponent);
+				#endif
 				return;
 			};
 
@@ -61,8 +72,7 @@ namespace GameEngine.Framework
 			// Initialise the mouse data
 			_m = null;
 			_mr = null;
-
-			Initialized = false;
+			
 			return;
 		}
 
@@ -77,8 +87,20 @@ namespace GameEngine.Framework
 			IsCustomMouseVisible = true;
 			
 			PreInitialize();
+
+			Initializing = true;
 			base.Initialize();
+			
+			#if VerifyMidInitializationComponentAdds
+			// To ensure we actually catch all of the components to initialize, we have to do this (but only when we request it)
+			// This can occur when someone inserts something into Components before the current object of initialization during base.Initialize or at any time during LoadContent
+				while(MidInitializationAdds.Count > 0)
+					MidInitializationAdds.Dequeue().Initialize();
+			#endif
+
+			Initializing = false;
 			Initialized = true;
+			
 			PostInitialize();
 
 			return;
@@ -393,6 +415,22 @@ namespace GameEngine.Framework
 				return val;
 			}
 		}
+
+		/// <summary>
+		/// If true, then this game is being initialized.
+		/// If false, then the game either has yet to have initialization started or has been intialized.
+		/// </summary>
+		protected bool Initializing
+		{get; private set;}
+
+		#if VerifyMidInitializationComponentAdds
+		/// <summary>
+		/// A list of game components added while initializing the game.
+		/// They may have already been initialized, but as we have no way of checking (thanks MonoGame), we just have to initialize all of them in case we missed one due to dumb Components insertions and hope for the best.
+		/// </summary>
+		protected Queue<IGameComponent> MidInitializationAdds
+		{get; private set;}
+		#endif
 
 		/// <summary>
 		/// If true, then this game has been initialized.
