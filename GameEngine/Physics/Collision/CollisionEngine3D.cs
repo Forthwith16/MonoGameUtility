@@ -443,7 +443,10 @@ namespace GameEngine.Physics.Collision
 		public bool ContainsCollider(ICollider3D c) => c.IsStatic ? Statics.Contains(c) : Kinetics.ContainsKey(c.ID);
 
 		/// <summary>
-		/// Determines what is colliding this frame.
+		/// Determines what is currently colliding.
+		/// <para/>
+		/// If allowing the Game's Components to update the collision engine automatically, let it call Update(GameTime) instead and omit a call to this function.
+		/// However, if objects move after Update(GameTime) is called, one should call Update() to obtain the new list of collisions if they are needed before the next call to Update(GameTime).
 		/// </summary>
 		public void Update()
 		{
@@ -460,7 +463,7 @@ namespace GameEngine.Physics.Collision
 		}
 
 		/// <summary>
-		/// Determines what is colliding this frame.
+		/// Determines what is currently colliding.
 		/// </summary>
 		/// <param name="delta">The elapsed game time. It will be ignored.</param>
 		public override void Update(GameTime delta) => Update();
