@@ -91,6 +91,9 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public override void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			MouseCursor.Initialize();
 
 			base.Initialize();

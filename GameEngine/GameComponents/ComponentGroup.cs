@@ -32,6 +32,9 @@ namespace GameEngine.GameComponents
 
 		public override void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			foreach(DrawableAffineComponent component in Components)
 				component.Initialize();
 

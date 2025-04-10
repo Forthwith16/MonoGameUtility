@@ -97,8 +97,9 @@ namespace ExampleSteeringBehavior
 			Menu.SelectionChanged += LoadGameMode;
 			Menu.Translate(Bounds.Width + 20.0f,20.0f);
 			GUISystem.Add(Menu);
-
+			
 			// Set the initial button to none AFTER assigning the selection change event so that we can finish loading via it
+			// This will also load all of the basic assets into Components to finish loading the game
 			Menu.SelectedRadioButton = "None";
 
 			return;

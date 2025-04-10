@@ -96,6 +96,9 @@ namespace GameEngine.Sprites
 
 		public override void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			Playing = true;
 
 			base.Initialize();

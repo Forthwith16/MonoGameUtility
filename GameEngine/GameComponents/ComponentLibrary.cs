@@ -26,6 +26,9 @@ namespace GameEngine.GameComponents
 		/// </summary>
 		public override void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			foreach(DrawableAffineComponent component in Components.Select(a => a.Value.Item1))
 				component.Initialize();
 

@@ -45,7 +45,7 @@ namespace GameEngine.Framework
 				if(b.GameComponent is IDebugDrawable obj2)
 					AddDebugComponent(obj2);
 				#endif
-
+				
 				// This will take care of initialization for anything that gets added
 				if(Initialized)
 					b.GameComponent.Initialize();

@@ -99,6 +99,9 @@ namespace GameEngine.Time
 		/// </summary>
 		public override void Initialize()
 		{
+			if(Initialized)
+				return;
+
 			base.Initialize();
 
 			Play();
