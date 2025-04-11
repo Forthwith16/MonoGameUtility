@@ -119,21 +119,21 @@ namespace GameEngine.DataStructures.Graphs
 		public bool SetEdgeData(IEdge<V,E> e, E data);
 
 		/// <summary>
-		/// Sets the edge data of an edge.
+		/// Sets the edge data of an edge to <paramref name="data"/>.
 		/// </summary>
 		/// <param name="src">The edge source vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
 		/// <param name="dst">The edge destination vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
 		/// <param name="data">The data to assign to the edge.</param>
 		/// <returns>Returns true if the data was set and false otherwise.</returns>
-		public bool SetEdgeData(IVertex<V,E> src, IVertex<V,E> dst, V data);
+		public bool TrySetEdgeData(IVertex<V,E> src, IVertex<V,E> dst, E data);
 
 		/// <summary>
-		/// Sets the edge data of an edge.
+		/// Sets the edge data of an edge to <paramref name="data"/>.
 		/// </summary>
 		/// <param name="e">The edge to remove. If this graph is undirected, the direction of representation of <paramref name="e"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
 		/// <param name="data">The data to assign to the edge.</param>
 		/// <returns>Returns true if the data was set and false otherwise.</returns>
-		public bool SetEdgeData(IEdge<V,E> e, V data);
+		public bool TrySetEdgeData(IEdge<V,E> e, E data);
 
 		/// <summary>
 		/// Determines if this graph contains an edge.
@@ -205,6 +205,15 @@ namespace GameEngine.DataStructures.Graphs
 	public interface IVertex<V,E>
 	{
 		/// <summary>
+		/// The inbound edges to this vertex.
+		/// If this is an undirected graph, then this will contain the same set of edges as OutboundEdges.
+		/// </summary>
+		/// <exception cref="NotImplementedException">Thrown if this vertex belongs to a directed graph and following edges in reverse is not permitted.</exception>
+		/// <remarks>If the graph structure is altered, all priorly generated versions of this have undefined behavior.</remarks>
+		public IEnumerable<IEdge<V,E>> InboundEdges
+		{get;}
+
+		/// <summary>
 		/// The neighbors of this vertex from inbound edges.
 		/// If this is an undirected graph, then this will contain the same set of vertices as OutboundNeighbors.
 		/// </summary>
@@ -219,6 +228,14 @@ namespace GameEngine.DataStructures.Graphs
 		/// <exception cref="NotImplementedException">Thrown if this vertex belongs to a directed graph and following edges in reverse is not permitted.</exception>
 		public int InDegree
 		{get;}
+		
+		/// <summary>
+		/// The outbound edges from this vertex.
+		/// If this is an undirected graph, then this will contain the same set of edges as InboundEdges.
+		/// </summary>
+		/// <remarks>If the graph structure is altered, all priorly generated versions of this have undefined behavior.</remarks>
+		public IEnumerable<IEdge<V,E>> OutboundEdges
+		{get;}
 
 		/// <summary>
 		/// The neighbors of this vertex following outbound edges.
@@ -232,23 +249,6 @@ namespace GameEngine.DataStructures.Graphs
 		/// The out degree of this vertex.
 		/// </summary>
 		public int OutDegree
-		{get;}
-
-		/// <summary>
-		/// The inbound edges to this vertex.
-		/// If this is an undirected graph, then this will contain the same set of edges as OutboundEdges.
-		/// </summary>
-		/// <exception cref="NotImplementedException">Thrown if this vertex belongs to a directed graph and following edges in reverse is not permitted.</exception>
-		/// <remarks>If the graph structure is altered, all priorly generated versions of this have undefined behavior.</remarks>
-		public IEnumerable<IEdge<V,E>> InboundEdges
-		{get;}
-
-		/// <summary>
-		/// The outbound edges from this vertex.
-		/// If this is an undirected graph, then this will contain the same set of edges as InboundEdges.
-		/// </summary>
-		/// <remarks>If the graph structure is altered, all priorly generated versions of this have undefined behavior.</remarks>
-		public IEnumerable<IEdge<V,E>> OutboundEdges
 		{get;}
 
 		/// <summary>
@@ -296,5 +296,49 @@ namespace GameEngine.DataStructures.Graphs
 		/// </summary>
 		public E Data
 		{get;}
+	}
+
+	/// <summary>
+	/// A dummy edge class useful for searching for edges by providing an edge containing only the source and destinations.
+	/// It does not require data or directedness and will error if trying to access either property.
+	/// </summary>
+	/// <typeparam name="V">The data type stored in vertex endpoints of this edge.</typeparam>
+	/// <typeparam name="E">The data type stored in this edge.</typeparam>
+	public sealed class DummyEdge<V,E> : IEdge<V,E>
+	{
+		/// <summary>
+		/// Creates a dummy edge Source -> Destination.
+		/// </summary>
+		/// <param name="source">The source vertex.</param>
+		/// <param name="destination">The destination vertex.</param>
+		public DummyEdge(IVertex<V,E> source, IVertex<V,E> destination)
+		{
+			Source = source;
+			Destination = destination;
+
+			return;
+		}
+
+		public static bool operator ==(DummyEdge<V,E> e1, IEdge<V,E> e2) => e1.Source == e2.Source && e1.Destination == e2.Destination;
+		public static bool operator !=(DummyEdge<V,E> e1, IEdge<V,E> e2) => e1.Source != e2.Source || e1.Destination != e2.Destination;
+
+		public override bool Equals(object? obj)
+		{
+			if(obj is not IEdge<V,E> e)
+				return false;
+
+			return this == e;
+		}
+
+		public override int GetHashCode() => HashCode.Combine(Source.GetHashCode(),Destination.GetHashCode());
+
+		public IVertex<V,E> Source
+		{get;}
+
+		public IVertex<V,E> Destination
+		{get;}
+
+		public bool Directed => throw new NotImplementedException();
+		public E Data => throw new NotImplementedException();
 	}
 }
