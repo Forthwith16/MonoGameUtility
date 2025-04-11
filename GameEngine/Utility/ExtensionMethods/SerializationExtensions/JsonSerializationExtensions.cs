@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 {
@@ -13,7 +14,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <typeparam name="T">The type to serialize.</typeparam>
 		/// <param name="value">The value to serialize.</param>
 		/// <param name="stream">The stream to write to.</param>
-		public static void SerializeJson<T>(this T value, Stream stream) where T : class
+		public static void SerializeJson<T>(this T value, Stream stream)
 		{
 			JsonSerializer.Serialize(stream,value,typeof(T),SufficientReadWrite);
 			return;
@@ -26,7 +27,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="value">The value to serialize.</param>
 		/// <param name="stream">The stream to write to.</param>
 		/// <param name="ops">The options ot pass to the serializer.</param>
-		public static void SerializeJson<T>(this T value, Stream stream, JsonSerializerOptions ops) where T : class
+		public static void SerializeJson<T>(this T value, Stream stream, JsonSerializerOptions ops)
 		{
 			JsonSerializer.Serialize(stream,value,typeof(T),ops);
 			return;
@@ -38,7 +39,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <typeparam name="T">The type to serialize.</typeparam>
 		/// <param name="value">The value to serialize.</param>
 		/// <param name="path">The file to write to.</param>
-		public static void SerializeJson<T>(this T value, string path) where T : class
+		public static void SerializeJson<T>(this T value, string path)
 		{
 			using(FileStream fout = File.Create(path))
 				value.SerializeJson(fout);
@@ -53,7 +54,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="value">The value to serialize.</param>
 		/// <param name="path">The file to write to.</param>
 		/// <param name="ops">The options ot pass to the serializer.</param>
-		public static void SerializeJson<T>(this T value, string path, JsonSerializerOptions ops) where T : class
+		public static void SerializeJson<T>(this T value, string path, JsonSerializerOptions ops)
 		{
 			using(FileStream fout = File.Create(path))
 				value.SerializeJson(fout,ops);
@@ -66,11 +67,12 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// </summary>
 		/// <typeparam name="T">The type to serialize.</typeparam>
 		/// <param name="value">The value to serialize.</param>
-		public static string ToJsonString<T>(this T value) where T : class
+		public static string ToJsonString<T>(this T value)
 		{
 			using(MemoryStream sout = new MemoryStream())
 			{
 				value.SerializeJson(sout);
+				sout.Position = 0;
 
 				using(StreamReader sin = new StreamReader(sout))
 					return sin.ReadToEnd();
@@ -83,21 +85,46 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <typeparam name="T">The type to serialize.</typeparam>
 		/// <param name="value">The value to serialize.</param>
 		/// <param name="ops">The options ot pass to the serializer.</param>
-		public static string ToJsonString<T>(this T value, JsonSerializerOptions ops) where T : class
+		public static string ToJsonString<T>(this T value, JsonSerializerOptions ops)
 		{
 			using(MemoryStream sout = new MemoryStream())
 			{
 				value.SerializeJson(sout,ops);
-
+				sout.Position = 0;
+				
 				using(StreamReader sin = new StreamReader(sout))
 					return sin.ReadToEnd();
 			}
 		}
 
 		/// <summary>
+		/// Adds a converter to the default set of JSON options.
+		/// </summary>
+		/// <param name="c">The converter to add.</param>
+		public static void RegisterConverter(JsonConverter c)
+		{
+			SufficientReadWrite = new JsonSerializerOptions(SufficientReadWrite); // This makes it so we can change options even after having serialized things
+			SufficientReadWrite.Converters.Add(c);
+			
+			return;
+		}
+
+		/// <summary>
+		/// Removes a converter from the default set of JSON options.
+		/// </summary>
+		/// <param name="c">The converter to remove.</param>
+		public static void UnregisterConverter(JsonConverter c)
+		{
+			SufficientReadWrite = new JsonSerializerOptions(SufficientReadWrite); // This makes it so we can change options even after having serialized things
+			SufficientReadWrite.Converters.Remove(c);
+			
+			return;
+		}
+
+		/// <summary>
 		/// The JSON options to serialize everything that needs to be serialized to recover the full variable state later.
 		/// </summary>
-		public static readonly JsonSerializerOptions SufficientReadWrite = new JsonSerializerOptions
+		internal static JsonSerializerOptions SufficientReadWrite = new JsonSerializerOptions
 		{
 			IncludeFields = true,
 			IgnoreReadOnlyFields = true,

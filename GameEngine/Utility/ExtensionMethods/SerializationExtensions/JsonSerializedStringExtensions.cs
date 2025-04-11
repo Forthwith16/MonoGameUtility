@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 {
@@ -14,13 +13,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <typeparam name="T">The type to convert to.</typeparam>
 		/// <param name="sjson">The JSON specification of a <typeparamref name="T"/> type.</param>
 		/// <returns>Returns the converted object or null if <paramref name="sxml"/> was not a valid specification of a <typeparamref name="T"/> type.</returns>
-		public static T? DeserializeJson<T>(this string sjson)
-		{
-			byte[] bytes = Encoding.GetEncoding(sjson).GetBytes(sjson);
-
-			using(MemoryStream sin = new MemoryStream(bytes))
-				return (T?)JsonSerializer.Deserialize(sin,typeof(T),JsonSerializationExtensions.SufficientReadWrite);
-		}
+		public static T? DeserializeJson<T>(this string sjson) => (T?)JsonSerializer.Deserialize(sjson.AsSpan(),typeof(T),JsonSerializationExtensions.SufficientReadWrite);
 
 		/// <summary>
 		/// Converts a JSON string into a <typeparamref name="T"/> type.
@@ -29,13 +22,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="sjson">The JSON specification of a <typeparamref name="T"/> type.</param>
 		/// <param name="ops">The options ot pass to the serializer.</param>
 		/// <returns>Returns the converted object or null if <paramref name="sxml"/> was not a valid specification of a <typeparamref name="T"/> type.</returns>
-		public static T? DeserializeJson<T>(this string sjson, JsonSerializerOptions ops)
-		{
-			byte[] bytes = Encoding.GetEncoding(sjson).GetBytes(sjson);
-
-			using(MemoryStream sin = new MemoryStream(bytes))
-				return (T?)JsonSerializer.Deserialize(sin,typeof(T),ops);
-		}
+		public static T? DeserializeJson<T>(this string sjson, JsonSerializerOptions ops) => (T?)JsonSerializer.Deserialize(sjson.AsSpan(),typeof(T),ops);
 
 		/// <summary>
 		/// Converts a JSON file specified by <paramref name="path"/> into a <typeparamref name="T"/> type.

@@ -18,7 +18,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="stream">The stream to write to.</param>
 		/// <param name="remove_default_xml_namespace">If true, we will remove the default XML namespaces from the output.</param>
 		/// <param name="omit_xml_declaration">If true, we will omit the XML declartion from the output.</param>
-		public static void SerializeXml<T>(this T value, Stream stream, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true) where T : class
+		public static void SerializeXml<T>(this T value, Stream stream, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true)
 		{
 			XmlSerializerNamespaces? xmlns = remove_default_xml_namespace ? new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty }) : null;
 
@@ -28,7 +28,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 			settings.CheckCharacters = false;
 			
 			using(XmlWriter xout = XmlWriter.Create(stream,settings))
-				new XmlSerializer(value.GetType()).Serialize(xout,value,xmlns);
+				new XmlSerializer(typeof(T)).Serialize(xout,value,xmlns);
 
 			return;
 		}
@@ -41,7 +41,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="path">The file to write to.</param>
 		/// <param name="remove_default_xml_namespace">If true, we will remove the default XML namespaces from the output.</param>
 		/// <param name="omit_xml_declaration">If true, we will omit the XML declartion from the output.</param>
-		public static void SerializeXml<T>(this T value, string path, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true) where T : class
+		public static void SerializeXml<T>(this T value, string path, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true)
 		{
 			using(FileStream fout = File.Create(path))
 				value.SerializeXml(fout,remove_default_xml_namespace,omit_xml_declaration);
@@ -57,7 +57,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="sout">The StringWriter to write to.</param>
 		/// <param name="remove_default_xml_namespace">If true, we will remove the default XML namespaces from the output.</param>
 		/// <param name="omit_xml_declaration">If true, we will omit the XML declartion from the output.</param>
-		public static void SerializeXml<T>(this T value, StringWriter sout, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true) where T : class
+		public static void SerializeXml<T>(this T value, StringWriter sout, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true)
 		{
 			XmlSerializerNamespaces? xmlns = remove_default_xml_namespace ? new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty }) : null;
 
@@ -67,7 +67,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 			settings.CheckCharacters = false;
 
 			using(XmlWriter xout = XmlWriter.Create(sout,settings))
-				new XmlSerializer(value.GetType()).Serialize(xout,value,xmlns);
+				new XmlSerializer(typeof(T)).Serialize(xout,value,xmlns);
 
 			return;
 		}
@@ -80,7 +80,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="remove_default_xml_namespace">If true, we will remove the default XML namespaces from the output.</param>
 		/// <param name="omit_xml_declaration">If true, we will omit the XML declartion from the output.</param>
 		/// <param name="encoding">The character encoding to utilize in the output.</param>
-		public static string ToXmlString<T>(this T value, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true, Encoding? encoding = null) where T : class
+		public static string ToXmlString<T>(this T value, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true, Encoding? encoding = null)
 		{
 			using(StringWriterWithEncoding sout = new StringWriterWithEncoding(encoding))
 			{
