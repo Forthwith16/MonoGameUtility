@@ -351,6 +351,39 @@ namespace GameEngine.DataStructures.Graphs
 			return ret.Substring(0,ret.Length - 1);
 		}
 
+		public string ToVerboseString()
+		{
+			if(VertexCount == 0)
+				return "";
+
+			string ret = "";
+			
+			foreach(IVertex<V,E> v in VertexSet)
+			{
+				string v_str = v.ToString()!;
+
+				// Build a space buffer of length equal to the offset we need to pad the next line
+				string v_buff = "   ";
+
+				for(int i = 0;i < v_buff.Length;i++)
+					v_buff += " ";
+
+				ret += v_str + " ->";
+
+				foreach(IEdge<V,E> e in v.OutboundEdges)
+					ret += " " + e;
+
+				ret += "\n" + v_buff + " <-";
+
+				foreach(IEdge<V,E> e in v.InboundEdges)
+					ret += " " + e;
+
+				ret += "\n";
+			}
+
+			return ret.Substring(0,ret.Length - 1);
+		}
+
 		/// <summary>
 		/// The concrete collection of vertices of this graph.
 		/// </summary>
