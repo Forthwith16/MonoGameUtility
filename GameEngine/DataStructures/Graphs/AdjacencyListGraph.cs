@@ -28,6 +28,27 @@ namespace GameEngine.DataStructures.Graphs
 			return;
 		}
 
+		/// <summary>
+		/// Creates a graph that is a copy of <paramref name="g"/>.
+		/// The data in each vertex and edge is shallow copied.
+		/// </summary>
+		/// <param name="g">The graph to copy.</param>
+		public AdjacencyListGraph(IGraph<V,E> g)
+		{
+			VertexSet = new HashSet<AdjacencyListVertex<V,E>>();
+			Directed = g.Directed;
+
+			Dictionary<IVertex<V,E>,IVertex<V,E>> translation = new Dictionary<IVertex<V,E>,IVertex<V,E>>();
+
+			foreach(IVertex<V,E> v in g.Vertices)
+				translation.Add(v,AddVertex(v.Data));
+
+			foreach(IEdge<V,E> e in g.Edges)
+				AddEdge(translation[e.Source],translation[e.Destination],e.Data);
+
+			return;
+		}
+
 		public IVertex<V,E> AddVertex(V data)
 		{
 			AdjacencyListVertex<V,E> ret = new AdjacencyListVertex<V,E>(data);
