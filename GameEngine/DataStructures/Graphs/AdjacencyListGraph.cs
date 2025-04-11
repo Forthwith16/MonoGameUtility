@@ -331,6 +331,26 @@ namespace GameEngine.DataStructures.Graphs
 			return;
 		}
 
+		public override string ToString()
+		{
+			if(VertexCount == 0)
+				return "";
+
+			string ret = "";
+
+			foreach(IVertex<V,E> v in VertexSet)
+			{
+				ret += v.ToString() + " ->";
+
+				foreach(IEdge<V,E> e in v.OutboundEdges)
+					ret += " " + e;
+
+				ret += "\n";
+			}
+
+			return ret.Substring(0,ret.Length - 1);
+		}
+
 		/// <summary>
 		/// The concrete collection of vertices of this graph.
 		/// </summary>
@@ -399,6 +419,12 @@ namespace GameEngine.DataStructures.Graphs
 			return;
 		}
 
+		public override string ToString()
+		{
+			string? ret = Data is null ? "<null>" : Data.ToString();
+			return ret is null ? "<null>" : ret;
+		}
+
 		/// <summary>
 		/// The concrete list of inbound edges.
 		/// </summary>
@@ -457,6 +483,12 @@ namespace GameEngine.DataStructures.Graphs
 		}
 
 		public override int GetHashCode() => HashCode.Combine(Source.GetHashCode(),Destination.GetHashCode());
+
+		public override string ToString()
+		{
+			string? data = Data is null ? "<null>" : Data.ToString();
+			return "(" + Source + "," + Destination + "," + (data is null ? "<null>" : data) + ")";
+		}
 
 		public IVertex<V,E> Source => ALVSource;
 
