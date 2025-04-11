@@ -156,6 +156,38 @@ namespace GameEngine.DataStructures.Graphs
 			return true;
 		}
 
+
+
+		public IEdge<V,E> GetEdge(IVertex<V,E> src, IVertex<V,E> dst)
+		{
+			if(!TryGetEdge(src,dst,out IEdge<V,E>? ret))
+				throw new NoSuchEdgeException(); // This only fails when there is no such edge
+
+			return ret;
+		}
+
+		public IEdge<V,E> GetEdge(IEdge<V,E> e)
+		{
+			if(!TryGetEdge(e,out IEdge<V,E>? ret))
+				throw new NoSuchEdgeException(); // This only fails when there is no such edge
+
+			return ret;
+		}
+
+		public bool TryGetEdge(IVertex<V,E> src, IVertex<V,E> dst, [MaybeNullWhen(false)] out IEdge<V,E> result) => TryGetEdge(new DummyEdge<V,E>(src,dst),out result);
+
+		public bool TryGetEdge(IEdge<V,E> e, [MaybeNullWhen(false)] out IEdge<V,E> result)
+		{
+			if(!FetchOutboundEdge(e,out AdjacencyListEdge<V,E>? ret))
+			{
+				result = default;
+				return false;
+			}
+
+			result = ret;
+			return true;
+		}
+
 		public bool SetEdgeData(IVertex<V,E> src, IVertex<V,E> dst, E data)
 		{
 			if(!TrySetEdgeData(src,dst,data))

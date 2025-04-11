@@ -110,6 +110,40 @@ namespace GameEngine.DataStructures.Graphs
 		public bool TryRemoveEdge(IEdge<V,E> e);
 
 		/// <summary>
+		/// Obtains the edge <paramref name="src"/> -> <paramref name="dst"/>.
+		/// </summary>
+		/// <param name="src">The source vertex.</param>
+		/// <param name="dst">The destination vertex.</param>
+		/// <returns>Returns the edge.</returns>
+		/// <exception cref="NoSuchEdgeException">Thrown if the edge does not exist.</exception>
+		public IEdge<V,E> GetEdge(IVertex<V,E> src, IVertex<V,E> dst);
+
+		/// <summary>
+		/// Obtains the edge <paramref name="src"/> -> <paramref name="dst"/>.
+		/// </summary>
+		/// <param name="src">The edge to fetch. This should be a dummy edge, otherwise this is a no op.</param>
+		/// <returns>Returns the edge.</returns>
+		/// <exception cref="NoSuchEdgeException">Thrown if the edge does not exist.</exception>
+		public IEdge<V,E> GetEdge(IEdge<V,E> e);
+
+		/// <summary>
+		/// Obtains the edge <paramref name="src"/> -> <paramref name="dst"/>.
+		/// </summary>
+		/// <param name="src">The source vertex.</param>
+		/// <param name="dst">The destination vertex.</param>
+		/// <param name="result">The obtained edge.</param>
+		/// <returns>Returns the edge.</returns>
+		public bool TryGetEdge(IVertex<V,E> src, IVertex<V,E> dst, [MaybeNullWhen(false)] out IEdge<V,E> result);
+
+		/// <summary>
+		/// Obtains the edge <paramref name="src"/> -> <paramref name="dst"/>.
+		/// </summary>
+		/// <param name="src">The edge to fetch. This should be a dummy edge, otherwise this is a no op.</param>
+		/// <param name="result">The obtained edge.</param>
+		/// <returns>Returns the edge.</returns>
+		public bool TryGetEdge(IEdge<V,E> e, [MaybeNullWhen(false)] out IEdge<V,E> result);
+
+		/// <summary>
 		/// Sets the edge data of an edge to <paramref name="data"/>.
 		/// </summary>
 		/// <param name="src">The edge source vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
