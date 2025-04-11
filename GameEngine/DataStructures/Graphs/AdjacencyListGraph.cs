@@ -1,5 +1,6 @@
 ﻿
 using GameEngine.Exceptions;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GameEngine.DataStructures.Graphs
@@ -21,7 +22,7 @@ namespace GameEngine.DataStructures.Graphs
 		/// <param name="dir">If true, this will be a directed graph. If false, this will be an undirected graph.</param>
 		public AdjacencyListGraph(bool dir)
 		{
-			VertexSet = new HashSet<IVertex<V,E>>();
+			VertexSet = new HashSet<AdjacencyListVertex<V,E>>();
 			Directed = dir;
 
 			return;
@@ -40,10 +41,22 @@ namespace GameEngine.DataStructures.Graphs
 			if(!ContainsVertex(v))
 				throw new NoSuchVertexException();
 			
-			return VertexSet.Remove(v);
+			return TryRemoveVertex(v);
 		}
 
-		public bool TryRemoveVertex(IVertex<V,E> v) => VertexSet.Remove(v);
+		public bool TryRemoveVertex(IVertex<V,E> v)
+		{
+			if(!ContainsVertex(v) || v is not AdjacencyListVertex<V,E> v_alv || !VertexSet.Remove(v_alv))
+				return false;
+			
+			foreach(AdjacencyListVertex<V,E> v2 in VertexSet)
+			{
+				v2.InEdges.Remove(v_alv);
+				v2.OutEdges.Remove(v_alv);
+			}
+
+			return true; // Just trust
+		}
 
 		public bool SetVertexData(IVertex<V,E> v, V data)
 		{
@@ -105,12 +118,12 @@ namespace GameEngine.DataStructures.Graphs
 			e = ret; // This is the most sensible assignment of e
 
 			src_alv.OutEdges.Add(dst_alv,ret);
-			dst_alv.InEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(dst_alv,src_alv,data,Directed));
+			dst_alv.InEdges.Add(src_alv,new AdjacencyListEdge<V,E>(src_alv,dst_alv,data,Directed));
 
 			if(!Directed && src != dst)
 			{
 				src_alv.InEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(dst_alv,src_alv,data,Directed));
-				dst_alv.OutEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(src_alv,dst_alv,data,Directed));
+				dst_alv.OutEdges.Add(src_alv,new AdjacencyListEdge<V,E>(dst_alv,src_alv,data,Directed));
 			}
 
 			return true;
@@ -141,7 +154,7 @@ namespace GameEngine.DataStructures.Graphs
 
 			if(!Directed && e.Source != e.Destination)
 			{
-				DummyEdge<V,E> e_rev = new DummyEdge<V,E>(e.Source,e.Destination);
+				DummyEdge<V,E> e_rev = new DummyEdge<V,E>(e.Destination,e.Source);
 
 				if(!FetchOutboundEdge(e_rev,out AdjacencyListEdge<V,E>? e4) || !FetchInboundEdge(e_rev,out AdjacencyListEdge<V,E>? e5))
 					return false;
@@ -155,8 +168,6 @@ namespace GameEngine.DataStructures.Graphs
 
 			return true;
 		}
-
-
 
 		public IEdge<V,E> GetEdge(IVertex<V,E> src, IVertex<V,E> dst)
 		{
@@ -387,7 +398,7 @@ namespace GameEngine.DataStructures.Graphs
 		/// <summary>
 		/// The concrete collection of vertices of this graph.
 		/// </summary>
-		protected HashSet<IVertex<V,E>> VertexSet
+		protected HashSet<AdjacencyListVertex<V,E>> VertexSet
 		{get;}
 
 		public IEnumerable<IVertex<V,E>> Vertices => VertexSet;
@@ -403,19 +414,152 @@ namespace GameEngine.DataStructures.Graphs
 					foreach(IVertex<V,E> v in VertexSet)
 						ret = ret.Concat(v.OutboundEdges);
 				else
-				{
-					HashSet<IVertex<V,E>> done = new HashSet<IVertex<V,E>>();
-
-					foreach(IVertex<V,E> v in VertexSet)
-					{
-						ret = ret.Concat(v.OutboundEdges.Where(e => !done.Contains(e.Destination)));
-						done.Add(v);
-					}
-				}
+					ret = new AdjacencyListEdgeEnumerable(this);
 
 				return ret;
 			}
 		}
+
+		#region Enumerator Helper Classes
+		/// <summary>
+		/// A helper class so we can wrap an instance around adding things to a hash set.
+		/// If we do not do this, then the hash set will be filled before the Where commands actually execute, which makes them useless.
+		/// </summary>
+		protected class AdjacencyListEdgeEnumerable : IEnumerable<IEdge<V,E>>
+		{
+			public AdjacencyListEdgeEnumerable(AdjacencyListGraph<V,E> g)
+			{
+				Graph = g;
+				return;
+			}
+
+			public IEnumerator<IEdge<V,E>> GetEnumerator() => new AdjacencyListEdgeEnumerator(Graph);
+			IEnumerator IEnumerable.GetEnumerator() => new AdjacencyListEdgeEnumerator(Graph);
+
+			protected AdjacencyListGraph<V,E> Graph
+			{get;}
+		}
+
+		protected class AdjacencyListEdgeEnumerator : IEnumerator<IEdge<V,E>>
+		{
+			public AdjacencyListEdgeEnumerator(AdjacencyListGraph<V,E> g)
+			{
+				Graph = g;
+				Processed = new HashSet<IVertex<V,E>>();
+				
+				v_iter = Graph.Vertices.GetEnumerator();
+				e_iter = null;
+
+				_c = null;
+				_c_undef = true;
+				done = false;
+
+				return;
+			}
+
+			public void Dispose()
+			{return;}
+
+			public bool MoveNext()
+			{
+				if(done)
+					return false;
+
+				// Loop until we fail or get a list of edges to enumerate
+				while(true)
+				{
+					if(e_iter is null && !LoadNextEdgeIter())
+						return false;
+
+					if(LoadNextUnprocessedEdgeFromCurrentEdgeIter())
+					{
+						_c = e_iter!.Current;
+						_c_undef = false;
+
+						break;
+					}
+					else
+						e_iter = null;
+				}
+				
+				return true;
+			}
+
+			protected bool LoadNextEdgeIter()
+			{
+				while(e_iter is null)
+				{
+					if(!v_iter.MoveNext())
+					{
+						_c = null;
+						_c_undef = true;
+						done = true;
+
+						return false;
+					}
+
+					if(v_iter.Current.OutDegree > 0)
+						e_iter = v_iter.Current.OutboundEdges.GetEnumerator();
+					else
+						Processed.Add(v_iter.Current);
+				}
+
+				return true;
+			}
+
+			protected bool LoadNextUnprocessedEdgeFromCurrentEdgeIter()
+			{
+				bool success = false;
+
+				while((success = e_iter!.MoveNext()) && Processed.Contains(e_iter.Current.Destination));
+
+				if(!success)
+					Processed.Add(v_iter.Current);
+
+				return success;
+			}
+
+			public void Reset()
+			{
+				Processed.Clear();
+
+				v_iter.Reset();
+				e_iter = null;
+
+				_c = null;
+				_c_undef = true;
+				done = false;
+
+				return;
+			}
+
+			protected AdjacencyListGraph<V,E> Graph
+			{get;}
+
+			protected HashSet<IVertex<V,E>> Processed
+			{get;}
+
+			protected IEnumerator<IVertex<V,E>> v_iter;
+			protected IEnumerator<IEdge<V,E>>? e_iter;
+
+			object IEnumerator.Current => Current;
+
+			public IEdge<V,E> Current
+			{
+				get
+				{
+					if(_c_undef)
+						throw new InvalidOperationException();
+
+					return _c!;
+				}
+			}
+
+			public IEdge<V,E>? _c;
+			public bool _c_undef;
+			public bool done;
+		}
+		#endregion
 
 		public int EdgeCount
 		{
