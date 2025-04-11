@@ -107,7 +107,7 @@ namespace GameEngine.DataStructures.Graphs
 			src_alv.OutEdges.Add(dst_alv,ret);
 			dst_alv.InEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(dst_alv,src_alv,data,Directed));
 
-			if(!Directed)
+			if(!Directed && src != dst)
 			{
 				src_alv.InEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(dst_alv,src_alv,data,Directed));
 				dst_alv.OutEdges.Add(dst_alv,new AdjacencyListEdge<V,E>(src_alv,dst_alv,data,Directed));
@@ -139,7 +139,7 @@ namespace GameEngine.DataStructures.Graphs
 			if(!FetchOutboundEdge(e,out AdjacencyListEdge<V,E>? e2) || !FetchInboundEdge(e,out AdjacencyListEdge<V,E>? e3))
 				return false;
 
-			if(!Directed)
+			if(!Directed && e.Source != e.Destination)
 			{
 				DummyEdge<V,E> e_rev = new DummyEdge<V,E>(e.Source,e.Destination);
 
@@ -180,7 +180,7 @@ namespace GameEngine.DataStructures.Graphs
 				return false;
 
 			// If we're not directed, we have to change four edges
-			if(!Directed)
+			if(!Directed && e.Source != e.Destination)
 			{
 				IEdge<V,E> e_rev = new DummyEdge<V,E>(e.Destination,e.Source);
 
