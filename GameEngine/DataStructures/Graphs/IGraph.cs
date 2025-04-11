@@ -1,4 +1,5 @@
 ﻿using GameEngine.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GameEngine.DataStructures.Graphs
 {
@@ -63,7 +64,18 @@ namespace GameEngine.DataStructures.Graphs
 		/// <param name="dst">The edge destination vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
 		/// <param name="data">The data to store in the edge.</param>
 		/// <returns>Returns the added edge.</returns>
+		/// <exception cref="DuplicateEdgeException">Thrown if the edge <paramref name="src"/> -> <paramref name="dst"/> already exists.</exception>
 		public IEdge<V,E> AddEdge(IVertex<V,E> src, IVertex<V,E> dst, E data);
+
+		/// <summary>
+		/// Adds an edge to this graph.
+		/// </summary>
+		/// <param name="src">The edge source vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
+		/// <param name="dst">The edge destination vertex. If this graph is undirected, the order of <paramref name="src"/> and <paramref name="dst"/> is unimportant unless the implementing class explicitly specifies otherwise.</param>
+		/// <param name="data">The data to store in the edge.</param>
+		/// <param name="e">The added edge.</param>
+		/// <returns>Returns true if the edge was added and false otherwise.</returns>
+		public bool TryAddEdge(IVertex<V,E> src, IVertex<V,E> dst, E data, [MaybeNullWhen(false)] out IEdge<V,E> e);
 
 		/// <summary>
 		/// Removes an edge from this graph.

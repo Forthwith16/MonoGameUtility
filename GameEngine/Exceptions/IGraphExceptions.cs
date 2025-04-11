@@ -61,4 +61,34 @@ namespace GameEngine.Exceptions
 		public NoSuchEdgeException(SerializationInfo info, StreamingContext context) : base(info,context)
 		{return;}
 	}
+
+	/// <summary>
+	/// An exception thrown when a duplicate edge is added.
+	/// </summary>
+	public class DuplicateEdgeException : Exception
+	{
+		/// <summary>
+		/// Creates a DuplicateEdgeException.
+		/// </summary>
+		public DuplicateEdgeException()
+		{return;}
+
+		/// <summary>
+		/// Creates a DuplicateEdgeException with the provided message.
+		/// </summary>
+		public DuplicateEdgeException(string? message) : base(message)
+		{return;}
+
+		/// <summary>
+		/// Creates a NoSuchEdDuplicateEdgeExceptiongeException with the provided message and inner exception.
+		/// </summary>
+		public DuplicateEdgeException(string? message, Exception? innerException) : base(message,innerException)
+		{return;}
+
+		/// <summary>
+		/// Creates a DuplicateEdgeException with the given serialization info and streaming context.
+		/// </summary>
+		public DuplicateEdgeException(SerializationInfo info, StreamingContext context) : base(info,context)
+		{return;}
+	}
 }
