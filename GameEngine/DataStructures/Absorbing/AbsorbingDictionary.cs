@@ -31,13 +31,13 @@ namespace GameEngine.DataStructures.Absorbing
 
 		public void Add(K key, V value)
 		{
-			BackingDictionary.Add(key, value);
+			BackingDictionary.Add(key,value);
 			return;
 		}
 
 		public void Add(KeyValuePair<K,V> item)
 		{
-			BackingDictionary.Add(item.Key, item.Value);
+			BackingDictionary.Add(item.Key,item.Value);
 			return;
 		}
 
@@ -57,7 +57,7 @@ namespace GameEngine.DataStructures.Absorbing
 		{throw new NotSupportedException();}
 
 		public bool TryGetValue(K key, [MaybeNullWhen(false)] out V value)
-		{return BackingDictionary.TryGetValue(key, out value);}
+		{return BackingDictionary.TryGetValue(key,out value);}
 
 		public IEnumerator<KeyValuePair<K,V>> GetEnumerator()
 		{return BackingDictionary.GetEnumerator();}
@@ -67,7 +67,7 @@ namespace GameEngine.DataStructures.Absorbing
 
 		public void CopyTo(KeyValuePair<K,V>[] array, int arrayIndex)
 		{
-			(BackingDictionary as ICollection<KeyValuePair<K, V>>).CopyTo(array, arrayIndex);
+			(BackingDictionary as ICollection<KeyValuePair<K,V>>).CopyTo(array,arrayIndex);
 			return;
 		}
 
