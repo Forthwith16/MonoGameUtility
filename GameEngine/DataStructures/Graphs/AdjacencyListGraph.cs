@@ -365,7 +365,7 @@ namespace GameEngine.DataStructures.Graphs
 				// Build a space buffer of length equal to the offset we need to pad the next line
 				string v_buff = "   ";
 
-				for(int i = 0;i < v_buff.Length;i++)
+				for(int i = 0;i < v_str.Length;i++)
 					v_buff += " ";
 
 				ret += v_str + " ->";
