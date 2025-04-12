@@ -797,9 +797,6 @@ namespace GameEngine.DataStructures.Graphs
 					reader.Read();
 				}
 
-				// Clean up the object ending
-				reader.Read();
-
 				// Check that we read the required properties
 				if(processed.Count != 3)
 					throw new JsonException();
