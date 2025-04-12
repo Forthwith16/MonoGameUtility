@@ -1,7 +1,9 @@
-﻿
-using GameEngine.Exceptions;
+﻿using GameEngine.Exceptions;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Graphs
 {
@@ -14,6 +16,7 @@ namespace GameEngine.DataStructures.Graphs
 	/// In general, this graph class is intended for low-intensity usage.
 	/// When high performance, where every clock cycle matters, is required, implement a graph coupled to the application.
 	/// </remarks>
+	[JsonConverter(typeof(AdjacencyListGraphJsonConverterFactory))]
 	public class AdjacencyListGraph<V,E> : IGraph<V,E>
 	{
 		/// <summary>
@@ -703,5 +706,350 @@ namespace GameEngine.DataStructures.Graphs
 
 		public E Data
 		{get; set;}
+	}
+
+	/// <summary>
+	/// A factory that creates generic converters.
+	/// </summary>
+	public class AdjacencyListGraphJsonConverterFactory : JsonConverterFactory
+	{
+		public override bool CanConvert(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(AdjacencyListGraph<,>);
+		public override JsonConverter? CreateConverter(Type t, JsonSerializerOptions ops) => (JsonConverter?)Activator.CreateInstance(typeof(AdjacencyListGraphJsonConverter<,>).MakeGenericType(t.GetGenericArguments()),BindingFlags.Instance | BindingFlags.Public,null,new object?[] {ops},null);
+
+		protected class AdjacencyListGraphJsonConverter<V,E> : JsonConverter<AdjacencyListGraph<V,E>>
+		{
+			/// <summary>
+			/// Creates a new graph converter.
+			/// </summary>
+			/// <param name="ops">The serialization options.</param>
+			public AdjacencyListGraphJsonConverter(JsonSerializerOptions ops)
+			{
+				VertexDataConverter = (JsonConverter<V>)ops.GetConverter(typeof(V));
+				EdgeDataConverter = (JsonConverter<E>)ops.GetConverter(typeof(E));
+
+				VType = typeof(V);
+				EType = typeof(E);
+
+				return;
+			}
+
+			public override AdjacencyListGraph<V,E>? Read(ref Utf8JsonReader reader, Type t, JsonSerializerOptions ops)
+			{
+				// We start with the object opening
+				if(reader.TokenType != JsonTokenType.StartObject)
+					throw new JsonException();
+			
+				reader.Read();
+
+				// We'll need to track what properties we've already done, though this is not strictly necessary
+				HashSet<string> processed = new HashSet<string>();
+
+				// Make a place to store stuff
+				// We can't depend on getting directedness first, so we can't construct the graph until we find that piece of data, so we might as well just grab everything and then do that later
+				bool dir = false;
+				List<(uint,V?)> vertices = new List<(uint,V?)>();
+				List<(uint,uint,E?)> edges = new List<(uint,uint,E?)>();
+
+				// Read until we're done
+				while(reader.TokenType != JsonTokenType.EndObject)
+				{
+					if(reader.TokenType != JsonTokenType.PropertyName)
+						throw new JsonException();
+
+					string property_name = reader.GetString()!;
+					reader.Read();
+
+					switch(property_name)
+					{
+					case "Directed":
+						if(!(reader.TokenType == JsonTokenType.False || reader.TokenType == JsonTokenType.True) || processed.Contains(property_name))
+							throw new JsonException();
+
+						dir = reader.GetBoolean();
+						break;
+					case "Vertices":
+						if(reader.TokenType != JsonTokenType.StartArray || processed.Contains(property_name))
+							throw new JsonException();
+
+						reader.Read(); // Read past the array start
+
+						// Read vertices until we run out
+						while(reader.TokenType != JsonTokenType.EndArray)
+							vertices.Add(ReadVertex(ref reader,ops));
+
+						break;
+					case "Edges":
+						if(reader.TokenType != JsonTokenType.StartArray || processed.Contains(property_name))
+							throw new JsonException();
+
+						reader.Read(); // Read past the array start
+
+						// Read edges until we run out
+						while(reader.TokenType != JsonTokenType.EndArray)
+							edges.Add(ReadEdge(ref reader,ops));
+
+						break;
+					default:
+						throw new JsonException();
+					}
+
+					processed.Add(property_name);
+					reader.Read();
+				}
+
+				// Clean up the object ending
+				reader.Read();
+
+				// Check that we read the required properties
+				if(processed.Count != 3)
+					throw new JsonException();
+
+				// Construct the graph, remembering what vertices correspond to what IDs
+				AdjacencyListGraph<V,E> ret = new AdjacencyListGraph<V,E>(dir);
+				Dictionary<uint,IVertex<V,E>> translation = new Dictionary<uint,IVertex<V,E>>();
+
+				for(int i = 0;i < vertices.Count;i++)
+					translation.Add(vertices[i].Item1,ret.AddVertex(vertices[i].Item2!)); // If it is null, then it's probably supposed to be
+
+				for(int i = 0;i < edges.Count;i++)
+					ret.AddEdge(translation[edges[i].Item1],translation[edges[i].Item2],edges[i].Item3!); // If it is null, then it's probably supposed to be
+
+				return ret;
+			}
+
+			#region Read Helpers
+			/// <summary>
+			/// Reads a vertex.
+			/// </summary>
+			/// <param name="reader">The reader to pull the vertex from.</param>
+			/// <param name="ops">The serializer options.</param>
+			/// <returns>Returns the vertex information.</returns>
+			/// <exception cref="JsonException">Thrown if something goes wrong.</exception>
+			protected (uint,V?) ReadVertex(ref Utf8JsonReader reader, JsonSerializerOptions ops)
+			{
+				// We start with the object opening
+				if(reader.TokenType != JsonTokenType.StartObject)
+					throw new JsonException();
+				
+				reader.Read();
+
+				// We'll need to track what properties we've already done, though this is not strictly necessary
+				HashSet<string> processed = new HashSet<string>();
+
+				V? data = default;
+				uint id = 0u;
+
+				// Read until we're done
+				while(reader.TokenType != JsonTokenType.EndObject)
+				{
+					if(reader.TokenType != JsonTokenType.PropertyName)
+						throw new JsonException();
+
+					string property_name = reader.GetString()!;
+					reader.Read();
+
+					switch(property_name)
+					{
+					case "ID":
+						if(reader.TokenType != JsonTokenType.Number || processed.Contains(property_name))
+							throw new JsonException();
+
+						id = reader.GetUInt32();
+						break;
+					case "Data":
+						if(processed.Contains(property_name)) // We have no idea what's inside a V, so just let it do its own error checking
+							throw new JsonException();
+						
+						data = VertexDataConverter.Read(ref reader,VType,ops);
+						break;
+					default:
+						throw new JsonException();
+					}
+
+					processed.Add(property_name);
+					reader.Read();
+				}
+
+				// Clean up the object ending
+				reader.Read();
+
+				// Check that we read the required properties
+				if(processed.Count != 2)
+					throw new JsonException();
+
+				return (id,data);
+			}
+
+			/// <summary>
+			/// Reads an edge.
+			/// </summary>
+			/// <param name="reader">The reader to pull the edge from.</param>
+			/// <param name="ops">The serializer options.</param>
+			/// <returns>Returns the edge information.</returns>
+			/// <exception cref="JsonException">Thrown if something goes wrong.</exception>
+			protected (uint,uint,E?) ReadEdge(ref Utf8JsonReader reader, JsonSerializerOptions ops)
+			{
+				// We start with the object opening
+				if(reader.TokenType != JsonTokenType.StartObject)
+					throw new JsonException();
+				
+				reader.Read();
+
+				// We'll need to track what properties we've already done, though this is not strictly necessary
+				HashSet<string> processed = new HashSet<string>();
+
+				E? data = default;
+				uint src_id = 0u;
+				uint dst_id = 0u;
+
+				// Read until we're done
+				while(reader.TokenType != JsonTokenType.EndObject)
+				{
+					if(reader.TokenType != JsonTokenType.PropertyName)
+						throw new JsonException();
+
+					string property_name = reader.GetString()!;
+					reader.Read();
+
+					switch(property_name)
+					{
+					case "Source":
+						if(reader.TokenType != JsonTokenType.Number || processed.Contains(property_name))
+							throw new JsonException();
+
+						src_id = reader.GetUInt32();
+						break;
+					case "Destination":
+						if(reader.TokenType != JsonTokenType.Number || processed.Contains(property_name))
+							throw new JsonException();
+
+						dst_id = reader.GetUInt32();
+						break;
+					case "Data":
+						if(processed.Contains(property_name)) // We have no idea what's inside an E, so just let it do its own error checking
+							throw new JsonException();
+
+						data = EdgeDataConverter.Read(ref reader,EType,ops);
+						break;
+					default:
+						throw new JsonException();
+					}
+
+					processed.Add(property_name);
+					reader.Read();
+				}
+
+				// Clean up the object ending
+				reader.Read();
+
+				// Check that we read the required properties
+				if(processed.Count != 3)
+					throw new JsonException();
+
+				return (src_id,dst_id,data);
+			}
+			#endregion
+
+			public override void Write(Utf8JsonWriter writer, AdjacencyListGraph<V,E> value, JsonSerializerOptions ops)
+			{
+				writer.WriteStartObject();
+				
+				// Write out the directedness of the graph first
+				writer.WriteBoolean("Directed",value.Directed);
+
+				// Build a translation from vertices to uint32_t types
+				Dictionary<IVertex<V,E>,uint> translation = new Dictionary<IVertex<V,E>,uint>();
+				uint id = 0u;
+
+				// Write out the vertices
+				writer.WriteStartArray("Vertices");
+
+				foreach(IVertex<V,E> v in value.Vertices)
+				{
+					translation.Add(v,id);
+					WriteVertex(writer,v,id++,ops); // Write out the vertices as we build the translation dictionary to maintain their order for pretty printing
+				}
+
+				writer.WriteEndArray();
+
+				// Now we need to write out each edge
+				writer.WriteStartArray("Edges");
+
+				foreach(IEdge<V,E> e in value.Edges)
+					WriteEdge(writer,e,translation,ops);
+
+				writer.WriteEndArray();
+				writer.WriteEndObject();
+
+				return;
+			}
+
+			#region Write Helpers
+			/// <summary>
+			/// Writes a vertex to <paramref name="writer"/>.
+			/// </summary>
+			/// <param name="writer">Where to write the vertex to.</param>
+			/// <param name="v">The vertex to write out.</param>
+			/// <param name="id">The translated vertex ID.</param>
+			/// <param name="ops">The serializer options.</param>
+			protected void WriteVertex(Utf8JsonWriter writer, IVertex<V,E> v, uint id, JsonSerializerOptions ops)
+			{
+				writer.WriteStartObject();
+				
+				writer.WriteNumber("ID",id);
+
+				writer.WritePropertyName("Data");
+				VertexDataConverter.Write(writer,v.Data,ops);
+
+				writer.WriteEndObject();
+				return;
+			}
+
+			/// <summary>
+			/// Writes an edge to <paramref name="writer"/>.
+			/// </summary>
+			/// <param name="writer">Where to write the edge to.</param>
+			/// <param name="e">The edge to write out.</param>
+			/// <param name="translation">The vertex -> ID translation dictionary.</param>
+			/// <param name="ops">The serializer options.</param>
+			protected void WriteEdge(Utf8JsonWriter writer, IEdge<V,E> e, Dictionary<IVertex<V,E>,uint> translation, JsonSerializerOptions ops)
+			{
+				writer.WriteStartObject();
+				
+				writer.WriteNumber("Source",translation[e.Source]);
+				writer.WriteNumber("Destination",translation[e.Destination]);
+				
+				writer.WritePropertyName("Data");
+				EdgeDataConverter.Write(writer,e.Data,ops);
+
+				writer.WriteEndObject();
+				return;
+			}
+			#endregion
+
+			/// <summary>
+			/// Converts <typeparamref name="V"/> types into JSON.
+			/// </summary>
+			protected JsonConverter<V> VertexDataConverter
+			{get;}
+
+			/// <summary>
+			/// <typeparamref name="V"/> as a Type.
+			/// </summary>
+			protected Type VType
+			{get;}
+
+			/// <summary>
+			/// Converts <typeparamref name="E"/> types into JSON.
+			/// </summary>
+			protected JsonConverter<E> EdgeDataConverter
+			{get;}
+
+			/// <summary>
+			/// <typeparamref name="V"/> as a Type.
+			/// </summary>
+			protected Type EType
+			{get;}
+		}
 	}
 }
