@@ -41,7 +41,7 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// If true, then the world matrix is stale and needs to be updated.
 		/// </summary>
-		/// <remarks>This is used purely for matrix caching. The average user need not be concerned with it.</remarks>
+		/// <remarks>This is used purely for matrix caching. The average user need not be concerned with it. It also must be expsed in order to recursively check staleness.</remarks>
 		public bool StaleWorld
 		{get;}
 
@@ -75,7 +75,7 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// If true, then the inverse world matrix is stale and needs to be updated.
 		/// </summary>
-		/// <remarks>This is used purely for matrix caching. The average user need not be concerned with it.</remarks>
+		/// <remarks>This is used purely for matrix caching. The average user need not be concerned with it. It also must be expsed in order to recursively check staleness.</remarks>
 		public bool StaleInverseWorld
 		{get;}
 

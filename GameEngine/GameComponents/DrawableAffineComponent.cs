@@ -17,8 +17,8 @@ namespace GameEngine.GameComponents
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
 		protected DrawableAffineComponent(Game game, SpriteBatch? renderer, Color? c = null) : base(game)
 		{
-			WorldRevision = 2;
-			InverseWorldRevision = 2;
+			WorldRevision = 2u;
+			InverseWorldRevision = 2u;
 
 			Transform = Matrix2D.Identity;
 			Parent = null;
@@ -99,6 +99,16 @@ namespace GameEngine.GameComponents
 
 		protected Matrix2D _t;
 
+		/// <summary>
+		/// If true, then the transform itself is stale and needs to be updated.
+		/// </summary>
+		/// <remarks>
+		///	This value is always false in its initial implementation.
+		///	Override this in derived classes if Transform depends on values other than itself.
+		///	You should also override Transform's get so that Transform is properly set before any call to its get returns.
+		/// </remarks>
+		public virtual bool StaleTransform => false;
+
 		public virtual Matrix2D World
 		{
 			get
@@ -139,7 +149,7 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// If true, then the world matrix is stale and needs to be updated.
 		/// </summary>
-		public bool StaleWorld => Parent is null ? ParentWorldRevision != 1u : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld;
+		public bool StaleWorld => StaleTransform || (Parent is null ? ParentWorldRevision != 1u : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld);
 
 		public virtual Matrix2D InverseTransform
 		{
@@ -165,9 +175,16 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// If true, then our inverse is stale an needs to be recalculated.
 		/// If false, then our inverse is up to date.
+		/// <para/>
+		/// Setting this will set _si.
 		/// </summary>
 		private bool StaleInverse
-		{get; set;}
+		{
+			get => StaleTransform || _si;
+			set => _si = value;
+		}
+
+		private bool _si;
 
 		public virtual Matrix2D InverseWorld
 		{
