@@ -11,7 +11,7 @@ namespace GameEnginePipeline.Processors
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare content to be written into the content pipeline.
 	/// </summary>
-	[ContentProcessor(DisplayName = "Animation2D Collection Processor - Paradox")]
+	[ContentProcessor(DisplayName = "Animation2D Collection Processor - " + Constants.DLLIdentifier)]
 	public sealed class Animation2DCollectionProcessor : Processor<TInput,TOutput,TAsset>
 	{
 		protected override TOutput? ValidateContent(TInput input, ContentProcessorContext context)

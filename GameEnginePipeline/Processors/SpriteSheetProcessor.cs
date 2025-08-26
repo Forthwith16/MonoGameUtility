@@ -10,7 +10,7 @@ namespace GameEnginePipeline.Processors
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare content to be written into the content pipeline.
 	/// </summary>
-	[ContentProcessor(DisplayName = "Sprite Sheet Processor - Paradox")]
+	[ContentProcessor(DisplayName = "Sprite Sheet Processor - " + Constants.DLLIdentifier)]
 	public sealed class SpriteSheetProcessor : Processor<TInput,TOutput,TAsset>
 	{
 		protected override TOutput? ValidateContent(TInput input, ContentProcessorContext context)

@@ -11,7 +11,7 @@ namespace GameEnginePipeline.Importers
 	/// <summary>
 	/// Loads an asset into memory in content form.
 	/// </summary>
-	[ContentImporter(".animations",DisplayName = "Animation2D Collection Importer - Paradox",DefaultProcessor = nameof(Animation2DCollectionProcessor))]
+	[ContentImporter(".animations",DisplayName = "Animation2D Collection Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(Animation2DCollectionProcessor))]
 	public class Animation2DCollectionImporter : Importer<TInput,TOutput>
 	{
 		protected override TInput? Deserialize(string filename)

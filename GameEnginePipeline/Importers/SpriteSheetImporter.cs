@@ -10,7 +10,7 @@ namespace GameEnginePipeline.Importers
 	/// <summary>
 	/// Loads an asset into memory in content form.
 	/// </summary>
-	[ContentImporter(".spritesheet",DisplayName = "Sprite Sheet Importer - Paradox",DefaultProcessor = nameof(SpriteSheetProcessor))]
+	[ContentImporter(".spritesheet",DisplayName = "Sprite Sheet Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteSheetProcessor))]
 	public sealed class SpriteSheetImporter : Importer<TInput,TOutput>
 	{
 		protected override TInput? Deserialize(string filename)
