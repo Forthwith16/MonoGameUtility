@@ -65,7 +65,7 @@ namespace GameEngine.GUI
 			ActiveComponent = null;
 			LastActiveComponent = null;
 			FocusedComponent = null;
-
+			
 			Map = new GUIMap();
 			Transform = Matrix2D.Identity;
 
@@ -81,7 +81,7 @@ namespace GameEngine.GUI
 			_dcrl = 0.15f;
 			_td = 0.5f;
 			_rtdo = 0;
-
+			
 			return;
 		}
 
@@ -727,6 +727,20 @@ namespace GameEngine.GUI
 				ret |= Remove(component);
 
 			return ret;
+		}
+
+		/// <summary>
+		/// Removes all components from this GUICore.
+		/// This will not change any other settings nor remove events.
+		/// </summary>
+		/// <remarks>If this somehow fails, returns false. Otherwise, returns true in all circumstances.</remarks>
+		public bool Clear()
+		{
+			while(UpdateChildren.Count > 0)
+				if(!Remove(UpdateChildren.First()))
+					return false;
+
+			return true;
 		}
 
 		/// <summary>
