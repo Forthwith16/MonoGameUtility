@@ -1,9 +1,8 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShadowDogeEngine.Utilities.ExtensionMethods.StructExtensions
+namespace GameEngine.Utility.ExtensionMethods.PrimitiveExtensions
 {
 	/// <summary>
 	/// Extension methods for the Utf8JsonReader struct.
@@ -213,7 +212,7 @@ namespace ShadowDogeEngine.Utilities.ExtensionMethods.StructExtensions
 		}
 
 		private class ClassWrapper
-		{public object? Effectuate<T>(ref Wrapper wrapper, object converter, Type type_to_convert, JsonSerializerOptions ops) => wrapper.Effectuate<T>((JsonConverter<T>)converter,type_to_convert,ops);}
+		{public object? Effectuate<T>(ref Wrapper wrapper, object converter, Type type_to_convert, JsonSerializerOptions ops) => wrapper.Effectuate((JsonConverter<T>)converter,type_to_convert,ops);}
 
 		private delegate object? WrapperDelegate(ref Wrapper wrapper, object converter, Type type_to_convert, JsonSerializerOptions ops);
 		#endregion
