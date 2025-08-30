@@ -800,8 +800,13 @@ namespace GameEngine.GUI
 				ActiveComponent = null;
 
 			if(LastActiveComponent == component)
+			{
+				if(TooltipHovering)
+					TooltipHovering = false;
+
 				LastActiveComponent = null;
-			
+			}
+
 			return;
 		}
 
