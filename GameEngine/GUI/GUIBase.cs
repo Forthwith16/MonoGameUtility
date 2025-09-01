@@ -229,6 +229,8 @@ namespace GameEngine.GUI
 			return;
 		}
 
+		public override string ToString() => Name;
+
 		public RenderTargetFriendlyGame Game
 		{get; protected set;}
 
