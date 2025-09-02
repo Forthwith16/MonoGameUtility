@@ -706,7 +706,7 @@ namespace GameEngine.GUI.Components
 		/// If false, then item selections will hard stop at the boundaries.
 		/// </summary>
 		public bool WrapAround
-		{get; protected set;}
+		{get; set;}
 
 		/// <summary>
 		/// This selector's button grouping.
