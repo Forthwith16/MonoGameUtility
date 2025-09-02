@@ -1220,6 +1220,7 @@ namespace GameEngine.GUI.Components
 
 				base.Renderer = value;
 				Library.Renderer = value;
+				Cursor.Renderer = value;
 				
 				if(Pencil is not null)
 					Pencil.Renderer = value;
