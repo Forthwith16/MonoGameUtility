@@ -83,6 +83,10 @@ namespace GameEngine.GUI
 			_td = 0.5f;
 			_rtdo = 0;
 			
+			// Assign source/layer info
+			_s = null;
+			_ld = 0.0f;
+
 			return;
 		}
 
@@ -964,17 +968,22 @@ namespace GameEngine.GUI
 
 		public override float LayerDepth
 		{
-			get => Source is null ? 0.0f : Source.LayerDepth;
+			get => Source is null ? _ld : Source.LayerDepth;
 			
 			set
 			{
 				if(Source is null)
+				{
+					_ld = value;
 					return;
+				}
 
 				Source.LayerDepth = value;
 				return;
 			}
 		}
+
+		private float _ld;
 
 		/// <summary>
 		/// The color to clear the background of the render texture to.
@@ -988,7 +997,23 @@ namespace GameEngine.GUI
 		/// It's texture source is a render target.
 		/// </summary>
 		public ImageComponent? Source
-		{get; protected set;}
+		{
+			get => _s;
+			
+			protected set
+			{
+				float layer = _s is null ? _ld : _s.LayerDepth;
+
+				_s = value;
+
+				if(_s is not null)
+					_s.LayerDepth = layer;
+
+				return;
+			}
+		}
+
+		private ImageComponent? _s;
 
 		/// <summary>
 		/// Always returns SpriteEffects.None on get.
