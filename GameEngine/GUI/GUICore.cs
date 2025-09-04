@@ -1,4 +1,5 @@
-﻿using GameEngine.Events;
+﻿using GameEngine.DataStructures.Collections;
+using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameComponents;
 using GameEngine.GUI.Map;
@@ -49,8 +50,8 @@ namespace GameEngine.GUI
 			Input.AddReferenceInput(DigitalRight,() => GlobalConstants.GUIDigitalRight);
 
 			// Initialize state variables
-			UpdateChildren = new SortedSet<IGUI>(new OrderComparer(true));
-			DrawChildren = new SortedSet<IGUI>(new OrderComparer(false));
+			UpdateChildren = new /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI>(new OrderComparer(true));
+			DrawChildren = new /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI>(new OrderComparer(false));
 
 			Initialized = false;
 			UsingMouse = false;
@@ -615,7 +616,7 @@ namespace GameEngine.GUI
 		public bool Add(IGUI component)
 		{
 			// Add the component to our children lists
-			if(!UpdateChildren.Add(component) || !DrawChildren.Add(component))
+			if(!UpdateChildren./*Add*/Enqueue(component) || !DrawChildren./*Add*/Enqueue(component))
 				return false;
 			
 			// Now let's subscribe to key events (we will need named functions so we can unsubscribe on removal)
@@ -689,12 +690,8 @@ namespace GameEngine.GUI
 		/// <returns>Returns true if <paramref name="component"/> was removed and false otherwise.</returns>
 		public bool Remove(IGUI component)
 		{
-			// We will always void the component's owner (if it is this) and void its usage in this GUICore regardless of whether it is a top level component or hidden as a child component
-			// We void the component's owner blindly though this may have already happened via remove a component from its parent component
-			// We will not, however, dispose of the component because it may be used later, and we'll let the finalizer take care of that
-			if(component.Owner == this)
-				component.Owner = null; // This will remove the vertex from the map
-			else
+			// We should do nothing if we are not the component's owner
+			if(component.Owner != this)
 				return false;
 
 			// Expel the component from our records
@@ -710,6 +707,12 @@ namespace GameEngine.GUI
 			// Now let's unsubscribe to key events
 			component.UpdateOrderChanged -= UpdateUpdateChildren;
 			component.DrawOrderChanged -= UpdateDrawChildren;
+
+			// WE MOVED THIS FROM THE TOP WITH THE CURRENT IF STATEMENT
+			// We will always void the component's owner (if it is this) and void its usage in this GUICore regardless of whether it is a top level component or hidden as a child component
+			// We void the component's owner blindly though this may have already happened via remove a component from its parent component
+			// We will not, however, dispose of the component because it may be used later, and we'll let the finalizer take care of that
+			component.Owner = null;
 
 			return true;
 		}
@@ -857,13 +860,13 @@ namespace GameEngine.GUI
 		/// <summary>
 		/// The children of this GUICore in update order.
 		/// </summary>
-		protected SortedSet<IGUI> UpdateChildren
+		protected /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI> UpdateChildren
 		{get; init;}
 
 		/// <summary>
 		/// The children of this GUICore in draw order.
 		/// </summary>
-		protected SortedSet<IGUI> DrawChildren
+		protected /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI> DrawChildren
 		{get; init;}
 
 		/// <summary>
