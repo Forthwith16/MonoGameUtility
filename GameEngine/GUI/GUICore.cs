@@ -665,9 +665,10 @@ namespace GameEngine.GUI
 			if(sender is not IGUI component)
 				return;
 			
-			if(UpdateChildren.Remove(component))
-				UpdateChildren.Add(component);
+			/*if(UpdateChildren.Remove(component))
+				UpdateChildren.Add(component);*/
 
+			UpdateChildren.Requeue(component);
 			return;
 		}
 
@@ -679,9 +680,10 @@ namespace GameEngine.GUI
 			if(sender is not IGUI component)
 				return;
 
-			if(DrawChildren.Remove(component))
-				DrawChildren.Add(component);
+			/*if(DrawChildren.Remove(component))
+				DrawChildren.Add(component);*/
 
+			DrawChildren.Requeue(component);
 			return;
 		}
 

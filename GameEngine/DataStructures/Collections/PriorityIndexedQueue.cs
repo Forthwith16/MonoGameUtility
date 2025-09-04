@@ -128,6 +128,55 @@ namespace GameEngine.DataStructures.Collections
 		}
 
 		/// <summary>
+		/// Requeues the item at <paramref name="index"/> with whatever new priority it has internally.
+		/// </summary>
+		/// <param name="index">The index of the item to requeue.</param>
+		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is less than 0 or at least Count.</exception>
+		public virtual void Requeue(int index)
+		{
+			// If index is out of bounds, then do nothing
+			if(index < 0 || index >= Count)
+				throw new ArgumentOutOfRangeException();
+
+			// Move as far left as needed
+			for(;index > 0 && Scale.Compare(this[index - 1],this[index]) > 0;index--)
+			{
+				T item = this[index];
+				this[index] = this[index - 1];
+				this[index - 1] = item;
+			}
+
+			// Move as far right as needed
+			for(;index < Count - 1 && Scale.Compare(this[index],this[index + 1]) > 0;index++)
+			{
+				T item = this[index];
+				this[index] = this[index - 1];
+				this[index - 1] = item;
+			}
+
+			return;
+		}
+
+		/// <summary>
+		/// Requeues <paramref name="item"/> in this with whatever new priority it has.
+		/// If <paramref name="item"/> is not already part of this, then it will be enequeued normally.
+		/// </summary>
+		/// <param name="item">The item to requeue.</param>
+		public void Requeue(T item)
+		{
+			int index = IndexOf(item);
+
+			if(index < 0 || index >= Count)
+			{
+				Enqueue(item);
+				return;
+			}
+
+			Requeue(index);
+			return;
+		}
+
+		/// <summary>
 		/// Removes and returns the front element of the queue.
 		/// </summary>
 		/// <exception cref="InvalidOperationException">Thrown if the queue is empty.</exception>
