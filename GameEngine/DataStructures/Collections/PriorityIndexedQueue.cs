@@ -150,8 +150,8 @@ namespace GameEngine.DataStructures.Collections
 			for(;index < Count - 1 && Scale.Compare(this[index],this[index + 1]) > 0;index++)
 			{
 				T item = this[index];
-				this[index] = this[index - 1];
-				this[index - 1] = item;
+				this[index] = this[index + 1];
+				this[index + 1] = item;
 			}
 
 			return;
