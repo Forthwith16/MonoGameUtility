@@ -50,8 +50,8 @@ namespace GameEngine.GUI
 			Input.AddReferenceInput(DigitalRight,() => GlobalConstants.GUIDigitalRight);
 
 			// Initialize state variables
-			UpdateChildren = new /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI>(new OrderComparer(true));
-			DrawChildren = new /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI>(new OrderComparer(false));
+			UpdateChildren = new PriorityIndexedQueue<IGUI>(new OrderComparer(true));
+			DrawChildren = new PriorityIndexedQueue<IGUI>(new OrderComparer(false));
 
 			Initialized = false;
 			UsingMouse = false;
@@ -620,7 +620,7 @@ namespace GameEngine.GUI
 		public bool Add(IGUI component)
 		{
 			// Add the component to our children lists
-			if(!UpdateChildren./*Add*/Enqueue(component) || !DrawChildren./*Add*/Enqueue(component))
+			if(!UpdateChildren.Enqueue(component) || !DrawChildren.Enqueue(component))
 				return false;
 			
 			// Now let's subscribe to key events (we will need named functions so we can unsubscribe on removal)
@@ -629,7 +629,7 @@ namespace GameEngine.GUI
 
 			// We do not need to bind the component's parent to this since we get to place the camera transform into the sprite batch's Begin call
 			// We do, however, need to set its owner and renderer
-			component.Owner = this; // This will add the component to Map
+			component.Owner = this;
 			component.Renderer = LocalRenderer;
 
 			// Add a vertex to the map for the new vertex
@@ -665,9 +665,6 @@ namespace GameEngine.GUI
 			if(sender is not IGUI component)
 				return;
 			
-			/*if(UpdateChildren.Remove(component))
-				UpdateChildren.Add(component);*/
-
 			UpdateChildren.Requeue(component);
 			return;
 		}
@@ -679,9 +676,6 @@ namespace GameEngine.GUI
 		{
 			if(sender is not IGUI component)
 				return;
-
-			/*if(DrawChildren.Remove(component))
-				DrawChildren.Add(component);*/
 
 			DrawChildren.Requeue(component);
 			return;
@@ -866,13 +860,13 @@ namespace GameEngine.GUI
 		/// <summary>
 		/// The children of this GUICore in update order.
 		/// </summary>
-		protected /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI> UpdateChildren
+		protected PriorityIndexedQueue<IGUI> UpdateChildren
 		{get; init;}
 
 		/// <summary>
 		/// The children of this GUICore in draw order.
 		/// </summary>
-		protected /*SortedSet<IGUI>*/PriorityIndexedQueue<IGUI> DrawChildren
+		protected PriorityIndexedQueue<IGUI> DrawChildren
 		{get; init;}
 
 		/// <summary>
