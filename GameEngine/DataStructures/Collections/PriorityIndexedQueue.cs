@@ -7,7 +7,7 @@ namespace GameEngine.DataStructures.Collections
 	/// A priority queue that can be indexed into and modified 
 	/// </summary>
 	/// <typeparam name="T">The type of object to store in the queue.</typeparam>
-	/// <remarks>This is a bad data structure and should not be used except in special circumstances.</remarks>
+	/// <remarks>This is a mediocre data structure and should not be used except in special circumstances.</remarks>
 	public class PriorityIndexedQueue<T> : IList<T>
 	{
 		/// <summary>
