@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace GameEngine.Exceptions
+﻿namespace GameEngine.Exceptions
 {
 	/// <summary>
 	/// An exception thrown when a vertex does not exist.
@@ -23,12 +21,6 @@ namespace GameEngine.Exceptions
 		/// Creates a NoSuchVertexException with the provided message and inner exception.
 		/// </summary>
 		public NoSuchVertexException(string? message, Exception? innerException) : base(message,innerException)
-		{return;}
-
-		/// <summary>
-		/// Creates a NoSuchVertexException with the given serialization info and streaming context.
-		/// </summary>
-		public NoSuchVertexException(SerializationInfo info, StreamingContext context) : base(info,context)
 		{return;}
 	}
 
@@ -54,12 +46,6 @@ namespace GameEngine.Exceptions
 		/// </summary>
 		public NoSuchEdgeException(string? message, Exception? innerException) : base(message,innerException)
 		{return;}
-
-		/// <summary>
-		/// Creates a NoSuchEdgeException with the given serialization info and streaming context.
-		/// </summary>
-		public NoSuchEdgeException(SerializationInfo info, StreamingContext context) : base(info,context)
-		{return;}
 	}
 
 	/// <summary>
@@ -83,12 +69,6 @@ namespace GameEngine.Exceptions
 		/// Creates a NoSuchEdDuplicateEdgeExceptiongeException with the provided message and inner exception.
 		/// </summary>
 		public DuplicateEdgeException(string? message, Exception? innerException) : base(message,innerException)
-		{return;}
-
-		/// <summary>
-		/// Creates a DuplicateEdgeException with the given serialization info and streaming context.
-		/// </summary>
-		public DuplicateEdgeException(SerializationInfo info, StreamingContext context) : base(info,context)
 		{return;}
 	}
 }

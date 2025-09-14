@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace GameEngine.Exceptions
+﻿namespace GameEngine.Exceptions
 {
 	/// <summary>
 	/// An animation format exception for when animation data does not match the format required or when animation data components are missing.
@@ -23,12 +21,6 @@ namespace GameEngine.Exceptions
 		/// Creates an AnimationFormatException with the provided message and inner exception.
 		/// </summary>
 		public AnimationFormatException(string? message, Exception? innerException) : base(message,innerException)
-		{return;}
-
-		/// <summary>
-		/// Creates an AnimationFormatException with the given serialization info and streaming context.
-		/// </summary>
-		public AnimationFormatException(SerializationInfo info, StreamingContext context) : base(info,context)
 		{return;}
 	}
 }

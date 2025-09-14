@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace GameEngine.Exceptions
+﻿namespace GameEngine.Exceptions
 {
 	/// <summary>
 	/// A time exception for when time is a little too timey-wimey.
@@ -23,12 +21,6 @@ namespace GameEngine.Exceptions
 		/// Creates a time exception with the provided message and inner exception.
 		/// </summary>
 		public TimeException(string? message, Exception? innerException) : base(message,innerException)
-		{return;}
-
-		/// <summary>
-		/// Creates a time expcetion with the given serialization info and streaming context.
-		/// </summary>
-		public TimeException(SerializationInfo info, StreamingContext context) : base(info,context)
 		{return;}
 	}
 }
