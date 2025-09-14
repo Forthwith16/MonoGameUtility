@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\GameEnginePipeline\bin\Debug\net6.0\GameEnginePipeline.dll
+/reference:..\..\GameEnginePipeline\bin\Debug\net8.0\GameEnginePipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -18,4 +18,21 @@
 /importer:AnimationImporter
 /processor:Animation2DProcessor
 /build:Animations/test.animation
+
+#begin Images/FRKT.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/FRKT.png
+
+#begin Sprite Sheets/test.spritesheet
+/importer:SpriteSheetImporter
+/processor:SpriteSheetProcessor
+/build:Sprite Sheets/test.spritesheet
 

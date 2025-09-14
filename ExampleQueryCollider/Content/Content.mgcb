@@ -10,9 +10,14 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\GameEnginePipeline\bin\Debug\net6.0\GameEnginePipeline.dll
+/reference:..\..\GameEnginePipeline\bin\Debug\net8.0\GameEnginePipeline.dll
 
 #---------------------------------- Content ---------------------------------#
+
+#begin Animations/test.animation
+/importer:AnimationImporter
+/processor:Animation2DProcessor
+/build:Animations/test.animation
 
 #begin background.png
 /importer:TextureImporter
@@ -26,14 +31,26 @@
 /processorParam:TextureFormat=Color
 /build:background.png
 
-#begin koopa.animation
-/importer:AnimationImporter
-/processor:Animation2DProcessor
-/build:koopa.animation
+#begin Images/FRKT.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/FRKT.png
 
 #begin overworld.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:overworld.mp3
+
+#begin Sprite Sheets/test.spritesheet
+/importer:SpriteSheetImporter
+/processor:SpriteSheetProcessor
+/build:Sprite Sheets/test.spritesheet
 

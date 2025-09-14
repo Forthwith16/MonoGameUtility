@@ -1,0 +1,41 @@
+﻿<Animation2DAsset>
+  <Type>Animation2D</Type>
+  <Source>..\Sprite Sheets\test.spritesheet</Source>
+  <Frames>
+    <Animation2DKeyFrame>
+	 <Sprite>0</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>1</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>2</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>3</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>4</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>3</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>2</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+    <Animation2DKeyFrame>
+	 <Sprite>1</Sprite>
+	 <Duration>0.085</Duration>
+    </Animation2DKeyFrame>
+  </Frames>
+  <Loops>true</Loops>
+  <LoopFrameStart>0</LoopFrameStart>
+  <LoopFrameEnd>7</LoopFrameEnd>
+</Animation2DAsset>

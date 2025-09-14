@@ -1,0 +1,8 @@
+<SpriteSheetAsset>
+  <Source>..\Images\FRKT.png</Source>
+  <TileFillRowFirst>true</TileFillRowFirst>
+  <TileVCount>1</TileVCount>
+  <TileCount>5</TileCount>
+  <TileWidth>40</TileWidth>
+  <TileHeight>60</TileHeight>
+</SpriteSheetAsset>
