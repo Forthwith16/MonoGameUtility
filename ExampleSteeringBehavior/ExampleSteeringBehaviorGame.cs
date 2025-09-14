@@ -73,11 +73,11 @@ namespace ExampleSteeringBehavior
 			// Create the background for the menu options
 			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
 			MenuBackground.Translate(Bounds.Width,0.0f);
-			MenuBackground.LayerDepth = 0.2f;
+			MenuBackground.LayerDepth = 0.3f;
 
 			// Create the GUI that will allow us to select our game mode
 			GUISystem = new GUICore(this,Renderer,false);
-			GUISystem.LayerDepth = 0.3f;
+			GUISystem.LayerDepth = 0.2f;
 
 			// The menu is what does the actual game mode selection
 			Menu = new RadioButtons(this,"menu",null);
