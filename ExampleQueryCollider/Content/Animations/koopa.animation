@@ -1,6 +1,6 @@
 ﻿<Animation2DAsset>
   <Type>Animation2D</Type>
-  <Source>koopa.spritesheet</Source>
+  <Source>../Spritesheets/koopa.spritesheet</Source>
   <Frames>
     <Animation2DKeyFrame>
 	 <Sprite>0</Sprite>

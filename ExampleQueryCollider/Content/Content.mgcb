@@ -14,10 +14,10 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Animations/test.animation
+#begin Animations/koopa.animation
 /importer:AnimationImporter
 /processor:Animation2DProcessor
-/build:Animations/test.animation
+/build:Animations/koopa.animation
 
 #begin background.png
 /importer:TextureImporter
@@ -31,7 +31,7 @@
 /processorParam:TextureFormat=Color
 /build:background.png
 
-#begin Images/FRKT.png
+#begin Images/koopa.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -41,7 +41,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/FRKT.png
+/build:Images/koopa.png
 
 #begin overworld.mp3
 /importer:Mp3Importer
@@ -49,8 +49,8 @@
 /processorParam:Quality=Best
 /build:overworld.mp3
 
-#begin Sprite Sheets/test.spritesheet
+#begin Spritesheets/koopa.spritesheet
 /importer:SpriteSheetImporter
 /processor:SpriteSheetProcessor
-/build:Sprite Sheets/test.spritesheet
+/build:Spritesheets/koopa.spritesheet
 

@@ -68,10 +68,10 @@ namespace ExampleQueryCollider
 			temp.IsStatic = true;
 
 			// Now add the koopa
-			Components.Add(Koopa = new AnimatedComponent(this,Renderer,"koopa"));
+			Components.Add(Koopa = new AnimatedComponent(this,Renderer,"Animations/koopa"));
 			Koopa.Scale(4.0f,4.0f);
 			Koopa.Translate(650.0f,-200.0f);
-			Koopa.Animation.Paused = true;
+			//Koopa.Animation.Paused = true;
 
 			// Now add the koopa's collider
 			Colliders.AddLast(KoopaBox = new CollisionBox(this,Renderer,18 * 4,27 * 4,Color.Red));
