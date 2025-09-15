@@ -681,9 +681,11 @@ namespace GameEngine.GUI
 			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 			
-			UpdateChildren.Remove(dummy);
-			dummy.UpdateOrder = component.UpdateOrder; // This lets us Add properly
-			UpdateChildren.Add(component);
+			if(UpdateChildren.Remove(dummy)) // This should never fail, but just in case
+			{
+				dummy.UpdateOrder = component.UpdateOrder; // This lets us Add properly
+				UpdateChildren.Add(component);
+			}
 
 			return;
 		}
@@ -696,9 +698,11 @@ namespace GameEngine.GUI
 			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 
-			DrawChildren.Remove(dummy);
-			dummy.DrawOrder = component.DrawOrder; // This lets us Add properly
-			DrawChildren.Add(component);
+			if(DrawChildren.Remove(dummy)) // This should never fail, but just in case
+			{
+				dummy.DrawOrder = component.DrawOrder; // This lets us Add properly
+				DrawChildren.Add(component);
+			}
 
 			return;
 		}
@@ -887,6 +891,12 @@ namespace GameEngine.GUI
 		{get;}
 
 		/// <summary>
+		/// The set of top components of this sorted by name.
+		/// </summary>
+		protected Dictionary<string,DummyGUI> TopComponents
+		{get;}
+
+		/// <summary>
 		/// The children of this GUICore in update order.
 		/// </summary>
 		protected AVLSet<IGUI> UpdateChildren
@@ -897,12 +907,6 @@ namespace GameEngine.GUI
 		/// </summary>
 		protected AVLSet<IGUI> DrawChildren
 		{get; init;}
-
-		/// <summary>
-		/// The set of top components of this sorted by name.
-		/// </summary>
-		protected Dictionary<string,DummyGUI> TopComponents
-		{get;}
 
 		/// <summary>
 		/// The number of top-level GUI components in this GUICore.
