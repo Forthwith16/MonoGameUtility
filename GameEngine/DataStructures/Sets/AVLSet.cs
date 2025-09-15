@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace GameEngine.DataStructures.Sets
@@ -319,6 +320,35 @@ namespace GameEngine.DataStructures.Sets
 					n = n.Left;
 			}
 
+			return false;
+		}
+
+		/// <summary>
+		/// Gets an item in this set.
+		/// </summary>
+		/// <param name="item">A representative value considered equal to the item desired when weighed on the Scale.</param>
+		/// <param name="output">The output item. This is null when no matching item is in this set.</param>
+		/// <returns>Returns true if an item was found and false otherwise.</returns>
+		public bool Get(T item, [MaybeNullWhen(false)] out T? output)
+		{
+			AVLArrayNode? n = Root;
+
+			while(n is not null)
+			{
+				int cmp = Scale.Compare(n.Value,item);
+
+				if(cmp == 0) // Found it
+				{
+					output = n.Value;
+					return true;
+				}
+				else if(cmp < 0) // We are bigger than the current tree node
+					n = n.Right;
+				else if(cmp > 0) // We are smaller than the current tree node
+					n = n.Left;
+			}
+
+			output = default(T?);
 			return false;
 		}
 
