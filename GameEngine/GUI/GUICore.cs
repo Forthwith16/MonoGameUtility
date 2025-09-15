@@ -1,7 +1,8 @@
-﻿using GameEngine.DataStructures.Collections;
+﻿using GameEngine.DataStructures.Sets;
 using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameComponents;
+using GameEngine.GUI.Components;
 using GameEngine.GUI.Map;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
@@ -21,6 +22,9 @@ namespace GameEngine.GUI
 	/// <para/>
 	/// GUI components added to a GUICore will have their Initialize method called by this but not their Dispose method.
 	/// Disposal is left to the finalizer or other managers.
+	/// <para/>
+	/// Top level GUI components directly placed in a GUI Core must have unique names.
+	/// Names should not be changed whilst added to a GUI Core.
 	/// </summary>
 	public class GUICore : DrawableAffineComponent, IRenderTargetDrawable
 	{
@@ -32,6 +36,8 @@ namespace GameEngine.GUI
 		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
 		public GUICore(RenderTargetFriendlyGame game, SpriteBatch? renderer, bool enable_digital = true) : base(game,null,null)
 		{
+			RenderGame = game;
+
 			Input = new InputManager(); // Does not need to be initialized
 			Renderer = renderer;
 			
@@ -50,8 +56,9 @@ namespace GameEngine.GUI
 			Input.AddReferenceInput(DigitalRight,() => GlobalConstants.GUIDigitalRight);
 
 			// Initialize state variables
-			UpdateChildren = new PriorityIndexedQueue<IGUI>(new OrderComparer(true));
-			DrawChildren = new PriorityIndexedQueue<IGUI>(new OrderComparer(false));
+			UpdateChildren = new AVLSet<IGUI>(new OrderComparer(true));
+			DrawChildren = new AVLSet<IGUI>(new OrderComparer(false));
+			TopComponents = new Dictionary<string,DummyGUI>();
 
 			Initialized = false;
 			UsingMouse = false;
@@ -439,6 +446,7 @@ namespace GameEngine.GUI
 			return;
 		}
 
+		#region Mouse Event Generation
 		/// <summary>
 		/// Generates a mouse click/release event.
 		/// </summary>
@@ -585,6 +593,7 @@ namespace GameEngine.GUI
 
 			return new MouseMoveEventArgs(false,Input[MouseClick].CurrentDigitalValue,(int)pos2.X,(int)pos2.Y,(int)Input[MouseXDelta].CurrentAnalogValue,(int)Input[MouseYDelta].CurrentAnalogValue);
 		}
+		#endregion
 
 		public void DrawRenderTarget(GameTime delta)
 		{
@@ -620,8 +629,16 @@ namespace GameEngine.GUI
 		public bool Add(IGUI component)
 		{
 			// Add the component to our children lists
-			if(!UpdateChildren.Enqueue(component) || !DrawChildren.Enqueue(component))
+			if(TopComponents.ContainsKey(component.Name) || !UpdateChildren.Add(component) || !DrawChildren.Add(component))
 				return false;
+
+			// Add the component to TopComponents
+			DummyGUI dummy = new DummyGUI(RenderGame,component.Name);
+
+			dummy.UpdateOrder = component.UpdateOrder;
+			dummy.DrawOrder = component.DrawOrder;
+
+			TopComponents[component.Name] = dummy;
 			
 			// Now let's subscribe to key events (we will need named functions so we can unsubscribe on removal)
 			component.UpdateOrderChanged += UpdateUpdateChildren;
@@ -662,10 +679,13 @@ namespace GameEngine.GUI
 		/// </summary>
 		private void UpdateUpdateChildren(object? sender, EventArgs e)
 		{
-			if(sender is not IGUI component)
+			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 			
-			UpdateChildren.Requeue(component);
+			UpdateChildren.Remove(dummy);
+			UpdateChildren.Add(component);
+
+			dummy.UpdateOrder = component.UpdateOrder;
 			return;
 		}
 
@@ -674,10 +694,13 @@ namespace GameEngine.GUI
 		/// </summary>
 		private void UpdateDrawChildren(object? sender, EventArgs e)
 		{
-			if(sender is not IGUI component)
+			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 
-			DrawChildren.Requeue(component);
+			DrawChildren.Remove(dummy);
+			DrawChildren.Add(component);
+
+			dummy.DrawOrder = component.DrawOrder;
 			return;
 		}
 
@@ -692,6 +715,10 @@ namespace GameEngine.GUI
 		{
 			// We should do nothing if we are not the component's owner
 			if(component.Owner != this)
+				return false;
+
+			// If we don't belong to TopComponents, we've nothing to do
+			if(!TopComponents.Remove(component.Name))
 				return false;
 
 			// Expel the component from our records
@@ -835,7 +862,7 @@ namespace GameEngine.GUI
 
 			if(symmetric)
 				Map.SetEdge(dir.Reflect(),dst,src);
-
+			
 			return true;
 		}
 
@@ -858,16 +885,28 @@ namespace GameEngine.GUI
 		{return Map.GetNext(src,dir) is not null;} // Digital navigation never goes to null once it leaves it
 
 		/// <summary>
+		/// The game but in its proper form.
+		/// </summary>
+		protected RenderTargetFriendlyGame RenderGame
+		{get;}
+
+		/// <summary>
 		/// The children of this GUICore in update order.
 		/// </summary>
-		protected PriorityIndexedQueue<IGUI> UpdateChildren
+		protected AVLSet<IGUI> UpdateChildren
 		{get; init;}
 
 		/// <summary>
 		/// The children of this GUICore in draw order.
 		/// </summary>
-		protected PriorityIndexedQueue<IGUI> DrawChildren
+		protected AVLSet<IGUI> DrawChildren
 		{get; init;}
+
+		/// <summary>
+		/// The set of top components of this sorted by name.
+		/// </summary>
+		protected Dictionary<string,DummyGUI> TopComponents
+		{get;}
 
 		/// <summary>
 		/// The number of top-level GUI components in this GUICore.
