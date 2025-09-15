@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Text;
 
-namespace GameEngine.DataStructures.Collections
+namespace GameEngine.DataStructures.Sets
 {
 	/// <summary>
 	/// An AVL set.
