@@ -56,9 +56,9 @@ namespace GameEngine.GUI
 			Input.AddReferenceInput(DigitalRight,() => GlobalConstants.GUIDigitalRight);
 
 			// Initialize state variables
-			UpdateChildren = new AVLSet<IGUI>(new OrderComparer(true));
-			DrawChildren = new AVLSet<IGUI>(new OrderComparer(false));
 			TopComponents = new Dictionary<string,DummyGUI>();
+			UpdateChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,true));
+			DrawChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,false));
 
 			Initialized = false;
 			UsingMouse = false;
@@ -628,18 +628,17 @@ namespace GameEngine.GUI
 		/// <remarks>The GUI component's parent is <i>not</i> set to this since the GUICore's transform represents the camera matrix.</remarks>
 		public bool Add(IGUI component)
 		{
-			// Add the component to our children lists
-			if(TopComponents.ContainsKey(component.Name) || !UpdateChildren.Add(component) || !DrawChildren.Add(component))
-				return false;
-
-			// Add the component to TopComponents
+			// Adding the component to TopComponents is top priority
 			DummyGUI dummy = new DummyGUI(RenderGame,component.Name);
 
 			dummy.UpdateOrder = component.UpdateOrder;
 			dummy.DrawOrder = component.DrawOrder;
 
-			TopComponents[component.Name] = dummy;
-			
+			// Add the component to our children lists
+			// We MUST add to TopComponents first, since that lets us put things into our children
+			if(!TopComponents.TryAdd(component.Name,dummy) || !UpdateChildren.Add(component) || !DrawChildren.Add(component))
+				return false;
+
 			// Now let's subscribe to key events (we will need named functions so we can unsubscribe on removal)
 			component.UpdateOrderChanged += UpdateUpdateChildren;
 			component.DrawOrderChanged += UpdateDrawChildren;
@@ -683,9 +682,9 @@ namespace GameEngine.GUI
 				return;
 			
 			UpdateChildren.Remove(dummy);
+			dummy.UpdateOrder = component.UpdateOrder; // This lets us Add properly
 			UpdateChildren.Add(component);
 
-			dummy.UpdateOrder = component.UpdateOrder;
 			return;
 		}
 
@@ -698,9 +697,9 @@ namespace GameEngine.GUI
 				return;
 
 			DrawChildren.Remove(dummy);
+			dummy.DrawOrder = component.DrawOrder; // This lets us Add properly
 			DrawChildren.Add(component);
 
-			dummy.DrawOrder = component.DrawOrder;
 			return;
 		}
 
@@ -717,10 +716,6 @@ namespace GameEngine.GUI
 			if(component.Owner != this)
 				return false;
 
-			// If we don't belong to TopComponents, we've nothing to do
-			if(!TopComponents.Remove(component.Name))
-				return false;
-
 			// Expel the component from our records
 			VoidComponent(component);
 
@@ -728,7 +723,8 @@ namespace GameEngine.GUI
 			Map.RemoveVertex(component);
 
 			// Remove the component from our children lists
-			if(!UpdateChildren.Remove(component) || !DrawChildren.Remove(component))
+			// We MUST do TopComponents last, since it lets us find things in our children
+			if(!UpdateChildren.Remove(component) || !DrawChildren.Remove(component) || !TopComponents.Remove(component.Name))
 				return false;
 
 			// Now let's unsubscribe to key events
