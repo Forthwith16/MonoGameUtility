@@ -1,4 +1,5 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.DataStructures.Sets;
+using GameEngine.Framework;
 using GameEngine.GameComponents;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -47,13 +48,16 @@ namespace GameEngine.GUI.Components
 		/// </param>
 		public GUIRenderGroup(RenderTargetFriendlyGame game, string name, int w, int h, Color? bgc = null) : base(game,name)
 		{
+			RenderGame = game;
+
 			Width = w;
 			Height = h;
 			
 			ClearColor = bgc ?? Color.Transparent;
 			
-			UpdateChildren = new SortedList<IGUI,IGUI>(new OrderComparer(true));
-			DrawChildren = new SortedList<IGUI,IGUI>(new OrderComparer(false));
+			TopComponents = new Dictionary<string,DummyGUI>();
+			UpdateChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,true));
+			DrawChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,false));
 
 			Camera = Matrix2D.Identity;
 
@@ -70,7 +74,7 @@ namespace GameEngine.GUI.Components
 			Game.AddRenderTargetComponent(this);
 			
 			// Initialize all the children
-			foreach(IGUI component in UpdateChildren.Keys)
+			foreach(IGUI component in UpdateChildren)
 				component.Initialize(); // Always initialize regardless of Enabled or Visible
 
 			// Load the render engine first
@@ -92,7 +96,7 @@ namespace GameEngine.GUI.Components
 		protected override void UpdateAddendum(GameTime delta)
 		{
 			// Update each child
-			foreach(IGUI component in UpdateChildren.Keys)
+			foreach(IGUI component in UpdateChildren)
 				if(component.Enabled) // We don't care if a component is visible as we want to update them either way so long as they are enabled
 					component.Update(delta);
 			
@@ -111,7 +115,7 @@ namespace GameEngine.GUI.Components
 			// Now start the local renderer (it's fine to make multiple SpriteRenderer Begin calls since they only set the GraphicsDevice state on End (unless using Immediate)
 			LocalRenderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,Camera.Invert().SwapChirality());
 			
-			foreach(IGUI component in DrawChildren.Keys)
+			foreach(IGUI component in DrawChildren)
 				if(component.Visible) // We don't care if a GUI component is enabled here since they can still be draw but are greyed out or whatever
 					component.Draw(delta);
 
@@ -144,13 +148,16 @@ namespace GameEngine.GUI.Components
 		/// </remarks>
 		public bool Add(IGUI component)
 		{
-			// Check that we're not double adding
-			if(UpdateChildren.ContainsKey(component))
-				return false;
+			// Adding the component to TopComponents is top priority
+			DummyGUI dummy = new DummyGUI(RenderGame,component.Name);
+
+			dummy.UpdateOrder = component.UpdateOrder;
+			dummy.DrawOrder = component.DrawOrder;
 
 			// Add the component to our children lists
-			UpdateChildren.Add(component,component);
-			DrawChildren.Add(component,component);
+			// We MUST add to TopComponents first, since that lets us put things into our children
+			if(!TopComponents.TryAdd(component.Name,dummy) || !UpdateChildren.Add(component) || !DrawChildren.Add(component))
+				return false;
 
 			// Now let's subscribe to key events (we will need named functions so we can unsubscribe on removal)
 			component.UpdateOrderChanged += UpdateUpdateChildren;
@@ -173,11 +180,14 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		private void UpdateUpdateChildren(object? sender, EventArgs e)
 		{
-			if(sender is not IGUI component)
+			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 			
 			if(UpdateChildren.Remove(component))
-				UpdateChildren.Add(component,component);
+			{
+				dummy.UpdateOrder = component.UpdateOrder; // This lets us Add properly
+				UpdateChildren.Add(component);
+			}
 
 			return;
 		}
@@ -187,11 +197,14 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		private void UpdateDrawChildren(object? sender, EventArgs e)
 		{
-			if(sender is not IGUI component)
+			if(sender is not IGUI component || !TopComponents.TryGetValue(component.Name,out DummyGUI? dummy))
 				return;
 
 			if(DrawChildren.Remove(component))
-				DrawChildren.Add(component,component);
+			{
+				dummy.DrawOrder = component.DrawOrder; // This lets us Add properly
+				DrawChildren.Add(component);
+			}
 
 			return;
 		}
@@ -204,7 +217,8 @@ namespace GameEngine.GUI.Components
 		public bool Remove(IGUI component)
 		{
 			// Remove the component from our children lists
-			if(!UpdateChildren.Remove(component) || !DrawChildren.Remove(component))
+			// We MUST do TopComponents last, since it lets us find things in our children
+			if(!UpdateChildren.Remove(component) || !DrawChildren.Remove(component) || !TopComponents.Remove(component.Name))
 				return false;
 
 			// Now let's unsubscribe from key events
@@ -255,7 +269,7 @@ namespace GameEngine.GUI.Components
 
 			// Find the topmost level thing that we intersect with
 			// In the case of DrawOrder ties, the thing with the earliest name is selected, which is fine
-			foreach(IGUI child in DrawChildren.Keys)
+			foreach(IGUI child in DrawChildren)
 				if(child.Enabled && child.Visible && child.Bounds.Contains(pos) && child.Contains(pos,out IGUI? intersector) && intersector!.DrawOrder > max)
 				{
 					max = intersector!.DrawOrder;
@@ -283,10 +297,10 @@ namespace GameEngine.GUI.Components
 
 				base.Owner = value;
 
-				foreach(IGUI child in UpdateChildren.Keys)
+				foreach(IGUI child in UpdateChildren)
 					child.Owner = value;
 
-				foreach(IGUI child in DrawChildren.Keys)
+				foreach(IGUI child in DrawChildren)
 					child.Owner = value;
 
 				return;
@@ -326,7 +340,7 @@ namespace GameEngine.GUI.Components
 				_lr = value;
 
 				// Children should use the local renderer
-				foreach(IGUI component in DrawChildren.Values)
+				foreach(IGUI component in DrawChildren)
 					component.Renderer = LocalRenderer;
 
 				return;
@@ -359,17 +373,29 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		public Matrix2D Camera
 		{get; set;}
+		
+		/// <summary>
+		/// The game but in its proper form.
+		/// </summary>
+		protected RenderTargetFriendlyGame RenderGame
+		{get;}
+
+		/// <summary>
+		/// The set of top components of this sorted by name.
+		/// </summary>
+		protected Dictionary<string,DummyGUI> TopComponents
+		{get;}
 
 		/// <summary>
 		/// The children of this GUICore in update order.
 		/// </summary>
-		protected SortedList<IGUI,IGUI> UpdateChildren
+		protected AVLSet<IGUI> UpdateChildren
 		{get; init;}
 
 		/// <summary>
 		/// The children of this GUICore in draw order.
 		/// </summary>
-		protected SortedList<IGUI,IGUI> DrawChildren
+		protected AVLSet<IGUI> DrawChildren
 		{get; init;}
 
 		/// <summary>
@@ -462,7 +488,7 @@ namespace GameEngine.GUI.Components
 				float min_y = 0.0f;
 				float max_y = Height;
 
-				foreach(IGUI component in DrawChildren.Keys)
+				foreach(IGUI component in DrawChildren)
 				{
 					Rectangle b = component.Bounds;
 
