@@ -10,7 +10,7 @@ namespace GameEngine.DataStructures.Sets
 	/// When enumerated, the elements are produced in ascending order (unless otherwise specified).
 	/// </summary>
 	/// <typeparam name="T">The type stored in the tree.</typeparam>
-	public class AVLSet<T> : IEnumerable<T>
+	public class AVLSet<T> : IEnumerable<T>, ICollection<T>
 	{
 		/// <summary>
 		/// Creates an empty set.
@@ -143,6 +143,12 @@ namespace GameEngine.DataStructures.Sets
 			else
 				AddRebalance(n.Parent); // If we're not the root, we need to carry on up the tree until we get there
 
+			return;
+		}
+
+		void ICollection<T>.Add(T item)
+		{
+			Add(item);
 			return;
 		}
 
@@ -433,6 +439,8 @@ namespace GameEngine.DataStructures.Sets
 		/// </summary>
 		private IComparer<T> Scale
 		{get;}
+		
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Represents a node in an AVL tree.
