@@ -12,8 +12,8 @@ namespace GameEngine.Maths
 		/// </summary>
 		public AffineObject()
 		{
-			WorldRevision = 2;
-			InverseWorldRevision = 2;
+			WorldRevision = RevisionID.Initial;
+			InverseWorldRevision = RevisionID.Initial;
 
 			Transform = Matrix2D.Identity;
 			Parent = null;
@@ -27,8 +27,8 @@ namespace GameEngine.Maths
 		/// <param name="parent">The parent of this object.</param>
 		public AffineObject(IAffineComponent2D parent)
 		{
-			WorldRevision = 2;
-			InverseWorldRevision = 2;
+			WorldRevision = RevisionID.Initial;
+			InverseWorldRevision = RevisionID.Initial;
 
 			Transform = Matrix2D.Identity;
 			Parent = parent;
@@ -42,8 +42,8 @@ namespace GameEngine.Maths
 		/// <param name="transform">The initial transform.</param>
 		public AffineObject(Matrix2D transform)
 		{
-			WorldRevision = 2;
-			InverseWorldRevision = 2;
+			WorldRevision = RevisionID.Initial;
+			InverseWorldRevision = RevisionID.Initial;
 
 			Transform = transform;
 			Parent = null;
@@ -58,8 +58,8 @@ namespace GameEngine.Maths
 		/// <param name="parent">The parent of this object.</param>
 		public AffineObject(IAffineComponent2D parent, Matrix2D transform)
 		{
-			WorldRevision = 2;
-			InverseWorldRevision = 2;
+			WorldRevision = RevisionID.Initial;
+			InverseWorldRevision = RevisionID.Initial;
 
 			Transform = transform;
 			Parent = parent;
@@ -80,8 +80,8 @@ namespace GameEngine.Maths
 				StaleInverse = true;
 
 				// Instead of keeping a stale boolean, we double our value in using the revision number to mark these as stale
-				ParentWorldRevision = 0u;
-				ParentInverseWorldRevision = 0u;
+				ParentWorldRevision = RevisionID.Stale;
+				ParentInverseWorldRevision = RevisionID.Stale;
 
 				_t = value;
 				return;
@@ -109,7 +109,7 @@ namespace GameEngine.Maths
 					// Our behavior differs depending on if we have a parent or not
 					if(Parent is null)
 					{
-						ParentWorldRevision = 1u; // A 1 value means our world is up to date when we have no parent
+						ParentWorldRevision = RevisionID.NoParentInfo; // A 1 value means our world is up to date when we have no parent
 						_w = Transform;
 					}
 					else
@@ -127,20 +127,20 @@ namespace GameEngine.Maths
 
 		protected Matrix2D _w;
 
-		public uint WorldRevision
+		public RevisionID WorldRevision
 		{get; protected set;}
 		
 		/// <summary>
 		/// The currently known revision of Parent.World.
 		/// A different (higher) value means that our World matrix is stale.
 		/// </summary>
-		protected uint ParentWorldRevision
+		protected RevisionID ParentWorldRevision
 		{get; set;}
 
 		/// <summary>
 		/// If true, then the world matrix is stale and needs to be updated.
 		/// </summary>
-		public bool StaleWorld => StaleTransform || (Parent is null ? ParentWorldRevision != 1u : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld);
+		public bool StaleWorld => StaleTransform || (Parent is null ? ParentWorldRevision != RevisionID.NoParentInfo : ParentWorldRevision != Parent.WorldRevision || Parent.StaleWorld);
 
 		public Matrix2D InverseTransform
 		{
@@ -186,7 +186,7 @@ namespace GameEngine.Maths
 					// Our behavior differs depending on if we have a parent or not
 					if(Parent is null)
 					{
-						ParentInverseWorldRevision = 1u; // A 1 value means our inverse world is up to date when we have no parent
+						ParentInverseWorldRevision = RevisionID.NoParentInfo; // A 1 value means our inverse world is up to date when we have no parent
 						_iw = InverseTransform;
 					}
 					else
@@ -204,19 +204,19 @@ namespace GameEngine.Maths
 
 		protected Matrix2D _iw;
 
-		public uint InverseWorldRevision
+		public RevisionID InverseWorldRevision
 		{get; protected set;}
 
 		/// <summary>
 		/// If true, then the inverse world matrix is stale and needs to be updated.
 		/// </summary>
-		public bool StaleInverseWorld => StaleInverse || (Parent is null ? ParentInverseWorldRevision != 1u : ParentInverseWorldRevision != Parent.InverseWorldRevision || Parent.StaleInverseWorld);
+		public bool StaleInverseWorld => StaleInverse || (Parent is null ? ParentInverseWorldRevision != RevisionID.NoParentInfo : ParentInverseWorldRevision != Parent.InverseWorldRevision || Parent.StaleInverseWorld);
 
 		/// <summary>
 		/// The currently known revision of Parent.InverseWorld.
 		/// A different (higher) value means that our World matrix is stale.
 		/// </summary>
-		protected uint ParentInverseWorldRevision
+		protected RevisionID ParentInverseWorldRevision
 		{get; set;}
 
 		public IAffineComponent2D? Parent
@@ -225,8 +225,8 @@ namespace GameEngine.Maths
 			
 			set
 			{
-				ParentWorldRevision = 0u;
-				ParentInverseWorldRevision = 0u;
+				ParentWorldRevision = RevisionID.Stale;
+				ParentInverseWorldRevision = RevisionID.Stale;
 
 				_p = value;
 				return;

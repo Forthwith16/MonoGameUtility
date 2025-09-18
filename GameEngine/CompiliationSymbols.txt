@@ -1,5 +1,6 @@
-﻿The following compiliation symbols can be used to alter how the GameEngine project is built.
-They should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).
+﻿The following compiliation symbols and usings can be used to alter how the GameEngine project is built.
+Compiliation symbols should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).
+Usings must be changed at a file level.
 
 /////////////////////////////////////////////////////////////////////////////////
 #define Debug
@@ -25,4 +26,13 @@ This happens when game components are inserted into a game's Components before t
 
 As a general rule, this symbol should be left defined as it is easy to accidentally create uninitialized game components.
 The performance loss on a game that does not require it is token at best.
+/////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////
+using RevisionType = BackingType;
+/////////////////////////////////////////////////////////////////////////////////
+GameEngine.GameComponents.IAffineComponent2D
+/////////////////////////////////////////////////////////////////////////////////
+This is the backing type for ID types for revision IDs in affine components.
+This value can be changed if more or fewer revision IDs are desired.
 /////////////////////////////////////////////////////////////////////////////////
