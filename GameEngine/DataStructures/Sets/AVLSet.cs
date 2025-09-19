@@ -333,9 +333,9 @@ namespace GameEngine.DataStructures.Sets
 		/// Gets an item in this set.
 		/// </summary>
 		/// <param name="item">A representative value considered equal to the item desired when weighed on the Scale.</param>
-		/// <param name="output">The output item. This is null when no matching item is in this set.</param>
+		/// <param name="output">The output item. This is default(T) when no matching item is in this set.</param>
 		/// <returns>Returns true if an item was found and false otherwise.</returns>
-		public bool Get(T item, [MaybeNullWhen(false)] out T? output)
+		public bool Get(T item, [MaybeNullWhen(false)] out T output)
 		{
 			AVLArrayNode? n = Root;
 
@@ -354,7 +354,7 @@ namespace GameEngine.DataStructures.Sets
 					n = n.Left;
 			}
 
-			output = default(T?);
+			output = default(T);
 			return false;
 		}
 
