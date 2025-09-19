@@ -33,6 +33,14 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
+		/// Initializes this to all default values.
+		/// This is not suitable for anything other than dummy object creation.
+		/// </summary>
+		/// <param name="game">A mandatory parameter.</param>
+		protected DrawableAffineComponent(Game game) : base(game)
+		{return;}
+
+		/// <summary>
 		/// Makes a deep copy of <paramref name="other"/>.
 		/// This will not copy events, however, nor will it initialize or dispose of the copy if <paramref name="other"/> is in either state.
 		/// The parent will be <b><u>shallow</u></b> copied, whether it is null or otherwise.
