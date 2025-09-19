@@ -139,7 +139,7 @@ namespace GameEngine.DataStructures.Sets
 		{get; protected set;}
 
 		/// <summary>
-		/// The way we store 
+		/// The way we store objects.
 		/// </summary>
 		protected ICollection<T> Storage
 		{get;}
