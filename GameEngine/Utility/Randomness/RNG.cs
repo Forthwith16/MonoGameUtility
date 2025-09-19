@@ -1,7 +1,7 @@
 ﻿using GameEngine.Utility.Parsing;
 using System.Buffers.Binary;
 
-namespace GameEngine.Utility
+namespace GameEngine.Utility.Randomness
 {
 	/// <summary>
 	/// A custom random number generator exclusively built so that we can save it's bloody state. Looking at you, C#.
@@ -26,14 +26,14 @@ namespace GameEngine.Utility
 			int ii;
 			int mj, mk;
 			
-			int subtraction = (seed == int.MinValue) ? int.MaxValue : Math.Abs(seed);
+			int subtraction = seed == int.MinValue ? int.MaxValue : Math.Abs(seed);
 			mj = MSEED - subtraction;
 			_sa[55] = mj;
 			mk = 1;
 
 			for(int i = 1;i < 55;i++)
 			{
-				ii = (21 * i) % 55;
+				ii = 21 * i % 55;
 				_sa[ii] = mk;
 				mk = mj - mk;
 
@@ -149,7 +149,7 @@ namespace GameEngine.Utility
 		/// </summary>
 		/// <returns>A double-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
 		protected virtual double Sample()
-		{return (InternalSample() * (1.0 / MBIG));} // Including this division at the end gives us significantly improved random number distribution
+		{return InternalSample() * (1.0 / MBIG);} // Including this division at the end gives us significantly improved random number distribution
 
 		protected int InternalSample()
 		{
@@ -196,13 +196,13 @@ namespace GameEngine.Utility
 			
 			// Note we can't use addition here
 			// The distribution will be bad if we do that
-			bool negative = (InternalSample() % 2 == 0) ? true : false; // decide the sign based on second sample
+			bool negative = InternalSample() % 2 == 0 ? true : false; // decide the sign based on second sample
 			
 			if(negative)
 				result = -result;
 
 			double d = result;
-			d += (int.MaxValue - 1); // get a number in range [0 .. 2 * Int32MaxValue - 1)
+			d += int.MaxValue - 1; // get a number in range [0 .. 2 * Int32MaxValue - 1)
 			d /= 2 * (uint)int.MaxValue - 1;
 
 			return d;
@@ -222,7 +222,7 @@ namespace GameEngine.Utility
 
 			long range = (long)max_value - min_value;
 			
-			if(range <= (long)int.MaxValue)
+			if(range <= int.MaxValue)
 				return (int)(Sample() * range) + min_value;
 			
 			return (int)((long)(GetSampleForLargeRange() * range) + min_value);
@@ -284,7 +284,7 @@ namespace GameEngine.Utility
 		
 		protected int[] _sa = new int[56];
 		
-		protected const int MBIG = Int32.MaxValue;
+		protected const int MBIG = int.MaxValue;
 		protected const int MSEED = 161803398;
 		protected const int MZ = 0;
 	}
