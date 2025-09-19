@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ZenChangYoEngine.Utility
+namespace GameEngine.Utility.Randomness
 {
 	/// <summary>
 	/// A unified implementation of random number generation
