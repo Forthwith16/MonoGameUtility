@@ -115,7 +115,7 @@ namespace GameEngine.Utility.Randomness
 	}
 
 	/// <summary>
-	/// Converts a randomness itself to/from a JSON format.
+	/// Converts randomness itself to/from a JSON format.
 	/// </summary>
 	public class MyRandomConverter : JsonConverter<Random>
 	{
