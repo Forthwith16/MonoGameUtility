@@ -1,5 +1,4 @@
-﻿using GameEngine.Utility.Streams;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -82,7 +81,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="encoding">The character encoding to utilize in the output.</param>
 		public static string ToXmlString<T>(this T value, bool remove_default_xml_namespace = true, bool omit_xml_declaration = true, Encoding? encoding = null)
 		{
-			using(StringWriterWithEncoding sout = new StringWriterWithEncoding(encoding))
+			using(EncodedStringWriter sout = new EncodedStringWriter(encoding))
 			{
 				value.SerializeXml(sout,remove_default_xml_namespace,omit_xml_declaration);
 				return sout.ToString();

@@ -32,4 +32,9 @@
     <EditorConfigFiles Remove="C:\Users\Forthwith\source\repos\MonoGameUtility\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Utility\Serialization\" />
+    <Folder Include="Utility\Streams\" />
+  </ItemGroup>
+
 </Project>

@@ -1,23 +1,23 @@
 ﻿using System.Text;
 
-namespace GameEngine.Utility.Streams
+namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 {
 	/// <summary>
 	/// Extends the StringWriter class to allow for arbitrary encodings.
 	/// </summary>
-	public class StringWriterWithEncoding : StringWriter
+	public class EncodedStringWriter : StringWriter
 	{
 		/// <summary>
 		/// Creates a new StringWriter with default behavior.
 		/// </summary>
-		public StringWriterWithEncoding() : base()
+		public EncodedStringWriter() : base()
 		{return;}
 
 		/// <summary>
 		/// Creates a new StringWriter with the specified encoding.
 		/// </summary>
 		/// <param name="encoding">The encoding to use.</param>
-		public StringWriterWithEncoding(Encoding? encoding) : base()
+		public EncodedStringWriter(Encoding? encoding) : base()
 		{
 			_e = encoding;
 			return;
