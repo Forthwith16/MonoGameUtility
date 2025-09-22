@@ -29,6 +29,8 @@ namespace GameEngine.GameComponents
 			LayerDepth = 0.0f;
 
 			Initialized = false;
+			Disposed = false;
+
 			return;
 		}
 
@@ -73,6 +75,16 @@ namespace GameEngine.GameComponents
 			LayerDepth = other.LayerDepth;
 			
 			Initialized = false;
+			Disposed = false;
+
+			return;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			Disposed = true;
+
 			return;
 		}
 
@@ -329,6 +341,13 @@ namespace GameEngine.GameComponents
 		/// If false, it has not.
 		/// </summary>
 		public bool Initialized
+		{get; protected set;}
+
+		/// <summary>
+		/// If true, then this has been disposed.
+		/// If false, it has not.
+		/// </summary>
+		public bool Disposed
 		{get; protected set;}
 	}
 }
