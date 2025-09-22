@@ -82,9 +82,12 @@ namespace GameEngine.GameComponents
 
 		protected override void Dispose(bool disposing)
 		{
-			base.Dispose(disposing);
-			Disposed = true;
+			if(Disposed)
+				return;
 
+			base.Dispose(disposing);
+
+			Disposed = true;
 			return;
 		}
 
