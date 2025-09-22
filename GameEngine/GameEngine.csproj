@@ -15,7 +15,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Utility\ExtensionMethods\GenericExtensions\" />
+    <Compile Remove="Utility\ExtensionMethods\GenericExtensions\**" />
+    <EmbeddedResource Remove="Utility\ExtensionMethods\GenericExtensions\**" />
+    <None Remove="Utility\ExtensionMethods\GenericExtensions\**" />
   </ItemGroup>
 
   <ItemGroup>
