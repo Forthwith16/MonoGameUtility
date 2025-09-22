@@ -7,7 +7,7 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// A unified implementation of random number generation
 	/// </summary>
-	[JsonConverter(typeof(MyRandomConverter))]
+	[JsonConverter(typeof(RandomConverter))]
 	public class Random
 	{
 		/// <summary>
@@ -117,7 +117,7 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// Converts randomness itself to/from a JSON format.
 	/// </summary>
-	public class MyRandomConverter : JsonConverter<Random>
+	public class RandomConverter : JsonConverter<Random>
 	{
 		public override Random Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
 		{
