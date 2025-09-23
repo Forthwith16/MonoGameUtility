@@ -8,7 +8,7 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// A unified implementation of random number generation
 	/// </summary>
-	[JsonConverter(typeof(RandomConverter))]
+	[JsonConverter(typeof(JsonRandomConverter))]
 	public class Random
 	{
 		/// <summary>
@@ -118,21 +118,18 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// Converts randomness itself to/from a JSON format.
 	/// </summary>
-	public class RandomConverter : JsonBaseConverter<Random>
+	public class JsonRandomConverter : JsonBaseConverter<Random>
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{
+			// We only have number properties, so just check it
+			if(!reader.HasNextNumber())
+				throw new JsonException();
+
 			switch(property)
 			{
 			case "Next":
-				if(!reader.HasNextNumber())
-					throw new JsonException();
-
-				return reader.GetUInt64();
 			case "Seed":
-				if(!reader.HasNextNumber())
-					throw new JsonException();
-
 				return reader.GetUInt64();
 			default:
 				throw new JsonException();

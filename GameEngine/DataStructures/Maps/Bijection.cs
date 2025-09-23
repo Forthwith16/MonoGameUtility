@@ -1,5 +1,11 @@
-﻿using System.Collections;
+﻿using GameEngine.DataStructures.Collections;
+using GameEngine.DataStructures.Utility;
+using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Maps
 {
@@ -11,6 +17,7 @@ namespace GameEngine.DataStructures.Maps
 	/// </summary>
 	/// <typeparam name="K">The key type.</typeparam>
 	/// <typeparam name="V">The value type.</typeparam>
+	[JsonConverter(typeof(JsonBijectionConverter))]
 	public class Bijection<K,V> : IEnumerable<KeyValuePair<K,V>>, IDictionary<K,V> where K : notnull where V : notnull
 	{
 		/// <summary>
@@ -127,11 +134,8 @@ namespace GameEngine.DataStructures.Maps
 
 		public void CopyTo(KeyValuePair<K,V>[] array, int arrayIndex)
 		{
-			if(array is null)
-				throw new ArgumentNullException();
-
-			if(arrayIndex < 0)
-				throw new ArgumentOutOfRangeException();
+			ArgumentNullException.ThrowIfNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 
 			if(Count > 0 && arrayIndex + Count > array.Length)
 				throw new ArgumentException();
@@ -224,5 +228,81 @@ namespace GameEngine.DataStructures.Maps
 		public ICollection<K> Keys => Map.Keys;
 		public ICollection<V> Values => Map.Values;
 		public bool IsReadOnly => false;
+	}
+
+	/// <summary>
+	/// Creates JSON converters for key value pairs.
+	/// </summary>
+	public class JsonBijectionConverter : JsonBaseConverterFactory
+	{
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public JsonBijectionConverter() : base((t,ops) => [ops],typeof(Bijection<,>),typeof(BC<,>))
+		{return;}
+
+		/// <summary>
+		/// Performs the JSON conversion for a key value pair.
+		/// </summary>
+		/// <typeparam name="K">The key type.</typeparam>
+		/// <typeparam name="V">The value type.</typeparam>
+		private class BC<K,V> : JsonBaseConverter<Bijection<K,V>> where K : notnull where V : notnull
+		{
+			public BC(JsonSerializerOptions ops)
+			{
+				KVPConverter = (JsonConverter<SecretKeyValuePair<K,V>>)ops.GetConverter(typeof(SecretKeyValuePair<K,V>));
+				return;
+			}
+
+			protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+			{
+				// We only have the one property
+				if(property != "Items")
+					throw new JsonException();
+
+				// We need an array opener
+				if(!reader.HasNextArrayStart())
+					throw new JsonException();
+				
+				reader.Read();
+
+				// Read the array until we reach the end
+				IndexedQueue<SecretKeyValuePair<K,V>> ret = new IndexedQueue<SecretKeyValuePair<K,V>>();
+
+				while(!reader.HasNextArrayEnd())
+				{
+					ret.Enqueue(KVPConverter.Read(ref reader,typeof(SecretKeyValuePair<K,V>),ops)!);
+					reader.Read();
+				}
+
+				return ret;
+			}
+
+			protected override Bijection<K,V> ConstructT(Dictionary<string,object?> properties)
+			{
+				if(properties.Count != 1)
+					throw new JsonException();
+
+				Bijection<K,V> ret = new Bijection<K,V>();
+
+				foreach(SecretKeyValuePair<K,V> kvp in (IEnumerable<SecretKeyValuePair<K,V>>)properties["Items"]!)
+					ret[kvp.Key] = kvp.Value;
+
+				return ret;
+			}
+
+			protected override void WriteProperties(Utf8JsonWriter writer, Bijection<K,V> value, JsonSerializerOptions ops)
+			{
+				writer.WriteStartArray("Items");
+
+				foreach(SecretKeyValuePair<K,V> kvp in value)
+					KVPConverter.Write(writer,kvp,ops);
+
+				writer.WriteEndArray();
+				return;
+			}
+
+			private JsonConverter<SecretKeyValuePair<K,V>> KVPConverter;
+		}
 	}
 }

@@ -1,10 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
+using Microsoft.Xna.Framework;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Geometry
 {
 	/// <summary>
 	/// Represents a three dimensional box, the spacial analog of FRectangle.
 	/// </summary>
+	[JsonConverter(typeof(JsonFPrismConverter))]
 	public readonly struct FPrism : IBoundingBox<FPrism>
 	{
 		/// <summary>
@@ -372,7 +377,6 @@ namespace GameEngine.DataStructures.Geometry
 		public float Volume => Width * Height * Depth;
 
 		public float BoxSpace => Volume;
-		public FPrism EmptyBox => Empty;
 
 		/// <summary>
 		/// The empty prism.
@@ -383,5 +387,52 @@ namespace GameEngine.DataStructures.Geometry
 		/// The empty prism.
 		/// </summary>
 		private static FPrism _ep = new FPrism(0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
+	}
+
+	/// <summary>
+	/// Performs the JSON conversion for a prism.
+	/// </summary>
+	public class JsonFPrismConverter : JsonBaseConverter<FPrism>
+	{
+		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+		{
+			// We only have number properties, so just check it
+			if(!reader.HasNextNumber())
+				throw new JsonException();
+
+			switch(property)
+			{
+			case "X":
+			case "Y":
+			case "Z":
+			case "Width":
+			case "Height":
+			case "Depth":
+				return reader.GetSingle();
+			default:
+				throw new JsonException();
+			}
+		}
+
+		protected override FPrism ConstructT(Dictionary<string,object?> properties)
+		{
+			if(properties.Count != 6)
+				throw new JsonException();
+
+			return new FPrism((float)properties["X"]!,(float)properties["Y"]!,(float)properties["Z"]!,(float)properties["Width"]!,(float)properties["Height"]!,(float)properties["Depth"]!);
+		}
+
+		protected override void WriteProperties(Utf8JsonWriter writer, FPrism value, JsonSerializerOptions ops)
+		{
+			writer.WriteNumber("X",value.X);
+			writer.WriteNumber("Y",value.Y);
+			writer.WriteNumber("Z",value.Z);
+
+			writer.WriteNumber("Width",value.Width);
+			writer.WriteNumber("Height",value.Height);
+			writer.WriteNumber("Depth",value.Depth);
+
+			return;
+		}
 	}
 }

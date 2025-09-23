@@ -1,5 +1,7 @@
 ﻿using GameEngine.Exceptions;
+using GameEngine.Utility.Serialization;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Graphs
 {
@@ -8,6 +10,7 @@ namespace GameEngine.DataStructures.Graphs
 	/// </summary>
 	/// <typeparam name="V">The data type stored in vertices.</typeparam>
 	/// <typeparam name="E">The data type stored in edges.</typeparam>
+	[JsonConverter(typeof(JsonIGraphConverter))]
 	public interface IGraph<V,E>
 	{
 		/// <summary>
@@ -386,5 +389,17 @@ namespace GameEngine.DataStructures.Graphs
 
 		public bool Directed => throw new NotImplementedException();
 		public E Data => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Creates JSON converters for graphs.
+	/// </summary>
+	public class JsonIGraphConverter : JsonBaseConverterFactory
+	{
+		public JsonIGraphConverter() : base((t,ops) => [],typeof(IGraph<,>),typeof(IGC<,>))
+		{return;}
+
+		private class IGC<V,E> : JsonBaseTypeConverter<IGraph<V,E>>
+		{}
 	}
 }

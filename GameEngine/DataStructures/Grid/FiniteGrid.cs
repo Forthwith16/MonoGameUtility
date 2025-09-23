@@ -1,9 +1,9 @@
 ﻿using GameEngine.DataStructures.Collections;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,7 +14,7 @@ namespace GameEngine.DataStructures.Grid
 	/// A finite grid.
 	/// </summary>
 	/// <typeparam name="T">The type stored in the grid.</typeparam>
-	[JsonConverter(typeof(FGConverterFactory))]
+	[JsonConverter(typeof(JsonFiniteGridConverterFactory))]
 	public class FiniteGrid<T> : IEnumerable<KeyValuePair<Point,T>>
 	{
 		/// <summary>
@@ -388,10 +388,13 @@ namespace GameEngine.DataStructures.Grid
 	/// <summary>
 	/// Creates JSON converters for finite grids.
 	/// </summary>
-	public sealed class FGConverterFactory : JsonConverterFactory
+	public sealed class JsonFiniteGridConverterFactory : JsonBaseConverterFactory
 	{
-		public override bool CanConvert(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(FiniteGrid<>);
-		public override JsonConverter? CreateConverter(Type t, JsonSerializerOptions ops) => (JsonConverter?)Activator.CreateInstance(typeof(FGConverter<>).MakeGenericType(t.GetGenericArguments()),BindingFlags.Instance | BindingFlags.Public,null,new object?[] {ops},null);
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public JsonFiniteGridConverterFactory() : base((t,ops) => [],typeof(FiniteGrid<>),typeof(FGConverter<>))
+		{return;}
 
 		/// <summary>
 		/// Converts finite grids to/from JSON.

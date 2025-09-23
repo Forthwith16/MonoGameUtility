@@ -1,7 +1,13 @@
-﻿using GameEngine.DataStructures.Maps;
+﻿using GameEngine.DataStructures.Collections;
+using GameEngine.DataStructures.Maps;
+using GameEngine.DataStructures.Utility;
+using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Grid
 {
@@ -10,6 +16,7 @@ namespace GameEngine.DataStructures.Grid
 	/// In addition, each item contained within the grid must be unique.
 	/// </summary>
 	/// <typeparam name="T">The data type.</typeparam>
+	[JsonConverter(typeof(JsonInfiniteGridConverter))]
 	public class InfiniteGrid<T> : IEnumerable<KeyValuePair<Point,T>> where T : notnull
 	{
 		/// <summary>
@@ -352,5 +359,88 @@ namespace GameEngine.DataStructures.Grid
 		/// </summary>
 		protected SortedSet<Point> VerticalList
 		{get;}
+	}
+
+	/// <summary>
+	/// Creates JSON converters for infinite grids.
+	/// </summary>
+	public class JsonInfiniteGridConverter : JsonBaseConverterFactory
+	{
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public JsonInfiniteGridConverter() : base((t,ops) => [ops],typeof(InfiniteGrid<>),typeof(IGC<>))
+		{return;}
+
+		/// <summary>
+		/// Performs the JSON conversion for an infinite grid.
+		/// </summary>
+		/// <typeparam name="T">The type of object stored in the queue.</typeparam>
+		private class IGC<T> : JsonBaseConverter<InfiniteGrid<T>> where T : notnull
+		{
+			public IGC(JsonSerializerOptions ops)
+			{
+				ItemConverter = (JsonConverter<SecretKeyValuePair<Point,T>>)ops.GetConverter(typeof(SecretKeyValuePair<Point,T>));
+				return;
+			}
+
+			protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+			{
+				switch(property)
+				{
+				case "Nonnegative":
+					if(!reader.HasNextBool())
+						throw new JsonException();
+
+					return reader.GetBoolean();
+				case "Items":
+					// We need an array opener
+					if(!reader.HasNextArrayStart())
+						throw new JsonException();
+				
+					reader.Read();
+
+					// Read the array until we reach the end
+					IndexedQueue<SecretKeyValuePair<Point,T>> ret = new IndexedQueue<SecretKeyValuePair<Point,T>>();
+
+					while(!reader.HasNextArrayEnd())
+					{
+						ret.Enqueue(ItemConverter.Read(ref reader,typeof(SecretKeyValuePair<Point,T>),ops));
+						reader.Read();
+					}
+
+					return ret;
+				default:
+					throw new JsonException();
+				}
+			}
+
+			protected override InfiniteGrid<T> ConstructT(Dictionary<string,object?> properties)
+			{
+				if(properties.Count != 2)
+					throw new JsonException();
+
+				InfiniteGrid<T> ret = new InfiniteGrid<T>((bool)properties["Nonnegative"]!);
+
+				foreach(SecretKeyValuePair<Point,T> kvp in (properties["Items"] as IEnumerable<SecretKeyValuePair<Point,T>>)!)
+					ret[kvp.Key] = kvp.Value;
+
+				return ret;
+			}
+
+			protected override void WriteProperties(Utf8JsonWriter writer, InfiniteGrid<T> value, JsonSerializerOptions ops)
+			{
+				writer.WriteBoolean("Nonnegative",value.Nonnegative);
+				writer.WriteStartArray("Items");
+
+				foreach(SecretKeyValuePair<Point,T> kvp in value)
+					ItemConverter.Write(writer,kvp,ops);
+
+				writer.WriteEndArray();
+				return;
+			}
+
+			private JsonConverter<SecretKeyValuePair<Point,T>> ItemConverter;
+		}
 	}
 }

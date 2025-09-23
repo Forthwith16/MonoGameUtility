@@ -1,10 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
+using Microsoft.Xna.Framework;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Geometry
 {
 	/// <summary>
 	/// A rectangle that supports floating point positions.
 	/// </summary>
+	[JsonConverter(typeof(JsonFRectangleConverter))]
 	public readonly struct FRectangle : IBoundingBox<FRectangle>
 	{
 		/// <summary>
@@ -484,7 +489,6 @@ namespace GameEngine.DataStructures.Geometry
 		public float Area => Width * Height;
 
 		public float BoxSpace => Area;
-		public FRectangle EmptyBox => Empty;
 
 		/// <summary>
 		/// The empty rectangle.
@@ -495,5 +499,48 @@ namespace GameEngine.DataStructures.Geometry
 		/// The empty rectangle.
 		/// </summary>
 		private static FRectangle _er = new FRectangle(0.0f,0.0f,0.0f,0.0f);
+	}
+
+	/// <summary>
+	/// Performs the JSON conversion for a rectangle.
+	/// </summary>
+	public class JsonFRectangleConverter : JsonBaseConverter<FRectangle>
+	{
+		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+		{
+			// We only have number properties, so just check it
+			if(!reader.HasNextNumber())
+				throw new JsonException();
+
+			switch(property)
+			{
+			case "X":
+			case "Y":
+			case "Width":
+			case "Height":
+				return reader.GetSingle();
+			default:
+				throw new JsonException();
+			}
+		}
+
+		protected override FRectangle ConstructT(Dictionary<string,object?> properties)
+		{
+			if(properties.Count != 4)
+				throw new JsonException();
+
+			return new FRectangle((float)properties["X"]!,(float)properties["Y"]!,(float)properties["Width"]!,(float)properties["Height"]!);
+		}
+
+		protected override void WriteProperties(Utf8JsonWriter writer, FRectangle value, JsonSerializerOptions ops)
+		{
+			writer.WriteNumber("X",value.X);
+			writer.WriteNumber("Y",value.Y);
+			
+			writer.WriteNumber("Width",value.Width);
+			writer.WriteNumber("Height",value.Height);
+			
+			return;
+		}
 	}
 }

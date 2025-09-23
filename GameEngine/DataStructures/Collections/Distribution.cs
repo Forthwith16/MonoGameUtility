@@ -14,7 +14,7 @@ namespace GameEngine.DataStructures.Collections
 	/// </summary>
 	/// <typeparam name="K">The key types.</typeparam>
 	/// <typeparam name="V">The value type.</typeparam>
-	[JsonConverter(typeof(DistributionConverter))]
+	[JsonConverter(typeof(JsonDistributionConverter))]
 	public class Distribution<K,V> : IDictionary<K,V> where K : notnull
 	{
 		#region Construction
@@ -139,7 +139,7 @@ namespace GameEngine.DataStructures.Collections
 				ret.Append(kvp.Key + " -> " + kvp.Value + ",");
 
 			ret.Remove(ret.Length - 1, 1);
-			ret.Append("}");
+			ret.Append('}');
 			
 			return ret.ToString();
 		}
@@ -165,12 +165,12 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for distributions.
 	/// </summary>
-	public class DistributionConverter : JsonBaseConverterFactory
+	public class JsonDistributionConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.
 		/// </summary>
-		public DistributionConverter() : base((t,ops) => [],typeof(Distribution<,>),typeof(DC<,>))
+		public JsonDistributionConverter() : base((t,ops) => [],typeof(Distribution<,>),typeof(DC<,>))
 		{return;}
 
 		/// <summary>

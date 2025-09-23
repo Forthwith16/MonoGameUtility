@@ -11,7 +11,7 @@ namespace GameEngine.DataStructures.Collections
 	/// A queue that can be indexed into and modified 
 	/// </summary>
 	/// <typeparam name="T">The type of object to store in the queue.</typeparam>
-	[JsonConverter(typeof(IndexedQueueConverter))]
+	[JsonConverter(typeof(JsonIndexedQueueConverter))]
 	public class IndexedQueue<T> : IList<T>
 	{
 		/// <summary>
@@ -388,7 +388,7 @@ namespace GameEngine.DataStructures.Collections
 		/// <summary>
 		/// Decorates an indexed queue to prevent any additions to the queue.
 		/// </summary>
-		[JsonConverter(typeof(IndexedQueueConverter))]
+		[JsonConverter(typeof(JsonIndexedQueueConverter))]
 		private sealed class NoAddIndexedQueue : IndexedQueue<T>
 		{
 			/// <summary>
@@ -462,12 +462,12 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for indexed queues.
 	/// </summary>
-	public class IndexedQueueConverter : JsonBaseConverterFactory
+	public class JsonIndexedQueueConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.
 		/// </summary>
-		public IndexedQueueConverter() : base((t,ops) => [],typeof(IndexedQueue<>),typeof(IQC<>))
+		public JsonIndexedQueueConverter() : base((t,ops) => [],typeof(IndexedQueue<>),typeof(IQC<>))
 		{return;}
 
 		/// <summary>

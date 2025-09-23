@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
+using System.Collections;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.DataStructures.Absorbing
 {
@@ -6,6 +10,7 @@ namespace GameEngine.DataStructures.Absorbing
 	/// A list that can only be added to, not removed from.
 	/// </summary>
 	/// <typeparam name="T">The type to store in the list.</typeparam>
+	[JsonConverter(typeof(JsonAbsorbingListConverter))]
 	public class AbsorbingList<T> : IList<T>, IReadOnlyList<T>
 	{
 		/// <summary>
@@ -226,6 +231,71 @@ namespace GameEngine.DataStructures.Absorbing
 			public T Current => List[Index];
 
 			object? IEnumerator.Current => Current;
+		}
+	}
+
+	/// <summary>
+	/// Creates JSON converters for absorbing lists.
+	/// </summary>
+	public class JsonAbsorbingListConverter : JsonBaseConverterFactory
+	{
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public JsonAbsorbingListConverter() : base((t,ops) => [],typeof(AbsorbingList<>),typeof(ALC<>))
+		{return;}
+
+		/// <summary>
+		/// Performs the JSON conversion for an absorbing list.
+		/// </summary>
+		/// <typeparam name="T">The type of object stored in the list.</typeparam>
+		private class ALC<T> : JsonBaseConverter<AbsorbingList<T>>
+		{
+			protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+			{
+				// We only have the one property
+				if(property != "Items")
+					throw new JsonException();
+
+				// We need an array opener
+				if(!reader.HasNextArrayStart())
+					throw new JsonException();
+				
+				reader.Read();
+
+				// Read the array until we reach the end
+				JsonConverter<T> TConverter = (JsonConverter<T>)ops.GetConverter(typeof(T));
+				AbsorbingList<T> ret = new AbsorbingList<T>();
+
+				while(!reader.HasNextArrayEnd())
+				{
+					ret.Add(TConverter.Read(ref reader,typeof(T),ops)!); // We allow null values, so let's just assume this works out on all return values, since we can't check at runtime if T was actually T?
+					reader.Read();
+				}
+
+				return ret;
+			}
+
+			protected override AbsorbingList<T> ConstructT(Dictionary<string,object?> properties)
+			{
+				if(properties.Count != 1)
+					throw new JsonException();
+
+				return properties["Items"] as AbsorbingList<T> ?? throw new JsonException();
+			}
+
+			protected override void WriteProperties(Utf8JsonWriter writer, AbsorbingList<T> value, JsonSerializerOptions ops)
+			{
+				JsonConverter<T> TConverter = (JsonConverter<T>)ops.GetConverter(typeof(T));
+
+				writer.WriteStartArray("Items");
+
+				foreach(T t in value)
+					TConverter.Write(writer,t,ops);
+
+				writer.WriteEndArray();
+				return;
+			}
 		}
 	}
 }

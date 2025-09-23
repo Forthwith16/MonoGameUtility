@@ -1,9 +1,13 @@
-﻿namespace GameEngine.DataStructures.Geometry
+﻿using GameEngine.Utility.Serialization;
+using System.Text.Json.Serialization;
+
+namespace GameEngine.DataStructures.Geometry
 {
 	/// <summary>
 	/// The outline of what it means to be a bounding box.
 	/// </summary>
 	/// <typeparam name="T">The type of bounding box used.</typeparam>
+	[JsonConverter(typeof(JsonIBoundingBoxConverter))]
 	public interface IBoundingBox<T> : IEquatable<T> where T : struct, IBoundingBox<T>
 	{
 		/// <summary>
@@ -42,11 +46,17 @@
 		/// </summary>
 		public bool IsEmpty
 		{get;}
+	}
 
-		/// <summary>
-		/// The empty bounding box.
-		/// </summary>
-		public T EmptyBox
-		{get;}
+	/// <summary>
+	/// Creates JSON converters for bounding boxes.
+	/// </summary>
+	public class JsonIBoundingBoxConverter : JsonBaseConverterFactory
+	{
+		public JsonIBoundingBoxConverter() : base((t,ops) => [],typeof(IBoundingBox<>),typeof(IBBC<>))
+		{return;}
+
+		private class IBBC<T> : JsonBaseTypeConverter<IBoundingBox<T>> where T : struct, IBoundingBox<T>
+		{}
 	}
 }
