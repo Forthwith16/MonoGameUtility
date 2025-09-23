@@ -273,7 +273,7 @@ namespace GameEngine.DataStructures.Collections
 			if(new_order == old_order)
 				return;
 
-			// Perform the removeal logic
+			// Perform the removal logic
 			if(!ComponentsUpdateOrder.TryGetValue(old_order,out HashSet<IUpdateable>? ds))
 				return;
 
