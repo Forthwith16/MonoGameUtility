@@ -1,6 +1,6 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using System.Collections;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -462,10 +462,13 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for indexed queues.
 	/// </summary>
-	public class IndexedQueueConverter : JsonConverterFactory
+	public class IndexedQueueConverter : JsonBaseConverterFactory
 	{
-		public override bool CanConvert(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IndexedQueue<>);
-		public override JsonConverter? CreateConverter(Type t, JsonSerializerOptions ops) => (JsonConverter?)Activator.CreateInstance(typeof(IQC<>).MakeGenericType(t.GetGenericArguments()[0]),BindingFlags.Instance | BindingFlags.Public,null,new object?[] {},null);
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public IndexedQueueConverter() : base((t,ops) => [],typeof(IndexedQueue<>),typeof(IQC<>))
+		{return;}
 
 		/// <summary>
 		/// Performs the JSON conversion for an indexed queue.

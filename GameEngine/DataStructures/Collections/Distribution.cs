@@ -1,8 +1,8 @@
 ﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -165,16 +165,19 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for distributions.
 	/// </summary>
-	public class DistributionConverter : JsonConverterFactory
+	public class DistributionConverter : JsonBaseConverterFactory
 	{
-		public override bool CanConvert(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Distribution<,>);
-		public override JsonConverter? CreateConverter(Type t, JsonSerializerOptions ops) => (JsonConverter?)Activator.CreateInstance(typeof(DC<,>).MakeGenericType(t.GetGenericArguments()[0],t.GetGenericArguments()[1]),BindingFlags.Instance | BindingFlags.Public,null,new object?[] {},null);
+		/// <summary>
+		/// Constructs the factory.
+		/// </summary>
+		public DistributionConverter() : base((t,ops) => [],typeof(Distribution<,>),typeof(DC<,>))
+		{return;}
 
 		/// <summary>
 		/// Performs the JSON conversion for a distribution.
 		/// </summary>
 		/// <typeparam name="K">The key type.</typeparam>
-		/// <typeparam name="V">Th value type.</typeparam>
+		/// <typeparam name="V">The value type.</typeparam>
 		private class DC<K,V> : JsonConverter<Distribution<K,V>> where K : notnull
 		{
 			public override Distribution<K,V> Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
