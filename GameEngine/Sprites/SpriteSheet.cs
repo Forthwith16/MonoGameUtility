@@ -1,6 +1,4 @@
-﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Sprites
@@ -10,7 +8,7 @@ namespace GameEngine.Sprites
 	/// <para/>
 	/// This class should be created via a ContentManager.
 	/// </summary>
-	public class SpriteSheet : IBlueprint
+	public class SpriteSheet
 	{
 		/// <summary>
 		/// Creates a new sprite sheet with <paramref name="source"/> as the source texture and <paramref name="sprites"/> specifying the source rectangle for each sprite in the sprite sheet.
@@ -23,25 +21,6 @@ namespace GameEngine.Sprites
 			_sprites = new List<Rectangle>(sprites);
 
 			return;
-		}
-
-		public DrawableAffineComponent ToDrawable()
-		{
-			if(BlueprintSingleton is null)
-				throw new InvalidOperationException("The singleton drawable instance has not yet been created");
-
-			return BlueprintSingleton;
-		}
-
-		public DrawableAffineComponent ToDrawable(Game game, SpriteBatch? renderer, bool singleton = false)
-		{
-			if(singleton)
-				if(BlueprintSingleton is null)
-					return BlueprintSingleton = ToDrawable(game,renderer,false);
-				else
-					return BlueprintSingleton;
-			
-			return new MultiImageComponent(game,renderer,this);
 		}
 
 		/// <summary>
@@ -65,11 +44,5 @@ namespace GameEngine.Sprites
 		/// The number of sprites in this sprite sheet.
 		/// </summary>
 		public int Count => _sprites.Count;
-
-		/// <summary>
-		/// The singleton instance of the drawable version of this object to return from ToDrawable.
-		/// </summary>
-		protected DrawableAffineComponent? BlueprintSingleton
-		{get; set;}
 	}
 }

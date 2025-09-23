@@ -1,10 +1,6 @@
 ﻿using GameEngine.Exceptions;
-using GameEngine.Framework;
-using GameEngine.GameComponents;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Sprites
 {
@@ -14,7 +10,7 @@ namespace GameEngine.Sprites
 	/// Although this class <i>can</i> be added to a Game, it is generally best for an object utilitizing it to manage it manually.
 	/// This will include calling its Initialize, Update, and Dispose functions.
 	/// </summary>
-	public class Animation : IBlueprint
+	public class Animation
 	{
 		/// <summary>
 		/// Creates an Animation that represents an Animation2D.
@@ -71,30 +67,6 @@ namespace GameEngine.Sprites
 
 			IsAnimation2D = true;
 			return;
-		}
-
-		public DrawableAffineComponent ToDrawable()
-		{
-			if(BlueprintSingleton is null)
-				throw new InvalidOperationException("The singleton drawable instance has not yet been created");
-
-			return BlueprintSingleton;
-		}
-
-		public DrawableAffineComponent ToDrawable(Game game, SpriteBatch? renderer, bool singleton = false)
-		{
-			if(IsAnimation2D)
-			{
-				if(singleton)
-					if(BlueprintSingleton is null)
-						return BlueprintSingleton = ToDrawable(game,renderer,false);
-					else
-						return BlueprintSingleton;
-
-				return new AnimatedComponent(game,renderer,new Animation2D(this));
-			}
-
-			throw new AnimationFormatException("This animation is invalid.");
 		}
 
 		/// <summary>
@@ -163,11 +135,5 @@ namespace GameEngine.Sprites
 		/// </summary>
 		public float LoopEnd
 		{get; init;}
-
-		/// <summary>
-		/// The singleton instance of the drawable version of this object to return from ToDrawable.
-		/// </summary>
-		protected DrawableAffineComponent? BlueprintSingleton
-		{get; set;}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using GameEngine.Events;
 using GameEngine.Exceptions;
-using GameEngine.Framework;
 using GameEngine.GameComponents;
 using GameEngine.Maths;
 using GameEngine.Time;
@@ -12,7 +11,7 @@ namespace GameEngine.Sprites
 	/// <summary>
 	/// Encapsulates sprite-based animation.
 	/// </summary>
-	public class Animation2D : BareGameComponent, IBlueprint, IObservable<TimeEvent>
+	public class Animation2D : BareGameComponent, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Instantiates a new instance of <paramref name="a"/> as an Animation2D.
@@ -73,25 +72,6 @@ namespace GameEngine.Sprites
 			Clock = new TimePartition(a.Clock); // This will create a deep enough copy to get the job done
 			
 			return;
-		}
-
-		public DrawableAffineComponent ToDrawable()
-		{
-			if(BlueprintSingleton is null)
-				throw new InvalidOperationException("The singleton drawable instance has not yet been created");
-
-			return BlueprintSingleton;
-		}
-
-		public DrawableAffineComponent ToDrawable(Game game, SpriteBatch? renderer, bool singleton = false)
-		{
-			if(singleton)
-				if(BlueprintSingleton is null)
-					return BlueprintSingleton = ToDrawable(game,renderer,false);
-				else
-					return BlueprintSingleton;
-			
-			return new AnimatedComponent(game,renderer,this);
 		}
 
 		public override void Initialize()
@@ -263,12 +243,6 @@ namespace GameEngine.Sprites
 			get => Clock.Loops;
 			set => Clock.Loop(value);
 		}
-
-		/// <summary>
-		/// The singleton instance of the drawable version of this object to return from ToDrawable.
-		/// </summary>
-		protected DrawableAffineComponent? BlueprintSingleton
-		{get; set;}
 	}
 
 	/// <summary>

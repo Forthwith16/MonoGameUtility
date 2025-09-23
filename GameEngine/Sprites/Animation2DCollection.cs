@@ -1,10 +1,8 @@
 ﻿using GameEngine.DataStructures.Absorbing;
 using GameEngine.Events;
 using GameEngine.Exceptions;
-using GameEngine.Framework;
 using GameEngine.GameComponents;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Sprites
 {
@@ -14,7 +12,7 @@ namespace GameEngine.Sprites
 	/// <para/>
 	/// For more information, see Animation2D and Animation2DController.
 	/// </summary>
-	public class Animation2DCollection : BareGameComponent, IBlueprint, IObservable<TimeEvent>
+	public class Animation2DCollection : BareGameComponent, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Creates a sufficiently deep copy of <paramref name="c"/> to operate independently.
@@ -87,25 +85,6 @@ namespace GameEngine.Sprites
 			
 			ResetOnSwitch = true;
 			return;
-		}
-
-		public DrawableAffineComponent ToDrawable()
-		{
-			if(BlueprintSingleton is null)
-				throw new InvalidOperationException("The singleton drawable instance has not yet been created");
-
-			return BlueprintSingleton;
-		}
-
-		public DrawableAffineComponent ToDrawable(Game game, SpriteBatch? renderer, bool singleton = false)
-		{
-			if(singleton)
-				if(BlueprintSingleton is null)
-					return BlueprintSingleton = ToDrawable(game,renderer,false);
-				else
-					return BlueprintSingleton;
-
-			return new AnimatedComponentLibrary(game,renderer,this);
 		}
 
 		public override void Initialize()
@@ -252,12 +231,6 @@ namespace GameEngine.Sprites
 			private IEnumerable<IDisposable> Subscriptions
 			{get; set;}
 		}
-
-		/// <summary>
-		/// The singleton instance of the drawable version of this object to return from ToDrawable.
-		/// </summary>
-		protected DrawableAffineComponent? BlueprintSingleton
-		{get; set;}
 	}
 
 	/// <summary>
