@@ -54,6 +54,7 @@ namespace GameEngine.Utility.Serialization
 		/// <param name="ops">The JSON options.</param>
 		/// <returns>Returns the value read.</returns>
 		/// <exception cref="JsonException">Thrown if anything goes wrong.</exception>
+		/// <remarks>This should leave the last value taken from <paramref name="reader"/> left un-Read, that is still in the stream. The Read method will call Read on it after this.</remarks>
 		protected abstract object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops);
 
 		/// <summary>
