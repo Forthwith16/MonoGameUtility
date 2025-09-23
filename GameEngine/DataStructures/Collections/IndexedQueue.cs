@@ -474,23 +474,13 @@ namespace GameEngine.DataStructures.Collections
 		/// Performs the JSON conversion for an indexed queue.
 		/// </summary>
 		/// <typeparam name="T">The type of object stored in the queue.</typeparam>
-		private class IQC<T> : JsonConverter<IndexedQueue<T>>
+		private class IQC<T> : JsonBaseConverter<IndexedQueue<T>>
 		{
-			public override IndexedQueue<T> Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
+			protected override object? ReadProperty(ref Utf8JsonReader reader,string property,JsonSerializerOptions ops)
 			{
-				JsonConverter<T> TConverter = (JsonConverter<T>)ops.GetConverter(typeof(T));
-
-				// We start with the object opening
-				if(!reader.HasNextObjectStart())
+				// We only have the one property
+				if(property != "Items")
 					throw new JsonException();
-				
-				reader.Read();
-
-				// We only have one property, so we better get it right away
-				if(!reader.HasNextProperty() || reader.GetString()! != "Items")
-					throw new JsonException();
-
-				reader.Read();
 
 				// We need an array opener
 				if(!reader.HasNextArrayStart())
@@ -499,6 +489,7 @@ namespace GameEngine.DataStructures.Collections
 				reader.Read();
 
 				// Read the array until we reach the end
+				JsonConverter<T> TConverter = (JsonConverter<T>)ops.GetConverter(typeof(T));
 				IndexedQueue<T> ret = new IndexedQueue<T>();
 
 				while(!reader.HasNextArrayEnd())
@@ -506,30 +497,28 @@ namespace GameEngine.DataStructures.Collections
 					ret.Enqueue(TConverter.Read(ref reader,typeof(T),ops)!); // We allow null values, so let's just assume this works out on all return values, since we can't check at runtime if T was actually T?
 					reader.Read();
 				}
-				
-				// Clean up the array end
-				reader.Read();
-
-				// Make sure we're done
-				if(!reader.HasNextObjectEnd())
-					throw new JsonException();
 
 				return ret;
 			}
 
-			public override void Write(Utf8JsonWriter writer, IndexedQueue<T> value, JsonSerializerOptions ops)
+			protected override IndexedQueue<T> ConstructT(Dictionary<string,object?> properties)
+			{
+				if(properties.Count != 1)
+					throw new JsonException();
+
+				return properties["Items"] as IndexedQueue<T> ?? throw new JsonException();
+			}
+
+			protected override void WriteProperties(Utf8JsonWriter writer,IndexedQueue<T> value,JsonSerializerOptions ops)
 			{
 				JsonConverter<T> TConverter = (JsonConverter<T>)ops.GetConverter(typeof(T));
-				
-				writer.WriteStartObject();
+
 				writer.WriteStartArray("Items");
 
 				foreach(T t in value)
 					TConverter.Write(writer,t,ops);
 
 				writer.WriteEndArray();
-				writer.WriteEndObject();
-
 				return;
 			}
 		}
