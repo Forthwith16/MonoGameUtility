@@ -1,5 +1,5 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
-using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
+using GameEngine.Utility.Serialization;
 using System.Collections;
 using System.Text;
 using System.Text.Json;

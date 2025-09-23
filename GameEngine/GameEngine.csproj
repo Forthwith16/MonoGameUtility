@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Utility\Serialization\" />
     <Folder Include="Utility\Streams\" />
   </ItemGroup>
 

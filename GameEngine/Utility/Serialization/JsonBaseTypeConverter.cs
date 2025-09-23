@@ -3,7 +3,7 @@ using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
+namespace GameEngine.Utility.Serialization
 {
 	/// <summary>
 	/// Converts a base type to/from a JSON format.

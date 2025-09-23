@@ -1,6 +1,6 @@
 ﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
-using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
+using GameEngine.Utility.Serialization;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;

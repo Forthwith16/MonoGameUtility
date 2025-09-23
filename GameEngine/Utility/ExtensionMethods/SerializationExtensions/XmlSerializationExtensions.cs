@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using GameEngine.Utility.Serialization;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
