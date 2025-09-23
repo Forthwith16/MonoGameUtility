@@ -1,4 +1,5 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -117,72 +118,39 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// Converts randomness itself to/from a JSON format.
 	/// </summary>
-	public class RandomConverter : JsonConverter<Random>
+	public class RandomConverter : JsonBaseConverter<Random>
 	{
-		public override Random Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
+		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{
-			// We start with the object opening
-			if(!reader.HasNextObjectStart())
-				throw new JsonException();
-			
-			reader.Read();
-
-			// We'll need to track what properties we've already done, though this is not strictly necessary
-			HashSet<string> processed = new HashSet<string>();
-
-			// Create a place to store the stuff we read
-			ulong seed = 0Lu;
-			ulong next = 0Lu;
-
-			// Loop until we reach the end of the object
-			while(!reader.HasNextObjectEnd())
+			switch(property)
 			{
-				if(!reader.HasNextProperty())
+			case "Next":
+				if(!reader.HasNextNumber())
 					throw new JsonException();
 
-				string property_name = reader.GetString()!;
-				reader.Read();
-
-				if(processed.Contains(property_name))
+				return reader.GetUInt64();
+			case "Seed":
+				if(!reader.HasNextNumber())
 					throw new JsonException();
 
-				switch(property_name)
-				{
-				case "Next":
-					if(!reader.HasNextNumber())
-						throw new JsonException();
-
-					next = reader.GetUInt64();
-					break;
-				case "Seed":
-					if(!reader.HasNextNumber())
-						throw new JsonException();
-
-					seed = reader.GetUInt64();
-					break;
-				default:
-					throw new JsonException();
-				}
-
-				processed.Add(property_name);
-				reader.Read();
-			}
-
-			// Check that we read everything we need
-			if(processed.Count != 2)
+				return reader.GetUInt64();
+			default:
 				throw new JsonException();
-
-			return new Random(seed,next);
+			}
 		}
 
-		public override void Write(Utf8JsonWriter writer, Random value, JsonSerializerOptions ops)
+		protected override Random ConstructT(Dictionary<string,object?> properties)
 		{
-			writer.WriteStartObject();
+			if(properties.Count != 2)
+				throw new JsonException();
 
+			return new Random((ulong)properties["Seed"]!,(ulong)properties["Next"]!);
+		}
+
+		protected override void WriteProperties(Utf8JsonWriter writer, Random value, JsonSerializerOptions ops)
+		{
 			writer.WriteNumber("Next",value.Next);
 			writer.WriteNumber("Seed",value.Seed);
-
-			writer.WriteEndObject();
 
 			return;
 		}
