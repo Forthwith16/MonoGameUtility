@@ -1,11 +1,15 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Maths
 {
 	/// <summary>
 	/// A dedicated and optimized two dimensional matrix for computer graphics in a plane.
 	/// </summary>
+	[JsonConverter(typeof(JsonMatrix2DConverter))]
 	public readonly struct Matrix2D : IEquatable<Matrix2D>
 	{
 		/// <summary>
@@ -21,6 +25,7 @@ namespace GameEngine.Maths
 			M11 = 1.0f;
 			M12 = 0.0f;
 			
+			InnerDeterminant = 1.0f;
 			return;
 		}
 
@@ -28,8 +33,9 @@ namespace GameEngine.Maths
 		/// Constructs a matrix with the first two rows specified in row-column order.
 		/// The first three parameters are the first row.
 		/// The second three parameters are the second row.
+		/// The last row is always (0,0,1).
 		/// </summary>
-		private Matrix2D(float m00, float m01, float m02, float m10, float m11, float m12)
+		public Matrix2D(float m00, float m01, float m02, float m10, float m11, float m12)
 		{
 			M00 = m00;
 			M01 = m01;
@@ -39,21 +45,13 @@ namespace GameEngine.Maths
 			M11 = m11;
 			M12 = m12;
 			
-			return;
-		}
-
-		/// <summary>
-		/// Creates a shallow copy of the immutate matrix <paramref name="m"/>.
-		/// </summary>
-		private Matrix2D(Matrix2D m)
-		{
-			M00 = m.M00;
-			M01 = m.M01;
-			M02 = m.M02;
-
-			M10 = m.M10;
-			M11 = m.M11;
-			M12 = m.M12;
+			// Affine transformations are always invertable with the exception of dumb things like scaling by 0
+			float div = M00 * M11 - M01 * M10;
+			
+			if(div == 0.0f)
+				InnerDeterminant = float.NaN;
+			else
+				InnerDeterminant = 1.0f / div;
 			
 			return;
 		}
@@ -709,14 +707,8 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="str">The string to pad.</param>
 		/// <param name="len">The length to attain.</param>
-		/// <returns>Returns <paramref name="str"/> padded with spaces until it has least at least <paramref name="len"/>.</returns>
-		private string Pad(string str, int len)
-		{
-			while(str.Length < len)
-				str = " " + str;
-			
-			return str;
-		}
+		/// <returns>Returns <paramref name="str"/> padded with spaces until it has at least length <paramref name="len"/>.</returns>
+		private string Pad(string str, int len) => str.PadRight(len);
 
 		/// <summary>
 		/// Gets the entry of this matrix the specified row and column.
@@ -795,11 +787,58 @@ namespace GameEngine.Maths
 		/// <summary>
 		/// The determinant of the inner 2x2 matrix.
 		/// </summary>
-		public float InnerDeterminant => 1.0f / (M00 * M11 - M01 * M10); // Affine transformations are always invertable (with the exception of dumb things like scaling by 0), so we generally don't need to worry about the determinant being 0
+		public readonly float InnerDeterminant;
 
 		/// <summary>
 		/// The identity matrix.
 		/// </summary>
 		public static readonly Matrix2D Identity = new Matrix2D();
+	}
+
+	/// <summary>
+	/// Converts a matrix to/from a JSON format.
+	/// </summary>
+	public class JsonMatrix2DConverter : JsonBaseConverter<Matrix2D>
+	{
+		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+		{
+			// We only have number properties, so just check it
+			if(!reader.HasNextNumber())
+				throw new JsonException();
+
+			switch(property)
+			{
+			case "M00":
+			case "M01":
+			case "M02":
+			case "M10":
+			case "M11":
+			case "M12":
+				return reader.GetSingle();
+			default:
+				throw new JsonException();
+			}
+		}
+
+		protected override Matrix2D ConstructT(Dictionary<string,object?> properties)
+		{
+			if(properties.Count != 6)
+				throw new JsonException();
+
+			return new Matrix2D((float)properties["M00"]!,(float)properties["M01"]!,(float)properties["M02"]!,(float)properties["M10"]!,(float)properties["M11"]!,(float)properties["M12"]!);
+		}
+
+		protected override void WriteProperties(Utf8JsonWriter writer, Matrix2D value, JsonSerializerOptions ops)
+		{
+			writer.WriteNumber("M00",value[0,0]);
+			writer.WriteNumber("M01",value[0,1]);
+			writer.WriteNumber("M02",value[0,2]);
+
+			writer.WriteNumber("M10",value[1,0]);
+			writer.WriteNumber("M11",value[1,1]);
+			writer.WriteNumber("M12",value[1,2]);
+
+			return;
+		}
 	}
 }
