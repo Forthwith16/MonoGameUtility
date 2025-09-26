@@ -81,7 +81,21 @@ namespace GameEngine.Maths
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		public static Matrix2D FromPositionRotationScaleOrigin(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
-		{return Matrix2D.Translation(position + origin) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
+		{
+			// This is a complex operation, and it's significantly faster to just hard code it than to force the matrix to construct and multiply four matrices together
+			float cos = MathF.Cos(rotation);
+			float sin = MathF.Sin(rotation);
+
+			float sxox = scale.X * origin.X;
+			float syoy = scale.Y * origin.Y;
+
+			if(righthanded_chirality)
+				return new Matrix2D(cos * scale.X,   -sin * scale.Y,   -cos * scale.X * origin.X + sin * scale.Y * origin.Y + position.X + origin.X,
+								sin * scale.X,    cos * scale.Y,   -sin * scale.X * origin.X - cos * scale.Y * origin.Y + position.Y + origin.Y);
+			
+			return new Matrix2D( cos * scale.X,   sin * scale.Y,   -cos * scale.X * origin.X - sin * scale.Y * origin.Y + position.X + origin.X,
+							-sin * scale.X,   cos * scale.Y,    sin * scale.X * origin.X - cos * scale.Y * origin.Y + position.Y + origin.Y);
+		}
 
 		/// <summary>
 		/// Decomposes this matrix into its translation, rotation, and scale.
