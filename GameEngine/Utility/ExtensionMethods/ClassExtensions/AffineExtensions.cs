@@ -12,21 +12,22 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 	{
 		/// <summary>
 		/// Sets this affine object's Transform to a matrix built from a position, rotation, and scale.
-		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/>.
+		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/> + <paramref name="origin"/>.
 		/// This will place <b><u><paramref name="origin"/></u></b> (the rotational/scaling center) at <paramref name="position"/>.
 		/// </summary>
 		/// <param name="position">The translation to apply to this object.</param>
 		/// <param name="rotation">The rotation (in radians about the z axis) to apply to this object.</param>
 		/// <param name="scale">The scale to apply to this object.</param>
+		/// <param name="origin">The origin of rotation and scaling.</param>
 		/// <param name="righthanded_chirality">
 		/// Positive rotation values result in a counterclockwise rotation about its axis.
 		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		/// The rotation matrix this function generates follows this scheme when this value is false.
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
-		public static void TransformToPositionRotationScale(this AffineObject me, Vector2 position, float rotation, Vector2 scale, Vector2 origin = default, bool righthanded_chirality = false)
+		public static void TransformToPositionRotationScaleOrigin(this AffineObject me, Vector2 position, float rotation, Vector2 scale, Vector2 origin = default, bool righthanded_chirality = false)
 		{
-			me.Transform = Matrix2D.FromPositionRotationScale(position,rotation,scale,origin,righthanded_chirality);
+			me.Transform = Matrix2D.FromPositionRotationScaleOrigin(position,rotation,scale,origin,righthanded_chirality);
 			return;
 		}
 

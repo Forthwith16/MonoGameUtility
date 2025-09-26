@@ -80,7 +80,7 @@ namespace GameEngine.Maths
 		/// The rotation matrix this function generates follows this scheme when this value is false.
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
-		public static Matrix2D FromPositionRotationScale(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
+		public static Matrix2D FromPositionRotationScaleOrigin(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
 		{return Matrix2D.Translation(position + origin) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
 
 		/// <summary>
