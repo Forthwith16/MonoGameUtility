@@ -1,4 +1,5 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Events;
+using GameEngine.GameObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -38,8 +39,12 @@ namespace GameEngine.Framework
 			// We also need to make sure things get initialized
 			Components.ComponentAdded += (a,b) =>
 			{
-				if(b.GameComponent is IRenderTargetDrawable obj)
-					AddRenderTargetComponent(obj);
+				// We must set the Game property of added components
+				if(b.GameComponent is GameObject obj0)
+					obj0.Game = this;
+
+				if(b.GameComponent is IRenderTargetDrawable obj1)
+					AddRenderTargetComponent(obj1);
 
 				#if DEBUG
 				if(b.GameComponent is IDebugDrawable obj2)
@@ -82,7 +87,7 @@ namespace GameEngine.Framework
 			
 			// Replace the system mouse with a custom one
 			MouseRenderer = new SpriteBatch(GraphicsDevice);
-			Mouse = MouseComponent.GenerateStandardMouse(this);
+			Mouse = MouseGameObject.GenerateStandardMouse(this);
 			IsMouseVisible = false;
 			IsCustomMouseVisible = true;
 			
@@ -127,13 +132,18 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// Updates the position of <paramref name="sender"/> in RenderTargetComponents.
 		/// </summary>
-		private void UpdateRenderDrawOrder(object? sender, RenderTargetDrawOrderEventArgs e)
+		/// <param name="sender">The component to refresh.</param>
+		/// <param name="args">The event arguments.</param>
+		private void UpdateRenderDrawOrder(object? sender, EventArgs args)
 		{
+			if(args is not OrderChangeEvent e || sender is not IRenderTargetDrawable obj)
+				return;
+
 			// Perform the removal logic first
 			if(!RenderTargetComponents.TryGetValue(e.OldOrder,out HashSet<IRenderTargetDrawable>? rs))
 				return;
 
-			if(!rs.Remove(e.Sender))
+			if(!rs.Remove(obj))
 				return;
 
 			if(rs.Count == 0)
@@ -144,7 +154,7 @@ namespace GameEngine.Framework
 				RenderTargetComponents.Add(e.NewOrder,rs = new HashSet<IRenderTargetDrawable>());
 
 			// If this fails, we're in lot of trouble regardless of what we do, so let's just hope it doesn't
-			rs.Add(e.Sender);
+			rs.Add(obj);
 
 			return;
 		}
@@ -153,24 +163,29 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// Updates the position of <paramref name="sender"/> in DebugComponents.
 		/// </summary>
-		private void UpdateDebugDrawOrder(IDebugDrawable sender, int new_order, int old_order)
+		/// <param name="sender">The component to refresh.</param>
+		/// <param name="args">The event arguments.</param>
+		private void UpdateDebugDrawOrder(object? sender, EventArgs args)
 		{
-			// Perform the removal logic first
-			if(!DebugComponents.TryGetValue(old_order,out HashSet<IDebugDrawable>? rs))
+			if(args is not OrderChangeEvent e || sender is not IDebugDrawable obj)
 				return;
 
-			if(!rs.Remove(sender))
+			// Perform the removal logic first
+			if(!DebugComponents.TryGetValue(e.OldOrder,out HashSet<IDebugDrawable>? rs))
+				return;
+
+			if(!rs.Remove(obj))
 				return;
 
 			if(rs.Count == 0)
-				DebugComponents.Remove(old_order); // Whether this works or not doesn't really matter, so we'll ignore the return value
+				DebugComponents.Remove(e.OldOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
 
 			// Now perform the addition logic
-			if(!DebugComponents.TryGetValue(new_order,out rs))
-				DebugComponents.Add(new_order,rs = new HashSet<IDebugDrawable>());
+			if(!DebugComponents.TryGetValue(e.NewOrder,out rs))
+				DebugComponents.Add(e.NewOrder,rs = new HashSet<IDebugDrawable>());
 
 			// If this fails, we're in lot of trouble regardless of what we do, so let's just hope it doesn't
-			rs.Add(sender);
+			rs.Add(obj);
 			
 			return;
 		}
@@ -230,16 +245,16 @@ namespace GameEngine.Framework
 		{
 			HashSet<IDebugDrawable>? rs;
 
-			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
-				DebugComponents.Add(component.DrawDebugOrder,rs = new HashSet<IDebugDrawable>());
+			if(!DebugComponents.TryGetValue(component.DebugDrawOrder,out rs))
+				DebugComponents.Add(component.DebugDrawOrder,rs = new HashSet<IDebugDrawable>());
 
 			if(!rs.Add(component) && rs.Count == 0)
 			{
-				DebugComponents.Remove(component.DrawDebugOrder);
+				DebugComponents.Remove(component.DebugDrawOrder);
 				return false;
 			}
 
-			component.OnDrawDebugOrderChanged += UpdateDebugDrawOrder;
+			component.DebugDrawOrderChanged += UpdateDebugDrawOrder;
 			return true;
 		}
 		#endif
@@ -254,16 +269,16 @@ namespace GameEngine.Framework
 		{
 			HashSet<IDebugDrawable>? rs;
 
-			if(!DebugComponents.TryGetValue(component.DrawDebugOrder,out rs))
+			if(!DebugComponents.TryGetValue(component.DebugDrawOrder,out rs))
 				return false;
 
 			if(!rs.Remove(component))
 				return false;
 
 			if(rs.Count == 0)
-				DebugComponents.Remove(component.DrawDebugOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
+				DebugComponents.Remove(component.DebugDrawOrder); // Whether this works or not doesn't really matter, so we'll ignore the return value
 
-			component.OnDrawDebugOrderChanged -= UpdateDebugDrawOrder;
+			component.DebugDrawOrderChanged -= UpdateDebugDrawOrder;
 			return true;
 		}
 		#endif
@@ -309,7 +324,7 @@ namespace GameEngine.Framework
 				foreach(HashSet<IDebugDrawable> ds in DebugComponents.Values)
 					foreach(IDebugDrawable draw in ds)
 						if(draw.Visible)
-							draw.DrawDebugInfo(delta);
+							draw.DebugDraw(delta);
 			}
 			#endif
 
@@ -407,7 +422,7 @@ namespace GameEngine.Framework
 
 			public int Compare(IDebugDrawable? x, IDebugDrawable? y)
 			{
-				int val = x!.DrawDebugOrder.CompareTo(y!.DrawDebugOrder);
+				int val = x!.DebugDrawOrder.CompareTo(y!.DebugDrawOrder);
 
 				if(val == 0)
 					return ReferenceEquals(x,y) ? 0 : 1; // We don't care about the order of two distinct objects of the same draw order
@@ -420,7 +435,7 @@ namespace GameEngine.Framework
 		/// If true, then this game is being initialized.
 		/// If false, then the game either has yet to have initialization started or has been intialized.
 		/// </summary>
-		protected bool Initializing
+		public bool Initializing
 		{get; private set;}
 
 		#if VerifyMidInitializationComponentAdds
@@ -436,7 +451,7 @@ namespace GameEngine.Framework
 		/// If true, then this game has been initialized.
 		/// If false, then the game has yet to be initialized.
 		/// </summary>
-		protected bool Initialized
+		public bool Initialized
 		{get; private set;}
 
 		/// <summary>
@@ -449,8 +464,9 @@ namespace GameEngine.Framework
 		/// The mouse.
 		/// <para/>
 		/// Attempting to assign null to this does nothing.
+		/// To show/hide the custom mouse, use <see cref="IsCustomMouseVisible"/>.
 		/// </summary>
-		public MouseComponent? Mouse
+		public MouseGameObject? Mouse
 		{
 			get => _m;
 
@@ -460,13 +476,14 @@ namespace GameEngine.Framework
 					return;
 
 				_m = value;
+				_m.Game = this;
 				_m.Renderer = MouseRenderer;
 
 				return;
 			}
 		}
 
-		private MouseComponent? _m;
+		private MouseGameObject? _m;
 
 		/// <summary>
 		/// The sprite batch that will render the mouse cursor.

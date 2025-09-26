@@ -1,7 +1,7 @@
 ﻿using GameEngine.DataStructures.Sets;
 using GameEngine.Events;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI.Components;
 using GameEngine.GUI.Map;
 using GameEngine.Input;
@@ -9,7 +9,6 @@ using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.EnumExtensions;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,18 +25,15 @@ namespace GameEngine.GUI
 	/// Top level GUI components directly placed in a GUI Core must have unique names.
 	/// Names should not be changed whilst added to a GUI Core.
 	/// </summary>
-	public class GUICore : DrawableAffineComponent, IRenderTargetDrawable
+	public class GUICore : DrawableAffineObject, IRenderTargetDrawable
 	{
 		/// <summary>
 		/// Creates a new GUI core with all default bindings.
 		/// </summary>
-		/// <param name="game">The game this will belong to.</param>
 		/// <param name="renderer">The renderer for the GUI core. This can be changed later.</param>
 		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
-		public GUICore(RenderTargetFriendlyGame game, SpriteBatch? renderer, bool enable_digital = true) : base(game,null,null)
+		public GUICore(SpriteBatch? renderer, bool enable_digital = true) : base(null,null)
 		{
-			RenderGame = game;
-
 			Input = new InputManager(); // Does not need to be initialized
 			Renderer = renderer;
 			
@@ -60,7 +56,6 @@ namespace GameEngine.GUI
 			UpdateChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,true));
 			DrawChildren = new AVLSet<IGUI>(new GUIOrderComparer(TopComponents,false));
 
-			Initialized = false;
 			UsingMouse = false;
 			UsingDigital = false;
 			EnableDigital = enable_digital;
@@ -113,10 +108,10 @@ namespace GameEngine.GUI
 		protected override void LoadContent()
 		{
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
-			LocalRenderer = new SpriteBatch(Game.GraphicsDevice);
+			LocalRenderer = new SpriteBatch(Game!.GraphicsDevice); // We should only get here if Game is set
 			RenderTarget = new RenderTarget2D(Game.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
 			
-			Source = new ImageComponent(Game,Renderer,RenderTarget);
+			Source = new ImageGameObject(Renderer,RenderTarget);
 			Source.Parent = this;
 			Source.Initialize();
 
@@ -365,7 +360,7 @@ namespace GameEngine.GUI
 						if(TooltipBestOffset is null)
 						{
 							// We need the screen boundaries
-							Rectangle screen = Game.GraphicsDevice.Viewport.Bounds;
+							Rectangle screen = Game!.GraphicsDevice.Viewport.Bounds; // We shouldn't ever get here without Game being set
 
 							// We need to position the tooltip so that it's near the mouse and actually readable
 							// How we get the readable part depends on where in the screen it would be drawn, how big it is, and how big the screen is
@@ -598,7 +593,7 @@ namespace GameEngine.GUI
 		public void DrawRenderTarget(GameTime delta)
 		{
 			// First set the render target
-			Game.GraphicsDevice.SetRenderTarget(RenderTarget);
+			Game!.GraphicsDevice.SetRenderTarget(RenderTarget); // We should only get here if Game is set
 
 			// Now clear the screen
 			Game.GraphicsDevice.Clear(ClearColor);
@@ -616,7 +611,7 @@ namespace GameEngine.GUI
 
 		public override void Draw(GameTime delta)
 		{
-			Source!.Draw(delta); // We only need to draw our render texture
+			Source!.Draw(delta); // We only need to draw our render texture, and Source is always set when loading
 			return;
 		}
 
@@ -629,8 +624,8 @@ namespace GameEngine.GUI
 		public bool Add(IGUI component)
 		{
 			// Adding the component to TopComponents is top priority
-			DummyGUI dummy = new DummyGUI(RenderGame,component.Name);
-
+			DummyGUI dummy = new DummyGUI(component.Name);
+			
 			dummy.UpdateOrder = component.UpdateOrder;
 			dummy.DrawOrder = component.DrawOrder;
 
@@ -885,12 +880,6 @@ namespace GameEngine.GUI
 		{return Map.GetNext(src,dir) is not null;} // Digital navigation never goes to null once it leaves it
 
 		/// <summary>
-		/// The game but in its proper form.
-		/// </summary>
-		protected RenderTargetFriendlyGame RenderGame
-		{get;}
-
-		/// <summary>
 		/// The set of top components of this sorted by name.
 		/// </summary>
 		protected Dictionary<string,DummyGUI> TopComponents
@@ -993,8 +982,8 @@ namespace GameEngine.GUI
 
 				int old = _rtdo;
 				_rtdo = value;
-				RenderTargetDrawOrderChanged(this,new RenderTargetDrawOrderEventArgs(this,_rtdo,old));
 
+				RenderTargetDrawOrderChanged!(this,new OrderChangeEvent(_rtdo,old));
 				return;
 			}
 		}
@@ -1031,7 +1020,7 @@ namespace GameEngine.GUI
 		/// This is the image component that will actually draw this component.
 		/// It's texture source is a render target.
 		/// </summary>
-		public ImageComponent? Source
+		public ImageGameObject? Source
 		{
 			get => _s;
 			
@@ -1048,7 +1037,7 @@ namespace GameEngine.GUI
 			}
 		}
 
-		private ImageComponent? _s;
+		private ImageGameObject? _s;
 
 		/// <summary>
 		/// Always returns SpriteEffects.None on get.
@@ -1390,7 +1379,7 @@ namespace GameEngine.GUI
 		/// </summary>
 		public event FocusedComponentChanged OnFocusedComponentChanged;
 
-		public event EventHandler<RenderTargetDrawOrderEventArgs> RenderTargetDrawOrderChanged;
+		public event EventHandler<EventArgs>? RenderTargetDrawOrderChanged;
 
 		/// <summary>
 		/// The binding name for a mouse click.

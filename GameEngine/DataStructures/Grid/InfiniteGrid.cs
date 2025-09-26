@@ -364,7 +364,7 @@ namespace GameEngine.DataStructures.Grid
 	/// <summary>
 	/// Creates JSON converters for infinite grids.
 	/// </summary>
-	public class JsonInfiniteGridConverter : JsonBaseConverterFactory
+	file class JsonInfiniteGridConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

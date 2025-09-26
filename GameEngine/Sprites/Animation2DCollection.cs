@@ -1,7 +1,7 @@
 ﻿using GameEngine.DataStructures.Absorbing;
 using GameEngine.Events;
 using GameEngine.Exceptions;
-using GameEngine.GameComponents;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Sprites
@@ -12,33 +12,11 @@ namespace GameEngine.Sprites
 	/// <para/>
 	/// For more information, see Animation2D and Animation2DController.
 	/// </summary>
-	public class Animation2DCollection : BareGameComponent, IObservable<TimeEvent>
+	/// <remarks>
+	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
+	/// </remarks>
+	public class Animation2DCollection : GameObject, IObservable<TimeEvent>
 	{
-		/// <summary>
-		/// Creates a sufficiently deep copy of <paramref name="c"/> to operate independently.
-		/// Events and subscriptions will not be copied.
-		/// </summary>
-		/// <param name="c">The animation collection to copy.</param>
-		public Animation2DCollection(Animation2DCollection c)
-		{
-			Animations = new AbsorbingDictionary<string,Animation2D>(c.Animations.Select(p => new KeyValuePair<string,Animation2D>(p.Key,new Animation2D(p.Value))));
-
-			_ian = c._ian;
-			_aan = c._aan;
-
-			IdleAnimation = this[IdleAnimationName];
-			ActiveAnimation = this[ActiveAnimationName];
-
-			AnimationSwapped += (a,b,c) =>
-			{
-				if(ResetOnSwitch)
-					ActiveAnimation.Reset();
-			};
-			
-			ResetOnSwitch = c.ResetOnSwitch;
-			return;
-		}
-
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
 		/// </summary>
@@ -58,7 +36,7 @@ namespace GameEngine.Sprites
 		/// <param name="idle_animation">The name of the idle animation (or the otherwise default animation).</param>
 		/// <exception cref="AnimationFormatException">Thrown if there are more animations than names or vice versa.</exception>
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="idle_animation"/> is not an animation in this collection.</exception>
-		public Animation2DCollection(IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation)
+		public Animation2DCollection(IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base()
 		{
 			Animations = new AbsorbingDictionary<string,Animation2D>();
 
@@ -84,6 +62,43 @@ namespace GameEngine.Sprites
 			};
 			
 			ResetOnSwitch = true;
+			return;
+		}
+
+		/// <summary>
+		/// Creates a sufficiently deep copy of <paramref name="c"/> to operate independently.
+		/// Events and subscriptions will not be copied.
+		/// </summary>
+		/// <param name="c">The animation collection to copy.</param>
+		public Animation2DCollection(Animation2DCollection c) : base(c)
+		{
+			Animations = new AbsorbingDictionary<string,Animation2D>(c.Animations.Select(p => new KeyValuePair<string,Animation2D>(p.Key,new Animation2D(p.Value))));
+
+			_ian = c._ian;
+			_aan = c._aan;
+
+			IdleAnimation = this[IdleAnimationName];
+			ActiveAnimation = this[ActiveAnimationName];
+
+			AnimationSwapped += (a,b,c) =>
+			{
+				if(ResetOnSwitch)
+					ActiveAnimation.Reset();
+			};
+			
+			ResetOnSwitch = c.ResetOnSwitch;
+			return;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if(Disposed)
+				return;
+
+			foreach(Animation2D a in Animations.Values)
+				a.Dispose();
+
+			base.Dispose(disposing);
 			return;
 		}
 

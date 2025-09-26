@@ -1,6 +1,6 @@
 ﻿using GameEngine.Events;
 using GameEngine.Exceptions;
-using GameEngine.GameComponents;
+using GameEngine.Framework;
 using GameEngine.Maths;
 using GameEngine.Time;
 using Microsoft.Xna.Framework;
@@ -11,14 +11,17 @@ namespace GameEngine.Sprites
 	/// <summary>
 	/// Encapsulates sprite-based animation.
 	/// </summary>
-	public class Animation2D : BareGameComponent, IObservable<TimeEvent>
+	/// <remarks>
+	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
+	/// </remarks>
+	public class Animation2D : GameObject, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Instantiates a new instance of <paramref name="a"/> as an Animation2D.
 		/// </summary>
 		/// <param name="a">The animation to turn into an Animation2D.</param>
 		/// <exception cref="AnimationFormatException">Thrown if this animation does not represent an Animation2D.</exception>
-		public Animation2D(Animation a)
+		public Animation2D(Animation a) : base()
 		{
 			if(!a.IsAnimation2D)
 				throw new AnimationFormatException("The provided Animation did not represent an Animation2D");
@@ -58,11 +61,11 @@ namespace GameEngine.Sprites
 		}
 
 		/// <summary>
-		/// Creates a sufficiently deep copy of <paramref name="a"/> for them to operate independently while sharing resources.
+		/// Creates a sufficiently deep copy of <paramref name="a"/> for this to operate independently while sharing resources.
 		/// </summary>
 		/// <param name="a">The animation to clone.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="a"/> is null.</exception>
-		public Animation2D(Animation2D a)
+		public Animation2D(Animation2D a) : base(a)
 		{
 			if(a is null)
 				throw new ArgumentNullException("The provided Animation was null");
@@ -101,6 +104,9 @@ namespace GameEngine.Sprites
 
 		protected override void Dispose(bool disposing)
 		{
+			if(Disposed)
+				return;
+
 			Clock.Dispose();
 			
 			base.Dispose(disposing);

@@ -711,7 +711,7 @@ namespace GameEngine.DataStructures.Graphs
 	/// <summary>
 	/// A factory that creates generic converters.
 	/// </summary>
-	public class AdjacencyListGraphJsonConverterFactory : JsonConverterFactory
+	file class AdjacencyListGraphJsonConverterFactory : JsonConverterFactory
 	{
 		public override bool CanConvert(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(AdjacencyListGraph<,>);
 		public override JsonConverter? CreateConverter(Type t, JsonSerializerOptions ops) => (JsonConverter?)Activator.CreateInstance(typeof(AdjacencyListGraphJsonConverter<,>).MakeGenericType(t.GetGenericArguments()),BindingFlags.Instance | BindingFlags.Public,null,new object?[] {ops},null);

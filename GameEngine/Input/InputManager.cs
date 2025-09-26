@@ -1,4 +1,4 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -13,7 +13,7 @@ namespace GameEngine.Input
 	/// The binding update order occurs in the order that the bindings were added.
 	/// Bindings updated later will be able to rely upon up to date values of bindings updated sooner.
 	/// </summary>
-	public class InputManager : BareGameComponent
+	public class InputManager : GameObject
 	{
 		/// <summary>
 		/// Creates a new input manager.
@@ -565,49 +565,49 @@ namespace GameEngine.Input
 		/// The input binding.
 		/// </summary>
 		public InputBinding Binding
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// When this input record was made.
 		/// </summary>
 		public float CurrentTime
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// If true, then this is a new record that has never been updated.
 		/// </summary>
 		public RecordState State
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// If true, this input has been eaten and, in general, should not be processed further.
 		/// </summary>
 		public bool Eaten
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The digital value of this record.
 		/// </summary>
 		public bool CurrentDigitalValue
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The analog value of this record.
 		/// </summary>
 		public float CurrentAnalogValue
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The previous digital value of this record.
 		/// </summary>
 		public bool PreviousDigitalValue
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The previous analog value of this record.
 		/// </summary>
 		public float PreviousAnalogValue
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// True when this is a rising edge.
@@ -623,7 +623,7 @@ namespace GameEngine.Input
 		/// The last time this record was first digitally satisfied.
 		/// </summary>
 		public float WhenLastSatisfied
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The duration (in seconds) that this record has currently been satisfied.
@@ -643,7 +643,7 @@ namespace GameEngine.Input
 		/// The last time when this record was first digitally unsatisfied.
 		/// </summary>
 		public float WhenLastUnsatisfied
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The duration (in seconds) that this record has currently been unsatisfied.

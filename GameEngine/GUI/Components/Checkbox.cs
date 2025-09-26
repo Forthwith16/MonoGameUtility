@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -16,7 +16,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new checkbox.
 		/// </summary>
-		/// <param name="game">The game this button checkbox to.</param>
 		/// <param name="name">The name of this checkbox.</param>
 		/// <param name="backgrounds">
 		///	The backgrounds to display for the disabled, normal, hovered, and mid-click states.
@@ -40,7 +39,7 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Checkbox(RenderTargetFriendlyGame game, string name, ComponentLibrary backgrounds, TextComponent? text = null, bool left = true, float margin = 5.0f, bool check = false, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Checkbox(string name, GameObjectLibrary backgrounds, TextGameObject? text = null, bool left = true, float margin = 5.0f, bool check = false, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Library = backgrounds;
 			Text = text;
@@ -56,29 +55,43 @@ namespace GameEngine.GUI.Components
 
 		protected override void LoadAdditionalContent()
 		{
-			Library.Initialize();
 			Library.Parent = this;
 			Library.Renderer = Renderer;
-			Library.LayerDepth = (this as IGUI).LayerDepth;
+			Library.DrawOrder = DrawOrder;
+			Library.LayerDepth = LayerDepth;
+			Library.Initialize();
 
 			// We default to the normal state if we're enabled and the disabled state if not
 			if(Enabled)
-				Library.ActiveComponentName = Checked ? CheckedNormalState : UncheckedNormalState;
+				Library.ActiveGameObjectName = Checked ? CheckedNormalState : UncheckedNormalState;
 			else
-				Library.ActiveComponentName = Checked ? CheckedDisabledState : UncheckedDisabledState;
+				Library.ActiveGameObjectName = Checked ? CheckedDisabledState : UncheckedDisabledState;
 
 			// Keep the layer depth up to date
-			DrawOrderChanged += (a,b) => Library.LayerDepth = (this as IGUI).LayerDepth;
+			DrawOrderChanged += (a,b) =>
+			{
+				Library.DrawOrder = DrawOrder;
+				Library.LayerDepth = LayerDepth;
+
+				return;
+			};
 
 			if(Text is not null)
 			{
-				Text.Initialize();
 				Text.Parent = Library; // Transform the button (in this class if necessary), not the text (except to align it)
 				Text.Renderer = Renderer;
-				Text.LayerDepth = (this as IGUI).LayerDepth;
+				Text.DrawOrder = DrawOrder;
+				Text.LayerDepth = LayerDepth;
+				Text.Initialize();
 
 				// Keep the layer depth up to date
-				DrawOrderChanged += (a,b) => Text.LayerDepth = (this as IGUI).LayerDepth;
+				DrawOrderChanged += (a,b) =>
+				{
+					Text.DrawOrder = DrawOrder;
+					Text.LayerDepth = LayerDepth;
+
+					return;
+				};
 
 				// Initial text alignment
 				AlignText();
@@ -97,23 +110,23 @@ namespace GameEngine.GUI.Components
 			OnClick += (a,b) =>
 			{
 				if(b.Button == MouseButton.Left) // Left click only thanks
-					Library.ActiveComponentName = Checked ? CheckedClickState : UncheckedClickState;
+					Library.ActiveGameObjectName = Checked ? CheckedClickState : UncheckedClickState;
 
 				return;
 			};
 
-			OnRelease += (a,b) => Library.ActiveComponentName = Checked ? CheckedHoverState : UncheckedHoverState; // We can't not be hovering when we click a checkbox
-			OnHover += (a,b) => Library.ActiveComponentName = Checked ? CheckedHoverState : UncheckedHoverState;
-			OnExit += (a,b) => Library.ActiveComponentName = Checked ? CheckedNormalState : UncheckedNormalState;
+			OnRelease += (a,b) => Library.ActiveGameObjectName = Checked ? CheckedHoverState : UncheckedHoverState; // We can't not be hovering when we click a checkbox
+			OnHover += (a,b) => Library.ActiveGameObjectName = Checked ? CheckedHoverState : UncheckedHoverState;
+			OnExit += (a,b) => Library.ActiveGameObjectName = Checked ? CheckedNormalState : UncheckedNormalState;
 			OnClicked += (a,b) => Checked = !Checked;
-			StateChanged += (a,b) => Library.ActiveComponentName = string.Concat(b ? "c" : "u",Library.ActiveComponentName.AsSpan(1));
+			StateChanged += (a,b) => Library.ActiveGameObjectName = string.Concat(b ? "c" : "u",Library.ActiveGameObjectName.AsSpan(1));
 
 			EnabledChanged += (a,b) =>
 			{
 				if(Enabled) // If we're hovering, the next update cycle will catch it and hover, which is fine
-					Library.ActiveComponentName = Checked ? CheckedNormalState : UncheckedNormalState;
+					Library.ActiveGameObjectName = Checked ? CheckedNormalState : UncheckedNormalState;
 				else
-					Library.ActiveComponentName = Checked ? CheckedDisabledState : UncheckedDisabledState;
+					Library.ActiveGameObjectName = Checked ? CheckedDisabledState : UncheckedDisabledState;
 
 				return;
 			};
@@ -138,9 +151,7 @@ namespace GameEngine.GUI.Components
 		protected override void UpdateAddendum(GameTime delta)
 		{
 			Library.Update(delta);
-
-			if(Text is not null)
-				Text.Update(delta);
+			Text?.Update(delta);
 
 			return;
 		}
@@ -148,9 +159,7 @@ namespace GameEngine.GUI.Components
 		protected override void DrawAddendum(GameTime delta)
 		{
 			Library.Draw(delta);
-
-			if(Text is not null)
-				Text.Draw(delta);
+			Text?.Draw(delta);
 
 			return;
 		}
@@ -248,7 +257,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The text to write on this button (if any).
 		/// </summary>
-		public TextComponent? Text
+		public TextGameObject? Text
 		{get; protected set;}
 
 		/// <summary>
@@ -313,13 +322,11 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The component library to use for drawing this checkbox.
 		/// </summary>
-		protected ComponentLibrary Library
+		protected GameObjectLibrary Library
 		{get; set;}
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))
@@ -329,7 +336,7 @@ namespace GameEngine.GUI.Components
 				Library.Renderer = value;
 
 				if(Text is not null)
-					Text.Renderer  = value;
+					Text.Renderer = value;
 				
 				return;
 			}

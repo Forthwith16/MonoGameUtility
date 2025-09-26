@@ -67,12 +67,13 @@ namespace GameEngine.Maths
 
 		/// <summary>
 		/// Creates a matrix from a position, rotation, and scale.
-		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/>.
+		/// It is constructed by translating by -<paramref name="origin"/>, then scaling by <paramref name="scale"/>, then rotating by <paramref name="rotation"/> (about the z axis), and then translating by <paramref name="position"/> + <paramref name="origin"/>.
 		/// This will place <b><u><paramref name="origin"/></u></b> (the rotational/scaling center) at <paramref name="position"/>.
 		/// </summary>
 		/// <param name="position">The translation to apply to this object.</param>
 		/// <param name="rotation">The rotation (in radians about the z axis) to apply to this object.</param>
 		/// <param name="scale">The scale to apply to this object.</param>
+		/// <param name="origin">The origin of rotation and scaling.</param>
 		/// <param name="righthanded_chirality">
 		/// Positive rotation values result in a counterclockwise rotation about its axis.
 		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
@@ -80,7 +81,7 @@ namespace GameEngine.Maths
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		public static Matrix2D FromPositionRotationScale(Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
-		{return Matrix2D.Translation(position) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
+		{return Matrix2D.Translation(position + origin) * Matrix2D.Rotation(rotation,righthanded_chirality) * Matrix2D.Scaling(scale) * Matrix2D.Translation(-origin);}
 
 		/// <summary>
 		/// Decomposes this matrix into its translation, rotation, and scale.
@@ -798,7 +799,7 @@ namespace GameEngine.Maths
 	/// <summary>
 	/// Converts a matrix to/from a JSON format.
 	/// </summary>
-	public class JsonMatrix2DConverter : JsonBaseConverter<Matrix2D>
+	file class JsonMatrix2DConverter : JsonBaseConverter<Matrix2D>
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{

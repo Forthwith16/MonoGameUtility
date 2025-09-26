@@ -1,19 +1,18 @@
-﻿using GameEngine.Framework;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace GameEngine.GUI.Components
 {
 	/// <summary>
 	/// A dummy GUI component with no purpose other than to exist.
 	/// </summary>
+	/// <remarks>This does not care what its Game is.</remarks>
 	public class DummyGUI : GUIBase
 	{
 		/// <summary>
 		/// Creates a dummy GUI component with the given name.
 		/// </summary>
-		/// <param name="game">The game the component will belong to.</param>
 		/// <param name="name">The name of the component.</param>
-		public DummyGUI(RenderTargetFriendlyGame game, string name) : base(game,name)
+		public DummyGUI(string name) : base(name)
 		{return;}
 
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
@@ -33,6 +32,7 @@ namespace GameEngine.GUI.Components
 
 		public override int Width => 0;
 		public override int Height => 0;
+
 		public override Rectangle Bounds => Rectangle.Empty;
 	}
 }

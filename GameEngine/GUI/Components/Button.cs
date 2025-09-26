@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -16,7 +16,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new button.
 		/// </summary>
-		/// <param name="game">The game this button belongs to.</param>
 		/// <param name="name">The name of this button.</param>
 		/// <param name="backgrounds">
 		///	The backgrounds to display for the disabled, normal, hovered, and mid-click states.
@@ -38,7 +37,7 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Button(RenderTargetFriendlyGame game, string name, ComponentLibrary backgrounds, TextComponent? text = null, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Button(string name, GameObjectLibrary backgrounds, TextGameObject? text = null, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Library = backgrounds;
 			Text = text;
@@ -48,29 +47,43 @@ namespace GameEngine.GUI.Components
 
 		protected override void LoadAdditionalContent()
 		{
-			Library.Initialize();
 			Library.Parent = this;
 			Library.Renderer = Renderer;
-			Library.LayerDepth = (this as IGUI).LayerDepth;
-
+			Library.DrawOrder = DrawOrder;
+			Library.LayerDepth = LayerDepth;
+			Library.Initialize();
+			
 			// We default to the normal state if we're enabled and the disabled state if not
 			if(Enabled)
-				Library.ActiveComponentName = NormalState;
+				Library.ActiveGameObjectName = NormalState;
 			else
-				Library.ActiveComponentName = DisabledState;
+				Library.ActiveGameObjectName = DisabledState;
 
 			// Keep the layer depth up to date
-			DrawOrderChanged += (a,b) => Library.LayerDepth = (this as IGUI).LayerDepth;
+			DrawOrderChanged += (a,b) =>
+			{
+				Library.DrawOrder = DrawOrder;
+				Library.LayerDepth = LayerDepth;
+
+				return;
+			};
 
 			if(Text is not null)
 			{
-				Text.Initialize();
 				Text.Parent = Library; // Transform the button (in this class if necessary), not the text (except to align it)
 				Text.Renderer = Renderer;
-				Text.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
-
+				Text.LayerDepth = DrawOrder + 1;
+				Text.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+				Text.Initialize();
+				
 				// Keep the layer depth up to date
-				DrawOrderChanged += (a,b) => IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
+				DrawOrderChanged += (a,b) =>
+				{
+					Text.LayerDepth = DrawOrder + 1;
+					Text.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+
+					return;
+				};
 
 				// Initial text alignment
 				AlignText();
@@ -89,21 +102,21 @@ namespace GameEngine.GUI.Components
 			OnClick += (a,b) =>
 			{
 				if(b.Button == MouseButton.Left) // Left click only thanks
-					Library.ActiveComponentName = ClickState;
+					Library.ActiveGameObjectName = ClickState;
 
 				return;
 			};
 
-			OnRelease += (a,b) => Library.ActiveComponentName = HoverState; // We can't not be hovering when we click a button
-			OnHover += (a,b) => Library.ActiveComponentName = HoverState;
-			OnExit += (a,b) => Library.ActiveComponentName = NormalState;
+			OnRelease += (a,b) => Library.ActiveGameObjectName = HoverState; // We can't not be hovering when we click a button
+			OnHover += (a,b) => Library.ActiveGameObjectName = HoverState;
+			OnExit += (a,b) => Library.ActiveGameObjectName = NormalState;
 
 			EnabledChanged += (a,b) =>
 			{
 				if(Enabled)
-					Library.ActiveComponentName = NormalState; // If we're hovering, the next update cycle will catch it and hover, which is fine
+					Library.ActiveGameObjectName = NormalState; // If we're hovering, the next update cycle will catch it and hover, which is fine
 				else
-					Library.ActiveComponentName = DisabledState;
+					Library.ActiveGameObjectName = DisabledState;
 			};
 
 			return;
@@ -127,9 +140,7 @@ namespace GameEngine.GUI.Components
 		protected override void UpdateAddendum(GameTime delta)
 		{
 			Library.Update(delta);
-
-			if(Text is not null)
-				Text.Update(delta);
+			Text?.Update(delta);
 
 			return;
 		}
@@ -137,9 +148,7 @@ namespace GameEngine.GUI.Components
 		protected override void DrawAddendum(GameTime delta)
 		{
 			Library.Draw(delta);
-
-			if(Text is not null)
-				Text.Draw(delta);
+			Text?.Draw(delta);
 
 			return;
 		}
@@ -196,19 +205,17 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The text to write on this button (if any).
 		/// </summary>
-		public TextComponent? Text
+		public TextGameObject? Text
 		{get; protected set;}
 
 		/// <summary>
 		/// The component library to use for drawing this button.
 		/// </summary>
-		public ComponentLibrary Library
+		public GameObjectLibrary Library
 		{get; protected set;}
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))

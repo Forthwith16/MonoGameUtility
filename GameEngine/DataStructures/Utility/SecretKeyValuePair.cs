@@ -29,7 +29,7 @@ namespace GameEngine.DataStructures.Utility
 	/// <summary>
 	/// Creates JSON converters for key value pairs.
 	/// </summary>
-	public class JsonSecretKeyValuePairConverter : JsonBaseConverterFactory
+	file class JsonSecretKeyValuePairConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

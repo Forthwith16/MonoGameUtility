@@ -1,0 +1,71 @@
+﻿Programming Todo
+----------------
+Fix the million bugs we've introduced into projects
+
+
+
+
+
+GUI stuff probably needs to override Owner and/or Game to assign everything properly
+-Possibly Renderer too if needed
+
+
+
+
+
+Can consider making a concrete GameObjectSet since we have universal IDs
+-This would allow a Get, but maybe we don't care about that
+
+
+
+
+
+Try to support instantiation all the way in the base project.
+-Some base game objects require instantiation to make copy constructors
+--MouseGameObject
+--GameObjectLibrary
+--GameObjectGroup
+-To actually make this work, we may need to require all resources to be loaded from the disk, which is not great
+
+Instantiate should return TSelf, not TSelf?
+-This is only the case if we can get it working everywhere
+
+
+
+
+
+MAAAAAAYBE make Matrix2D agree with MonoGame's weird matrix orientation
+-Or not; this would be a big pain and could break everything everywhere
+
+
+
+
+
+Test if we need to add serializers to all things up the game object hierarchy or if it will be enough for gameobject and the most derived children
+-TESTED: RESULT: Slap the basest converter onto every class without their own
+--If you don't, you end up with the default print every thing public converter
+
+
+
+
+
+Colliders should be serializable but collision engines should not be, or at least they shouldn't have their innards serialized, probably
+-That said, there's no reason why we can't add a serializer for OctTrees and QuadTrees, since they seem like sensible data structures
+
+
+
+
+
+Figure out a good way to serialize ShadeGameObjects
+-Might be best not to do this and instead only allow 'scene' serialization
+--The scene is essentially a single ShadeGameObject which is the parent of everything else, and we deserialize it, allowing us to load everything at once
+---This is sensible for batch loading; we do not allow references outside the batch load when doing this
+----This is also good b/c it allow us to serialize singleton game objects as well
+---Need a translation dictionary, of course, so we can just serialize with whatever IDs we have and then load to new ones
+
+Asset Todo
+----------
+Make assets JSON
+-Also streamline them a bit
+
+Add start frame to Animation

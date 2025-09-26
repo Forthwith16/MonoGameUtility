@@ -118,7 +118,7 @@ namespace GameEngine.Utility.Randomness
 	/// <summary>
 	/// Converts randomness itself to/from a JSON format.
 	/// </summary>
-	public class JsonRandomConverter : JsonBaseConverter<Random>
+	file class JsonRandomConverter : JsonBaseConverter<Random>
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{

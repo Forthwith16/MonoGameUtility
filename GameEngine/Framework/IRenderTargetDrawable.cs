@@ -18,6 +18,13 @@ namespace GameEngine.Framework
 		/// </summary>
 		/// <param name="delta">The elapsed game time since the last DrawRenderTarget call.</param>
 		public void DrawRenderTarget(GameTime delta);
+		
+		/// <summary>
+		/// If true, this is visible and <see cref="DrawRenderTarget"/> will be called.
+		/// If false, this is not visible and <see cref="DrawRenderTarget"/> will not be called.
+		/// </summary>
+		public bool Visible
+		{get;}
 
 		/// <summary>
 		/// The order IRenderTargetDrawables should be drawn in.
@@ -25,47 +32,21 @@ namespace GameEngine.Framework
 		/// </summary>
 		public int RenderTargetDrawOrder
 		{get; set;}
-		
-		/// <summary>
-		/// If true, this is visible and DrawRenderTarget will be called.
-		/// If false, this is not visible and DrawRenderTarget will not be called.
-		/// </summary>
-		public bool Visible
-		{get;}
-
-		/// <summary>
-		/// Called when RenderTargetDrawOrder changes.
-		/// </summary>
-		public event EventHandler<RenderTargetDrawOrderEventArgs> RenderTargetDrawOrderChanged;
 
 		/// <summary>
 		/// Called when the visibility of this changes.
+		/// <para/>
+		/// The first parameter will be this.
+		/// The second parameter will be a <see cref="BinaryStateChangeEvent"/>.
 		/// </summary>
-		public event EventHandler<EventArgs> VisibleChanged;
-	}
+		public event EventHandler<EventArgs>? VisibleChanged;
 
-	/// <summary>
-	/// An event for when a render target changes its draw order.
-	/// </summary>
-	public class RenderTargetDrawOrderEventArgs : EventArgs
-	{
-		public RenderTargetDrawOrderEventArgs(IRenderTargetDrawable sender, int new_order, int old_order)
-		{
-			Sender = sender;
-			
-			NewOrder = new_order;
-			OldOrder = old_order;
-
-			return;
-		}
-
-		public IRenderTargetDrawable Sender
-		{get;}
-
-		public int NewOrder
-		{get;}
-
-		public int OldOrder
-		{get;}
+		/// <summary>
+		/// Called when RenderTargetDrawOrder changes.
+		/// <para/>
+		/// The first parameter will be this.
+		/// The second parameter will be an <see cref="OrderChangeEvent"/>.
+		/// </summary>
+		public event EventHandler<EventArgs>? RenderTargetDrawOrderChanged;
 	}
 }

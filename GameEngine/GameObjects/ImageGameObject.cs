@@ -1,71 +1,87 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.GameComponents
+namespace GameEngine.GameObjects
 {
 	/// <summary>
-	/// A component that draws an image.
+	/// A game object that draws an image.
 	/// </summary>
-	public class ImageComponent : DrawableAffineComponent
+	public class ImageGameObject : DrawableAffineObject
 	{
 		/// <summary>
-		/// Creates an image component whose child class will take care of assigning Source itself.
+		/// Creates an image game object whose child class will take care of assigning Source itself.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
-		protected ImageComponent(Game game, SpriteBatch? renderer) : base(game,renderer,Color.White)
+		protected ImageGameObject(SpriteBatch? renderer) : base(renderer,Color.White)
 		{
 			Source = null;
 			Resource = null;
 			
-			LayerDepth = 0.0f;
 			return;
 		}
 
 		/// <summary>
-		/// Creates an image component by loading a texture via <paramref name="game"/>'s content manager with the name <paramref name="resource"/>.
+		/// Creates an image game object by loading a texture via <paramref name="game"/>'s content manager with the name <paramref name="resource"/>.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="resource">The name of the texture resource to load.</param>
-		public ImageComponent(Game game, SpriteBatch? renderer, string resource) : base(game,renderer,Color.White)
+		public ImageGameObject(SpriteBatch? renderer, string resource) : base(renderer,Color.White)
 		{
 			Source = null;
 			Resource = resource;
-			
-			LayerDepth = 0.0f;
+
+			SourceRect = null;
 			return;
 		}
 
 		/// <summary>
-		/// Creates an image component from the provided texture.
+		/// Creates an image game object from the provided texture.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="texture">The texture of this image.</param>
-		public ImageComponent(Game game, SpriteBatch? renderer, Texture2D texture) : base(game,renderer,Color.White)
+		public ImageGameObject(SpriteBatch? renderer, Texture2D texture) : base(renderer,Color.White)
 		{
 			Source = texture;
 			Resource = null;
 
-			LayerDepth = 0.0f;
+			SourceRect = null;
 			return;
 		}
 
 		/// <summary>
-		/// Loads any content associated with this component.
+		/// Makes a (sorta) deep copy of <paramref name="other"/>.
+		/// <list type="bullet">
+		///	<item>This will have a fresh ID.</item>
+		///	<item>This will have the same parent as <paramref name="other"/>, but it will leave Children unpopulated.</item>
+		///	<item>This will not match the initialization/disposal state of <paramref name="other"/>. It will be uninitialized.</item>
+		///	<item>This will not copy event handlers.</item>
+		/// </list>
+		/// Note that this will not initialize, dispose, or otherwise modify <paramref name="other"/>.
+		/// </summary>
+		public ImageGameObject(ImageGameObject other) : base(other)
+		{
+			Source = other.Source;
+			Resource = other.Resource;
+
+			SourceRect = other.SourceRect;
+			return;
+		}
+
+		/// <summary>
+		/// Loads any content associated with this game object.
 		/// This will be loaded into the game's content manager (Game.Content) and must be unloaded through its Unload function.
 		/// </summary>
 		protected override void LoadContent()
 		{
 			if(Source is null && Resource is not null)
-				Source = Game.Content.Load<Texture2D>(Resource);
+				Source = Game!.Content.Load<Texture2D>(Resource);
 			
 			return;
 		}
 		
 		/// <summary>
-		/// Draws this image component.
+		/// Draws this image game object.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last draw.</param>
 		public override void Draw(GameTime delta)
@@ -83,9 +99,7 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// The source texture we use to draw this component.
-		/// <para/>
-		/// This value will always be non-null after LoadContent but may be null before.
+		/// The source texture we use to draw this game object.
 		/// </summary>
 		protected Texture2D? Source
 		{
@@ -130,7 +144,7 @@ namespace GameEngine.GameComponents
 		public override int Height => SourceRect is null ? (Source is null ? 0 : Source.Height) : SourceRect.Value.Height;
 
 		/// <summary>
-		/// This is the resource name of this component's texture if we need to load one.
+		/// This is the resource name of this game object's texture if we need to load one.
 		/// </summary>
 		protected string? Resource;
 	}

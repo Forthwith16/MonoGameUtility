@@ -388,7 +388,7 @@ namespace GameEngine.DataStructures.Grid
 	/// <summary>
 	/// Creates JSON converters for finite grids.
 	/// </summary>
-	public sealed class JsonFiniteGridConverterFactory : JsonBaseConverterFactory
+	file sealed class JsonFiniteGridConverterFactory : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

@@ -1,6 +1,7 @@
 ﻿using GameEngine.DataStructures.Sets;
+using GameEngine.Events;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
@@ -35,7 +36,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new GUI render group.
 		/// </summary>
-		/// <param name="game">The game this will belong to.</param>
 		/// <param name="name">The name of the component.</param>
 		/// <param name="w">The fixed draw width of the component.</param>
 		/// <param name="h">The fixed draw height of the component.</param>
@@ -46,10 +46,8 @@ namespace GameEngine.GUI.Components
 		///	<para/>
 		///	When null, this will default to Color.Transparent.
 		/// </param>
-		public GUIRenderGroup(RenderTargetFriendlyGame game, string name, int w, int h, Color? bgc = null) : base(game,name)
+		public GUIRenderGroup(string name, int w, int h, Color? bgc = null) : base(name)
 		{
-			RenderGame = game;
-
 			Width = w;
 			Height = h;
 			
@@ -71,7 +69,7 @@ namespace GameEngine.GUI.Components
 		{
 			// Register ourselves as having a render target that needs drawing before ordinary draws
 			// This is added independent of the ordinary component hierarchy since it will also belong to a GUICore component hierarchy for ordinary Update/Draw calls
-			Game.AddRenderTargetComponent(this);
+			Game!.AddRenderTargetComponent(this); // We only (normally) get here after setting Game
 			
 			// Initialize all the children
 			foreach(IGUI component in UpdateChildren)
@@ -82,13 +80,20 @@ namespace GameEngine.GUI.Components
 			LocalRenderer = new SpriteBatch(Game.GraphicsDevice);
 
 			// Initialize our drawing material
-			Source = new ImageComponent(Game,Renderer,RenderTarget);
+			Source = new ImageGameObject(Renderer,RenderTarget);
 			Source.Parent = this;
-			Source.LayerDepth = (this as IGUI).LayerDepth;
+			Source.DrawOrder = DrawOrder;
+			Source.LayerDepth = LayerDepth;
 			Source.Initialize();
 
 			// Make sure the source stays at the right layer depth
-			DrawOrderChanged += (a,b) => Source.LayerDepth = (this as IGUI).LayerDepth;
+			DrawOrderChanged += (a,b) =>
+			{
+				Source.DrawOrder = DrawOrder;
+				Source.LayerDepth = LayerDepth;
+
+				return;
+			};
 
 			return; // Base LoadContent does nothing
 		}
@@ -107,7 +112,7 @@ namespace GameEngine.GUI.Components
 		public void DrawRenderTarget(GameTime delta)
 		{
 			// First set the render target
-			Game.GraphicsDevice.SetRenderTarget(RenderTarget);
+			Game!.GraphicsDevice.SetRenderTarget(RenderTarget); // We only get here (normally) after setting Game
 
 			// Now clear the screen
 			Game.GraphicsDevice.Clear(ClearColor);
@@ -149,7 +154,7 @@ namespace GameEngine.GUI.Components
 		public bool Add(IGUI component)
 		{
 			// Adding the component to TopComponents is top priority
-			DummyGUI dummy = new DummyGUI(RenderGame,component.Name);
+			DummyGUI dummy = new DummyGUI(component.Name);
 
 			dummy.UpdateOrder = component.UpdateOrder;
 			dummy.DrawOrder = component.DrawOrder;
@@ -287,9 +292,6 @@ namespace GameEngine.GUI.Components
 
 		public override GUICore? Owner
 		{
-			get
-			{return base.Owner;}
-
 			set
 			{
 				if(ReferenceEquals(base.Owner,value))
@@ -309,8 +311,6 @@ namespace GameEngine.GUI.Components
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value) || value is null)
@@ -356,10 +356,10 @@ namespace GameEngine.GUI.Components
 		{get; set;}
 
 		/// <summary>
-		/// This is the image component that will actually draw this component.
+		/// This is the image game object that will actually draw this component.
 		/// It's texture source is a render target.
 		/// </summary>
-		public ImageComponent? Source
+		public ImageGameObject? Source
 		{get; protected set;}
 
 		/// <summary>
@@ -374,12 +374,6 @@ namespace GameEngine.GUI.Components
 		public Matrix2D Camera
 		{get; set;}
 		
-		/// <summary>
-		/// The game but in its proper form.
-		/// </summary>
-		protected RenderTargetFriendlyGame RenderGame
-		{get;}
-
 		/// <summary>
 		/// The set of top components of this sorted by name.
 		/// </summary>
@@ -520,7 +514,9 @@ namespace GameEngine.GUI.Components
 
 				int old = _rtdo;
 				_rtdo = value;
-				RenderTargetDrawOrderChanged(this,new RenderTargetDrawOrderEventArgs(this,_rtdo,old));
+
+				if(RenderTargetDrawOrderChanged is not null)
+					RenderTargetDrawOrderChanged(this,new OrderChangeEvent(old,_rtdo));
 
 				return;
 			}
@@ -528,6 +524,6 @@ namespace GameEngine.GUI.Components
 
 		protected int _rtdo;
 
-		public event EventHandler<RenderTargetDrawOrderEventArgs> RenderTargetDrawOrderChanged;
+		public event EventHandler<EventArgs>? RenderTargetDrawOrderChanged;
 	}
 }

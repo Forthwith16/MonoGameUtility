@@ -1,4 +1,5 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Events;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 using System.Collections;
 
@@ -78,7 +79,7 @@ namespace GameEngine.DataStructures.Collections
 			foreach(HashSet<IDebugDrawable> us in DebugDrawOrder.Values)
 				foreach(IDebugDrawable component in us)
 					if(component.Visible)
-						component.DrawDebugInfo(delta);
+						component.DebugDraw(delta);
 
 			return;
 		}
@@ -145,13 +146,13 @@ namespace GameEngine.DataStructures.Collections
 			{
 				HashSet<IDebugDrawable>? dds;
 
-				if(!DebugDrawOrder.TryGetValue(debug.DrawDebugOrder,out dds) && !DebugDrawOrder.TryAdd(debug.DrawDebugOrder,dds = new HashSet<IDebugDrawable>()))
+				if(!DebugDrawOrder.TryGetValue(debug.DebugDrawOrder,out dds) && !DebugDrawOrder.TryAdd(debug.DebugDrawOrder,dds = new HashSet<IDebugDrawable>()))
 					throw new InvalidOperationException();
 				
 				if(!dds.Add(debug))
 					throw new InvalidOperationException();
 
-				debug.OnDrawDebugOrderChanged += RefreshDebugOrder;
+				debug.DebugDrawOrderChanged += RefreshDebugOrder;
 			}
 
 			// Add the component to the render target draw set
@@ -222,16 +223,16 @@ namespace GameEngine.DataStructures.Collections
 			// Remove the debug information
 			if(component is IDebugDrawable debug)
 			{
-				if(!DebugDrawOrder.TryGetValue(debug.DrawDebugOrder,out HashSet<IDebugDrawable>? dds))
+				if(!DebugDrawOrder.TryGetValue(debug.DebugDrawOrder,out HashSet<IDebugDrawable>? dds))
 					throw new InvalidOperationException();
 
 				if(!dds.Remove(debug))
 					throw new InvalidOperationException();
 
-				if(dds.Count == 0 && !DebugDrawOrder.Remove(debug.DrawDebugOrder))
+				if(dds.Count == 0 && !DebugDrawOrder.Remove(debug.DebugDrawOrder))
 					throw new InvalidOperationException();
 
-				debug.OnDrawDebugOrderChanged -= RefreshDebugOrder;
+				debug.DebugDrawOrderChanged -= RefreshDebugOrder;
 			}
 
 			// Remove the render target information
@@ -340,30 +341,32 @@ namespace GameEngine.DataStructures.Collections
 		/// Refreshes the debug draw order of a component.
 		/// </summary>
 		/// <param name="sender">The component to refresh.</param>
-		/// <param name="new_order">The new debug draw order of the component.</param>
-		/// <param name="old_order">The old debug draw order of the component.</param>
+		/// <param name="args">The event arguments.</param>
 		/// <exception cref="InvalidOperationException">Thrown if this enters an unstable state as a result of this refresh.</exception>
-		private void RefreshDebugOrder(IDebugDrawable sender, int new_order, int old_order)
+		private void RefreshDebugOrder(object? sender, EventArgs args)
 		{
+			if(args is not OrderChangeEvent e || sender is not IDebugDrawable obj)
+				return;
+			
 			// This should never be the case, but just in case
-			if(new_order == old_order)
+			if(e.NewOrder == e.OldOrder)
 				return;
 
 			// Perform the removal logic
-			if(!DebugDrawOrder.TryGetValue(old_order,out HashSet<IDebugDrawable>? ds))
+			if(!DebugDrawOrder.TryGetValue(e.OldOrder,out HashSet<IDebugDrawable>? ds))
 				return;
 
-			if(!ds.Remove(sender))
+			if(!ds.Remove(obj))
 				throw new InvalidOperationException();
 
-			if(ds.Count == 0 && !DebugDrawOrder.Remove(old_order))
+			if(ds.Count == 0 && !DebugDrawOrder.Remove(e.OldOrder))
 				throw new InvalidOperationException();
 
 			// Now add the item back in
-			if(!DebugDrawOrder.TryGetValue(sender.DrawDebugOrder,out ds) && !DebugDrawOrder.TryAdd(sender.DrawDebugOrder,ds = new HashSet<IDebugDrawable>()))
+			if(!DebugDrawOrder.TryGetValue(e.NewOrder,out ds) && !DebugDrawOrder.TryAdd(e.NewOrder,ds = new HashSet<IDebugDrawable>()))
 				throw new InvalidOperationException();
 			
-			if(!ds.Add(sender))
+			if(!ds.Add(obj))
 				throw new InvalidOperationException();
 
 			return;
@@ -373,10 +376,13 @@ namespace GameEngine.DataStructures.Collections
 		/// Refreshes the render target draw order of a component.
 		/// </summary>
 		/// <param name="sender">The component to refresh.</param>
-		/// <param name="e">The event arguments.</param>
+		/// <param name="args">The event arguments.</param>
 		/// <exception cref="InvalidOperationException">Thrown if this enters an unstable state as a result of this refresh.</exception>
-		private void RefreshRenderOrder(object? sender, RenderTargetDrawOrderEventArgs e)
+		private void RefreshRenderOrder(object? sender, EventArgs args)
 		{
+			if(args is not OrderChangeEvent e || sender is not IRenderTargetDrawable obj)
+				return;
+
 			// This should never be the case, but just in case
 			if(e.NewOrder == e.OldOrder)
 				return;
@@ -385,7 +391,7 @@ namespace GameEngine.DataStructures.Collections
 			if(!RenderDrawOrder.TryGetValue(e.OldOrder,out HashSet<IRenderTargetDrawable>? ds))
 				return;
 
-			if(!ds.Remove(e.Sender))
+			if(!ds.Remove(obj))
 				throw new InvalidOperationException();
 
 			if(ds.Count == 0 && !RenderDrawOrder.Remove(e.OldOrder))
@@ -395,7 +401,7 @@ namespace GameEngine.DataStructures.Collections
 			if(!RenderDrawOrder.TryGetValue(e.NewOrder,out ds) && !RenderDrawOrder.TryAdd(e.NewOrder,ds = new HashSet<IRenderTargetDrawable>()))
 				throw new InvalidOperationException();
 			
-			if(!ds.Add(e.Sender))
+			if(!ds.Add(obj))
 				throw new InvalidOperationException();
 
 			return;
@@ -474,7 +480,7 @@ namespace GameEngine.DataStructures.Collections
 
 			foreach(HashSet<IDebugDrawable> us in DebugDrawOrder.Values)
 				foreach(IDebugDrawable component in us)
-					component.OnDrawDebugOrderChanged -= RefreshDebugOrder;
+					component.DebugDrawOrderChanged -= RefreshDebugOrder;
 
 			foreach(HashSet<IRenderTargetDrawable> us in RenderDrawOrder.Values)
 				foreach(IRenderTargetDrawable component in us)

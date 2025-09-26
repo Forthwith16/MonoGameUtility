@@ -51,7 +51,7 @@ namespace GameEngine.DataStructures.Geometry
 	/// <summary>
 	/// Creates JSON converters for bounding boxes.
 	/// </summary>
-	public class JsonIBoundingBoxConverter : JsonBaseConverterFactory
+	file class JsonIBoundingBoxConverter : JsonBaseConverterFactory
 	{
 		public JsonIBoundingBoxConverter() : base((t,ops) => [],typeof(IBoundingBox<>),typeof(IBBC<>))
 		{return;}

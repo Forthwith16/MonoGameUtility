@@ -1,6 +1,5 @@
 ﻿using GameEngine.Events;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,7 +10,7 @@ namespace GameEngine.GUI
 	/// <para/>
 	/// Users should add GUI components to a GUICore.
 	/// </summary>
-	public interface IGUI : IAffineComponent2D, IUpdateable, IDrawable, IDisposable
+	public interface IGUI : IUpdateable, IDrawable, IDisposable
 	{
 		/// <summary>
 		/// Called to initialize a GUI component.
@@ -43,6 +42,11 @@ namespace GameEngine.GUI
 		/// <param name="include_children">If true, we include (enabled and visible) children in the potential collision.</param>
 		/// <returns>Returns true if this or a child contained <paramref name="pos"/> and false otherwise.</returns>
 		public bool Contains(Vector2 pos, out IGUI? component, bool include_children = true);
+
+		/// <summary>
+		/// Determines what position this GUI component is at.
+		/// </summary>
+		public Vector2 GetAffinePosition();
 
 		/// <summary>
 		/// Performs a mouse click (rising edge only).
@@ -81,16 +85,15 @@ namespace GameEngine.GUI
 		public void PerformExit(MouseHoverEventArgs args);
 
 		/// <summary>
-		/// Transforms a DrawOrder value into a LayerDepth for use with a GUICore.
+		/// Converts a DrawOrder value to a DrawLayer via 1 / <paramref name="order"/>.
 		/// </summary>
-		/// <param name="order">The order to convert.</param>
-		/// <returns>Returns 1 / <paramref name="order"/>, the appropriate layer depth to draw a GUI component with draw order <paramref name="order"/>.</returns>
-		public static float DrawOrderToLayerDepth(int order) => 1.0f / order;
+		/// <param name="order">The DrawOrder value. If this is nonpositive, this returns 1.0f.</param>
+		public static float DrawOrderToStandardDrawLayer(int order) => order < 1 ? 1.0f : 1.0f / order;
 
 		/// <summary>
 		/// The game this belongs to.
 		/// </summary>
-		public RenderTargetFriendlyGame Game
+		public RenderTargetFriendlyGame? Game
 		{get;}
 
 		/// <summary>
@@ -118,7 +121,7 @@ namespace GameEngine.GUI
 		/// <summary>
 		/// This is the tooltip for this GUI component (if it has one).
 		/// </summary>
-		public DrawableAffineComponent? Tooltip
+		public DrawableAffineObject? Tooltip
 		{get;}
 
 		/// <summary>
@@ -155,14 +158,13 @@ namespace GameEngine.GUI
 		/// This is the drawing layer.
 		/// This value must be within [0,1].
 		/// With respect to the drawing order, larger values are the 'front' and smaller values are the 'back'.
-		/// This value only has significance when the SpriteBatch's SpriteSortMode is BackToFront (in which case smaller values are drawn on top) or FrontToBack (in which case larger values are drawn on top).
+		/// This value only has significance when the Renderer's SpriteSortMode is BackToFront (in which case smaller values are drawn on top) or FrontToBack (in which case larger values are drawn on top).
 		/// <para/>
 		/// To ensure that children are drawn correctly, the GUICore renders BackToFront by default.
-		/// It is suggested to draw on layers of the form 1/n (usually for 1-indexed children at most n levels deep in the GUI tree) so that it is easier to specify what should be drawn on top of what.
-		/// One can obtain n from the DrawOrder of this component.
+		/// It is STRONGLY suggested to draw on layers of the form 1/DrawOrder (usually for 1-indexed children at most n levels deep in the GUI tree) so that it is easier to specify what should be drawn on top of what.
 		/// </summary>
 		public float LayerDepth
-		{get => DrawOrderToLayerDepth(DrawOrder);}
+		{get;}
 
 		/// <summary>
 		/// The width of the GUI component (sans transformations).

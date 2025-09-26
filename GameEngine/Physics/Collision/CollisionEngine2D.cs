@@ -1,5 +1,5 @@
 ﻿using GameEngine.DataStructures.Geometry;
-using GameEngine.GameComponents;
+using GameEngine.Framework;
 using GameEngine.Physics.Collision.Colliders;
 using Microsoft.Xna.Framework;
 
@@ -9,12 +9,11 @@ namespace GameEngine.Physics.Collision
 	/// A collision engine for 2D applications.
 	/// </summary>
 	/// <remarks>
-	/// Note that this while this class is a GameComponent, it is a system.
-	/// It does not interact with any of the standard features, such as Initialize, Dispose, etc.
-	/// If you add it to a game, you <b>can</b> set its update order if desired.
-	/// It also maintains the state information expected of a GameComponent, even if it doesn't use it internally.
+	///	This system does not interact with game time.
+	///	It can be placed into a Game's Components to call Update automatically (and check Enabled and such as well).
+	///	It can also be kept externally and updated manually without a game time.
 	/// </remarks>
-	public class CollisionEngine2D : BareGameComponent
+	public class CollisionEngine2D : GameObject
 	{
 		/// <summary>
 		/// Creates a new 2D collision engine.
@@ -34,12 +33,12 @@ namespace GameEngine.Physics.Collision
 		{
 			Statics = new Quadtree(world_bounds);
 			
-			Kinetics = new Dictionary<uint,ColliderWrapper2D>();
+			Kinetics = new Dictionary<ColliderID<ICollider2D>,ColliderWrapper2D>();
 			KineticXAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
 			KineticYAxis = new CollisionLinkedList<AxisColliderWrapper2D>();
 
-			MarkedX = new HashSet<(uint,uint)>();
-			MarkedXY = new HashSet<(uint,uint)>();
+			MarkedX = new HashSet<(ColliderID<ICollider2D>,ColliderID<ICollider2D>)>();
+			MarkedXY = new HashSet<(ColliderID<ICollider2D>,ColliderID<ICollider2D>)>();
 
 			Collisions = new CollisionLinkedList<(ICollider2D,ICollider2D)>();
 			return;
@@ -108,25 +107,25 @@ namespace GameEngine.Physics.Collision
 
 			// The kinetics are more difficult to get
 			// We will run a mini sweep and prune algorithm on just c
-			ColliderWrapper2D cw = Kinetics[c.ID];
+			ColliderWrapper2D cw = Kinetics[c.ColliderID];
 
 			// Sweep the x axis first
-			HashSet<uint> x_mark = new HashSet<uint>();
+			HashSet<ColliderID<ICollider2D>> x_mark = new HashSet<ColliderID<ICollider2D>>();
 
 			// The left node cannot be the tail
 			// n.Next is also never null
-			for(CollisionLinkedListNode<AxisColliderWrapper2D> n = cw.LeftNode!.Next!;n.Value.Owner.Collider.ID != c.ID;n = n.Next!)
-				x_mark.Add(n.Value.Owner.Collider.ID);
+			for(CollisionLinkedListNode<AxisColliderWrapper2D> n = cw.LeftNode!.Next!;n.Value.Owner.Collider.ColliderID != c.ColliderID;n = n.Next!)
+				x_mark.Add(n.Value.Owner.Collider.ColliderID);
 
 			// Now sweep the y axis
-			HashSet<uint> y_mark = new HashSet<uint>();
+			HashSet<ColliderID<ICollider2D>> y_mark = new HashSet<ColliderID<ICollider2D>>();
 
-			for(CollisionLinkedListNode<AxisColliderWrapper2D> n = cw.BottomNode!.Next!;n.Value.Owner.Collider.ID != c.ID;n = n.Next!)
-				if(x_mark.Contains(n.Value.Owner.Collider.ID))
-					y_mark.Add(n.Value.Owner.Collider.ID);
+			for(CollisionLinkedListNode<AxisColliderWrapper2D> n = cw.BottomNode!.Next!;n.Value.Owner.Collider.ColliderID != c.ColliderID;n = n.Next!)
+				if(x_mark.Contains(n.Value.Owner.Collider.ColliderID))
+					y_mark.Add(n.Value.Owner.Collider.ColliderID);
 			
 			// Now that we have all of our collisions (and no duplicates), add them all to ret
-			ret.AddAllLast(y_mark.Where(ID => ID != c.ID).Select(ID => Kinetics[ID].Collider));
+			ret.AddAllLast(y_mark.Where(ID => ID != c.ColliderID).Select(ID => Kinetics[ID].Collider));
 
 			return ret;
 		}
@@ -149,12 +148,12 @@ namespace GameEngine.Physics.Collision
 
 			// Check the cached colliders for c
 			foreach((ICollider2D,ICollider2D) cc in Collisions)
-				if(cc.Item1.ID == c.ID)
+				if(cc.Item1.ColliderID == c.ColliderID)
 				{
 					if(query_statics && cc.Item2.IsStatic || query_kinetics && cc.Item2.IsKinetic)
 						ret.AddLast(cc.Item2);
 				}
-				else if(cc.Item2.ID == c.ID)
+				else if(cc.Item2.ColliderID == c.ColliderID)
 					if(query_statics && cc.Item1.IsStatic || query_kinetics && cc.Item1.IsKinetic)
 						ret.AddLast(cc.Item1);
 
@@ -206,7 +205,7 @@ namespace GameEngine.Physics.Collision
 		{
 			// Create a new wrapper and add it to our dictionary linked to the collider's ID
 			ColliderWrapper2D cw = new ColliderWrapper2D(c);
-			Kinetics.Add(c.ID,cw);
+			Kinetics.Add(c.ColliderID,cw);
 			
 			// Add the x axis left and right wrappers
 			cw.LeftNode = KineticXAxis.AddLast(cw.Left);
@@ -293,7 +292,7 @@ namespace GameEngine.Physics.Collision
 			// We have a kinetic collider, so we need to update it's axis positions
 			// We will do this here because this is a weird special case we really don't want to put into the linked list itself
 			// First grab the wrapper with c's node information
-			if(!Kinetics.TryGetValue(c.ID,out ColliderWrapper2D? cw))
+			if(!Kinetics.TryGetValue(c.ColliderID,out ColliderWrapper2D? cw))
 				return;
 
 			// Update each axis
@@ -398,10 +397,10 @@ namespace GameEngine.Physics.Collision
 		protected void RemoveFromKineticSystem(ICollider2D c)
 		{
 			// Grab the wrapper
-			ColliderWrapper2D cw = Kinetics[c.ID];
+			ColliderWrapper2D cw = Kinetics[c.ColliderID];
 
 			// We no longer need to be in Kinetics
-			Kinetics.Remove(c.ID);
+			Kinetics.Remove(c.ColliderID);
 			
 			// And now we can remove all of the nodes from the axes
 			KineticXAxis.Remove(cw.LeftNode!);
@@ -419,7 +418,7 @@ namespace GameEngine.Physics.Collision
 		/// <param name="c">The collider to look for.</param>
 		/// <returns>Returns true if <paramref name="c"/> belongs to this collision engine and false otherwise.</returns>
 		/// <remarks>Containment is checked by comparing unique collider IDs.</remarks>
-		public bool ContainsCollider(ICollider2D c) => c.IsStatic ? Statics.Contains(c) : Kinetics.ContainsKey(c.ID);
+		public bool ContainsCollider(ICollider2D c) => c.IsStatic ? Statics.Contains(c) : Kinetics.ContainsKey(c.ColliderID);
 
 		/// <summary>
 		/// Determines what is currently colliding.
@@ -451,12 +450,12 @@ namespace GameEngine.Physics.Collision
 		/// Runs a sweep and prune algorithm to determine which kinetic colliders collide with each other.
 		/// </summary>
 		/// <returns>Returns the set of pairwise kinetic collisions in the simulation. Each collision (a,b) will satisfy a < b (where a and b are collider IDs located in Kinetics), so no symmetric collisions will be included.</returns>
-		protected IEnumerable<(uint,uint)> SweepAndPrune()
+		protected IEnumerable<(ColliderID<ICollider2D>,ColliderID<ICollider2D>)> SweepAndPrune()
 		{
 			// If we have no kinetic objects and somehow got here, we're done
 			// Also, if we only have one kinetic object, we're done too, since we need at least two objects to have a collision
 			if(KineticCount < 2)
-				return new List<(uint,uint)>();
+				return [];
 
 			// Sort the kinetics along their axes
 			// They should be mostly sorted already due to temporal coherence, so this should be fast
@@ -485,16 +484,16 @@ namespace GameEngine.Physics.Collision
 				CollisionLinkedListNode<AxisColliderWrapper2D> j = i.Next!;
 
 				// Loop to i's terminating point (i.e. loop while j is not i's termination point)
-				while(j.Value.Owner.Collider.ID != i.Value.Owner.Collider.ID)
+				while(j.Value.Owner.Collider.ColliderID != i.Value.Owner.Collider.ColliderID)
 				{
 					// We mark j's owner for further consideration
 					// We force the smaller ID to be added first to avoid the duplicate symmetric collisions
 					// If we try to double add later, it will fail because marked is a set
 					if(j.Value.Owner.Collider.Enabled)
-						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
-							MarkedX.Add((i.Value.Owner.Collider.ID,j.Value.Owner.Collider.ID));
+						if(i.Value.Owner.Collider.ColliderID < j.Value.Owner.Collider.ColliderID)
+							MarkedX.Add((i.Value.Owner.Collider.ColliderID,j.Value.Owner.Collider.ColliderID));
 						else
-							MarkedX.Add((j.Value.Owner.Collider.ID,i.Value.Owner.Collider.ID));
+							MarkedX.Add((j.Value.Owner.Collider.ColliderID,i.Value.Owner.Collider.ColliderID));
 
 					// Increment j
 					j = j.Next!; // The next must exist
@@ -506,7 +505,7 @@ namespace GameEngine.Physics.Collision
 			
 			// If we have nothing marked, we're done
 			if(MarkedX.Count == 0)
-				return Enumerable.Empty<(uint,uint)>();
+				return [];
 
 			// Now we have everything that COULD intersect along the x axis
 			// Now we do it again for the y axis nearly identically
@@ -523,22 +522,22 @@ namespace GameEngine.Physics.Collision
 
 				CollisionLinkedListNode<AxisColliderWrapper2D> j = i.Next!;
 
-				while(j.Value.Owner.Collider.ID != i.Value.Owner.Collider.ID)
+				while(j.Value.Owner.Collider.ColliderID != i.Value.Owner.Collider.ColliderID)
 				{
 					// Because we only have two dimensions, we CAN immediately resolve this collision
 					// Instead we will leave this marked or 'unmark' it if we no longer think it's fit for collision
 					// This allows us to collect everything that will collide into one independent list
 					// Then if a collision removes things from the simulation, we won't have to worry about our enumerators' behavior being called into question
 					if(j.Value.Owner.Collider.Enabled)
-						if(i.Value.Owner.Collider.ID < j.Value.Owner.Collider.ID)
+						if(i.Value.Owner.Collider.ColliderID < j.Value.Owner.Collider.ColliderID)
 						{
-							if(MarkedX.Contains((i.Value.Owner.Collider.ID,j.Value.Owner.Collider.ID)))
-								MarkedXY.Add((i.Value.Owner.Collider.ID,j.Value.Owner.Collider.ID));
+							if(MarkedX.Contains((i.Value.Owner.Collider.ColliderID,j.Value.Owner.Collider.ColliderID)))
+								MarkedXY.Add((i.Value.Owner.Collider.ColliderID,j.Value.Owner.Collider.ColliderID));
 						}
 						else
 						{
-							if(MarkedX.Contains((j.Value.Owner.Collider.ID,i.Value.Owner.Collider.ID)))
-								MarkedXY.Add((j.Value.Owner.Collider.ID,i.Value.Owner.Collider.ID));
+							if(MarkedX.Contains((j.Value.Owner.Collider.ColliderID,i.Value.Owner.Collider.ColliderID)))
+								MarkedXY.Add((j.Value.Owner.Collider.ColliderID,i.Value.Owner.Collider.ColliderID));
 						}
 					
 					j = j.Next!;
@@ -587,7 +586,7 @@ namespace GameEngine.Physics.Collision
 		/// <summary>
 		/// The kinetic colliders in the collision engine.
 		/// </summary>
-		protected Dictionary<uint,ColliderWrapper2D> Kinetics;
+		protected Dictionary<ColliderID<ICollider2D>,ColliderWrapper2D> Kinetics;
 
 		/// <summary>
 		/// The x axis list of colliders for the sweep and prune section of the collision engine.
@@ -603,14 +602,14 @@ namespace GameEngine.Physics.Collision
 		/// The kinetic x axis for the sweep and prune.
 		/// This value is kept between runs and cleared to prevent the heap from being filled with garbage.
 		/// </summary>
-		protected HashSet<(uint,uint)> MarkedX
+		protected HashSet<(ColliderID<ICollider2D>,ColliderID<ICollider2D>)> MarkedX
 		{get; set;}
 
 		/// <summary>
 		/// The kinetic y axis for the sweep and prune.
 		/// This value is kept between runs and cleared to prevent the heap from being filled with garbage.
 		/// </summary>
-		protected HashSet<(uint,uint)> MarkedXY
+		protected HashSet<(ColliderID<ICollider2D>,ColliderID<ICollider2D>)> MarkedXY
 		{get; set;}
 
 		/// <summary>
@@ -738,7 +737,7 @@ namespace GameEngine.Physics.Collision
 			return;
 		}
 
-		public override string ToString() => "(value: " + Value.ToString() + " terminating: " + Terminating + " ID: " + Owner.Collider.ID + ")";
+		public override string ToString() => "(value: " + Value.ToString() + " terminating: " + Terminating + " ID: " + Owner.Collider.ColliderID + ")";
 
 		public int CompareTo(AxisColliderWrapper2D other)
 		{

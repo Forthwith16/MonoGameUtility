@@ -4,31 +4,45 @@ using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.GameComponents
+namespace GameEngine.GameObjects
 {
 	/// <summary>
-	/// A component that draws an animated image.
+	/// A game object that draws an animated image.
 	/// </summary>
-	public class AnimatedComponent : ImageComponent, IObserver<TimeEvent>
+	public class AnimatedGameObject : ImageGameObject, IObserver<TimeEvent>
 	{
 		/// <summary>
-		/// Creates an animated component from a not yet loaded animation.
+		/// Creates an animated game object from a not yet loaded animation.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
-		/// <param name="resource">The path to the animation for this component. The animation can be changed later.</param>
-		public AnimatedComponent(Game game, SpriteBatch? renderer, string resource) : base(game,renderer,resource)
+		/// <param name="resource">The path to the animation for this game object. The animation can be changed later.</param>
+		public AnimatedGameObject(SpriteBatch? renderer, string resource) : base(renderer,resource)
 		{return;}
 
 		/// <summary>
-		/// Creates an animated component from an already loaded animation.
+		/// Creates an animated game object from an already loaded animation.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
-		/// <param name="animation">The animation for this component (this can be changed later).</param>
-		public AnimatedComponent(Game game, SpriteBatch? renderer, Animation2D animation) : base(game,renderer,animation.Source.Source)
+		/// <param name="animation">The animation for this game object (this can be changed later).</param>
+		public AnimatedGameObject(SpriteBatch? renderer, Animation2D animation) : base(renderer,animation.Source.Source)
 		{
 			Animation = animation;
+			return;
+		}
+
+		/// <summary>
+		/// Makes a (sorta) deep copy of <paramref name="other"/>.
+		/// <list type="bullet">
+		///	<item>This will have a fresh ID.</item>
+		///	<item>This will have the same parent as <paramref name="other"/>, but it will leave Children unpopulated.</item>
+		///	<item>This will not match the initialization/disposal state of <paramref name="other"/>. It will be uninitialized.</item>
+		///	<item>This will not copy event handlers.</item>
+		/// </list>
+		/// Note that this will not initialize, dispose, or otherwise modify <paramref name="other"/>.
+		/// </summary>
+		public AnimatedGameObject(AnimatedGameObject other) : base(other)
+		{
+			Animation = new Animation2D(other.Animation);
 			return;
 		}
 
@@ -36,7 +50,7 @@ namespace GameEngine.GameComponents
 		{
 			// If we have a resource, then we need to load an animation
 			if(Resource is not null)
-				Animation = new Animation2D(Game.Content.Load<Animation>(Resource));
+				Animation = new Animation2D(Game!.Content.Load<Animation>(Resource));
 
 			return;
 		}
@@ -48,7 +62,7 @@ namespace GameEngine.GameComponents
 		}
 		
 		/// <summary>
-		/// Draws this image component.
+		/// Draws this animated game object.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last draw.</param>
 		public override void Draw(GameTime delta)
@@ -81,7 +95,7 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// The animation of this component.
+		/// The animation of this game object.
 		/// </summary>
 		/// <remarks>Setting the animation here will call its Initialize if it has not been initialized yet, but this will not call Dispose on old animations.</remarks>
 		public Animation2D Animation
@@ -93,7 +107,7 @@ namespace GameEngine.GameComponents
 				// If this is a self-assignment, do nothing
 				if(ReferenceEquals(_a,value))
 					return;
-
+				
 				// Unsubscribe
 				if(Subscription is not null)
 					Subscription.Dispose();
@@ -119,13 +133,13 @@ namespace GameEngine.GameComponents
 		protected Animation2D? _a;
 
 		/// <summary>
-		/// This is how this component unsubscribes from the animation it is currently observing.
+		/// This is how this game object unsubscribes from the animation it is currently observing.
 		/// </summary>
 		protected IDisposable? Subscription
 		{get; set;}
 
 		/// <summary>
-		/// The additional animation transformation to apply to this component.
+		/// The additional animation transformation to apply to this game object.
 		/// </summary>
 		protected Matrix2D AnimationTransformation
 		{get; set;}

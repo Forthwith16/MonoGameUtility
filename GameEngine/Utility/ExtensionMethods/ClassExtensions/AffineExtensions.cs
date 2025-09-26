@@ -1,11 +1,11 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Framework;
 using GameEngine.Maths;
 using Microsoft.Xna.Framework;
 
-namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
+namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 {
 	/// <summary>
-	/// Extensions for common code to the IAffineComponet interface.
+	/// Extensions for common code to AfficeObjects.
 	/// These provide default implementations for methods that should be consistent across all affine objects.
 	/// </summary>
 	public static class AffineExtensions
@@ -24,7 +24,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// The rotation matrix this function generates follows this scheme when this value is false.
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
-		public static void TransformToPositionRotationScale(this IAffineComponent2D me, Vector2 position, float rotation, Vector2 scale, Vector2 origin = default(Vector2), bool righthanded_chirality = false)
+		public static void TransformToPositionRotationScale(this AffineObject me, Vector2 position, float rotation, Vector2 scale, Vector2 origin = default, bool righthanded_chirality = false)
 		{
 			me.Transform = Matrix2D.FromPositionRotationScale(position,rotation,scale,origin,righthanded_chirality);
 			return;
@@ -37,7 +37,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="tx">The horizontal distance to translate by.</param>
 		/// <param name="ty">The vertical distance to translate by.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Translate(this IAffineComponent2D me, float tx, float ty)
+		public static void Translate(this AffineObject me, float tx, float ty)
 		{
 			me.Transform = me.Transform.Translate(tx,ty);
 			return;
@@ -49,7 +49,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// </summary>
 		/// <param name="t">The distance to translate by.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Translate(this IAffineComponent2D me, Vector2 t)
+		public static void Translate(this AffineObject me, Vector2 t)
 		{
 			me.Transform = me.Transform.Translate(t);
 			return;
@@ -67,7 +67,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Rotate(this IAffineComponent2D me, float angle, bool righthanded_chirality = false)
+		public static void Rotate(this AffineObject me, float angle, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate(angle,righthanded_chirality);
 			return;
@@ -86,7 +86,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Rotate(this IAffineComponent2D me, float angle, Vector2 point, bool righthanded_chirality = false)
+		public static void Rotate(this AffineObject me, float angle, Vector2 point, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate(angle,point,righthanded_chirality);
 			return;
@@ -106,7 +106,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Rotate(this IAffineComponent2D me, float angle, float x, float y, bool righthanded_chirality = false)
+		public static void Rotate(this AffineObject me, float angle, float x, float y, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate(angle,x,y,righthanded_chirality);
 			return;
@@ -125,7 +125,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Rotate90(this IAffineComponent2D me, int times, bool righthanded_chirality = false)
+		public static void Rotate90(this AffineObject me, int times, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate90(times,righthanded_chirality);
 			return;
@@ -145,7 +145,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		public static void Rotate90(this IAffineComponent2D me, int times, Vector2 point, bool righthanded_chirality = false)
+		public static void Rotate90(this AffineObject me, int times, Vector2 point, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate90(times,point,righthanded_chirality);
 			return;
@@ -165,7 +165,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
-		public static void Rotate90(this IAffineComponent2D me, int times, float x, float y, bool righthanded_chirality = false)
+		public static void Rotate90(this AffineObject me, int times, float x, float y, bool righthanded_chirality = false)
 		{
 			me.Transform = me.Transform.Rotate90(times,x,y,righthanded_chirality);
 			return;
@@ -177,7 +177,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float s)
+		public static void Scale(this AffineObject me, float s)
 		{
 			me.Transform = me.Transform.Scale(s);
 			return;
@@ -191,7 +191,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float s, float x, float y)
+		public static void Scale(this AffineObject me, float s, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(s,x,y);
 			return;
@@ -204,7 +204,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float s, Vector2 pos)
+		public static void Scale(this AffineObject me, float s, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(s,pos);
 			return;
@@ -217,7 +217,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float sx, float sy)
+		public static void Scale(this AffineObject me, float sx, float sy)
 		{
 			me.Transform = me.Transform.Scale(sx,sy);
 			return;
@@ -232,7 +232,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float sx, float sy, float x, float y)
+		public static void Scale(this AffineObject me, float sx, float sy, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(sx,sy,x,y);
 			return;
@@ -246,7 +246,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, float sx, float sy, Vector2 pos)
+		public static void Scale(this AffineObject me, float sx, float sy, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(sx,sy,pos);
 			return;
@@ -258,7 +258,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, Vector2 s)
+		public static void Scale(this AffineObject me, Vector2 s)
 		{
 			me.Transform = me.Transform.Scale(s);
 			return;
@@ -272,7 +272,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, Vector2 s, float x, float y)
+		public static void Scale(this AffineObject me, Vector2 s, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(s,x,y);
 			return;
@@ -285,7 +285,7 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
-		public static void Scale(this IAffineComponent2D me, Vector2 s, Vector2 pos)
+		public static void Scale(this AffineObject me, Vector2 s, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(s,pos);
 			return;
@@ -296,6 +296,6 @@ namespace GameEngine.Utility.ExtensionMethods.InterfaceFunctions
 		/// </summary>
 		/// <param name="me">This affine object.</param>
 		/// <returns>Returns <paramref name="me"/>.World * (0,0).</returns>
-		public static Vector2 GetAffinePosition(this IAffineComponent2D me) => me.World * Vector2.Zero;
+		public static Vector2 GetAffinePosition(this AffineObject me) => me.World * Vector2.Zero;
 	}
 }

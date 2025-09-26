@@ -1,32 +1,33 @@
 ﻿using GameEngine.DataStructures.Absorbing;
+using GameEngine.Framework;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.GameComponents
+namespace GameEngine.GameObjects
 {
 	/// <summary>
-	/// A collection of game components grouped together for administrative purposes.
+	/// A collection of game objects grouped together for administrative purposes.
 	/// They are initialized together, drawn together, and disposed of together.
 	/// Their other properties are managed independently.
 	/// </summary>
-	public class ComponentGroup : DrawableAffineComponent
+	public class GameObjectGroup : DrawableAffineObject
 	{
 		/// <summary>
-		/// Creates a group of game components.
+		/// Creates a group of game objects.
 		/// </summary>
-		/// <param name="components">The components to add to the group.</param>
-		public ComponentGroup(Game game, params DrawableAffineComponent?[] components) : this(game,(IEnumerable<DrawableAffineComponent?>)components)
+		/// <param name="objs">The game object to add to the group.</param>
+		public GameObjectGroup(params DrawableAffineObject?[] objs) : this((IEnumerable<DrawableAffineObject?>)objs)
 		{return;}
 
 		/// <summary>
-		/// Creates a group of game components.
+		/// Creates a group of game objects.
 		/// </summary>
-		/// <param name="components">The components to add to the group.</param>
-		public ComponentGroup(Game game, IEnumerable<DrawableAffineComponent?> components) : base(game,null,null)
+		/// <param name="objs">The game object to add to the group.</param>
+		public GameObjectGroup(IEnumerable<DrawableAffineObject?> objs) : base()
 		{
-			Components = new AbsorbingList<DrawableAffineComponent>(components.NotNull());
+			Components = new AbsorbingList<DrawableAffineObject>(objs.NotNull());
 			return;
 		}
 
@@ -35,7 +36,7 @@ namespace GameEngine.GameComponents
 			if(Initialized)
 				return;
 
-			foreach(DrawableAffineComponent component in Components)
+			foreach(DrawableAffineObject component in Components)
 				component.Initialize();
 
 			base.Initialize();
@@ -44,7 +45,7 @@ namespace GameEngine.GameComponents
 
 		public override void Update(GameTime delta)
 		{
-			foreach(DrawableAffineComponent component in Components)
+			foreach(DrawableAffineObject component in Components)
 				component.Update(delta);
 
 			return;
@@ -52,7 +53,7 @@ namespace GameEngine.GameComponents
 
 		public override void Draw(GameTime delta)
 		{
-			foreach(DrawableAffineComponent component in Components)
+			foreach(DrawableAffineObject component in Components)
 				component.Draw(delta);
 
 			return;
@@ -60,7 +61,10 @@ namespace GameEngine.GameComponents
 
 		protected override void Dispose(bool disposing)
 		{
-			foreach(DrawableAffineComponent component in Components)
+			if(Disposed)
+				return;
+
+			foreach(DrawableAffineObject component in Components)
 				component.Dispose();
 			
 			base.Dispose(disposing);
@@ -68,22 +72,36 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// Gets the component at position <paramref name="index"/>.
+		/// Gets the game object at position <paramref name="index"/>.
 		/// </summary>
-		/// <param name="index">The index of the component to obtain.</param>
+		/// <param name="index">The index of the game object to obtain.</param>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is negative or at least Count.</exception>
-		public DrawableAffineComponent this[int index] => Components[index];
+		public DrawableAffineObject this[int index] => Components[index];
 
 		/// <summary>
-		/// The components in this group.
+		/// The game object in this group.
 		/// </summary>
-		protected AbsorbingList<DrawableAffineComponent> Components
+		protected AbsorbingList<DrawableAffineObject> Components
 		{get; init;}
 
 		/// <summary>
-		/// Obtains the number of components in this ComponentGroup.
+		/// Obtains the number of game object in this ComponentGroup.
 		/// </summary>
 		public int Count => Components.Count;
+
+		public override RenderTargetFriendlyGame? Game
+		{
+			get => base.Game;
+
+			protected internal set
+			{
+				foreach(DrawableAffineObject component in Components)
+					component.Game = value;
+
+				base.Game = value;
+				return;
+			}
+		}
 
 		public override SpriteBatch? Renderer
 		{
@@ -96,7 +114,7 @@ namespace GameEngine.GameComponents
 
 				base.Renderer = value;
 
-				foreach(DrawableAffineComponent component in Components)
+				foreach(DrawableAffineObject component in Components)
 					component.Renderer = base.Renderer;
 
 				return;

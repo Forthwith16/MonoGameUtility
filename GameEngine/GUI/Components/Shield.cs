@@ -1,5 +1,4 @@
-﻿using GameEngine.Framework;
-using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.GUI.Components
@@ -11,11 +10,10 @@ namespace GameEngine.GUI.Components
 	public class Shield : GUIBase
 	{
 		/// <summary>
-		/// Creates a new shield of no dimensions.
+		/// Creates a new shield of no (initial) dimensions.
 		/// </summary>
-		/// <param name="game">The game this shield will belong to.</param>
 		/// <param name="name">The name of this GUI component.</param>
-		public Shield(RenderTargetFriendlyGame game, string name) : base(game,name)
+		public Shield(string name) : base(name)
 		{
 			_width = 0;
 			_height = 0;
@@ -26,11 +24,10 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new shield of no dimensions.
 		/// </summary>
-		/// <param name="game">The game this shield will belong to.</param>
 		/// <param name="name">The name of this GUI component.</param>
 		/// <param name="w">The width of the shield.</param>
 		/// <param name="h">The height of the shield.</param>
-		public Shield(RenderTargetFriendlyGame game, string name, int w, int h) : base(game,name)
+		public Shield(string name, int w, int h) : base(name)
 		{
 			_width = Width;
 			_height = Height;

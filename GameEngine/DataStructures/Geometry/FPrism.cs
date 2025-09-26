@@ -392,7 +392,7 @@ namespace GameEngine.DataStructures.Geometry
 	/// <summary>
 	/// Performs the JSON conversion for a prism.
 	/// </summary>
-	public class JsonFPrismConverter : JsonBaseConverter<FPrism>
+	file class JsonFPrismConverter : JsonBaseConverter<FPrism>
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{

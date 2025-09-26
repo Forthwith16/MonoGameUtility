@@ -2,7 +2,7 @@
 
 using GameEngine.Events;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
@@ -21,7 +21,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new textbox.
 		/// </summary>
-		/// <param name="game">The game this textbox belongs to.</param>
 		/// <param name="name">The name of this textbox.</param>
 		/// <param name="backgrounds">
 		///	The backgrounds to display for the disabled, normal, hovered, and active states.
@@ -46,10 +45,10 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Textbox(RenderTargetFriendlyGame game, string name, ComponentLibrary backgrounds, string pencil_resource, Color pencil_color, ImageComponent cursor, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Textbox(string name, GameObjectLibrary backgrounds, string pencil_resource, Color pencil_color, ImageGameObject cursor, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Library = backgrounds;
-			Pencil = new TextComponent(game,null,pencil_resource,"");
+			Pencil = new TextGameObject(null,pencil_resource,"");
 			Tint = pencil_color;
 			Cursor = cursor;
 			
@@ -81,7 +80,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new textbox.
 		/// </summary>
-		/// <param name="game">The game this textbox belongs to.</param>
 		/// <param name="name">The name of this textbox.</param>
 		/// <param name="backgrounds">
 		///	The backgrounds to display for the disabled, normal, hovered, and active states.
@@ -106,10 +104,10 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Textbox(RenderTargetFriendlyGame game, string name, ComponentLibrary backgrounds, SpriteFont pencil, Color pencil_color, ImageComponent cursor, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Textbox(string name, GameObjectLibrary backgrounds, SpriteFont pencil, Color pencil_color, ImageGameObject cursor, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Library = backgrounds;
-			Pencil = new TextComponent(game,null,pencil,"");
+			Pencil = new TextGameObject(null,pencil,"");
 			Tint = pencil_color;
 			Cursor = cursor;
 			
@@ -143,33 +141,33 @@ namespace GameEngine.GUI.Components
 		protected override void LoadAdditionalContent()
 		{
 			// Set up the library
-			Library.Initialize();
 			Library.Parent = this;
 			Library.Renderer = Renderer;
-			Library.LayerDepth = (this as IGUI).LayerDepth;
-
+			Library.DrawOrder = DrawOrder;
+			Library.LayerDepth = LayerDepth;
+			Library.Initialize();
+			
 			// We default to the normal state if we're enabled and the disabled state if not
 			if(Enabled)
-				Library.ActiveComponentName = NormalState;
+				Library.ActiveGameObjectName = NormalState;
 			else
-				Library.ActiveComponentName = DisabledState;
-
-			// Keep the layer depth up to date
-			DrawOrderChanged += (a,b) => Library.LayerDepth = (this as IGUI).LayerDepth;
+				Library.ActiveGameObjectName = DisabledState;
 
 			// Set up the cursor
-			Cursor.Initialize();
 			Cursor.Parent = this;
 			Cursor.Renderer = Renderer;
-			Cursor.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
+			Cursor.DrawOrder = DrawOrder + 2;
+			Cursor.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 2);
 			Cursor.Visible = false; // Cursors are only visible if we are the active component
-
+			Cursor.Initialize();
+			
 			// Set up the pencil
-			Pencil.Initialize();
 			Pencil.Parent = Library; // Transform the button (in this class if necessary), not the text (except to align it)
 			Pencil.Renderer = Renderer;
-			Pencil.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 2);
-
+			Pencil.DrawOrder = DrawOrder + 1;
+			Pencil.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+			Pencil.Initialize();
+			
 			// Subscribe to the text and font change events in case we need to reposition (while trying to preserve other changes made)
 			Pencil.FontChanged += (useless,nfont,ofont) => AlignText();
 			Pencil.TextChanged += (useless,ntext,otext) =>
@@ -186,8 +184,20 @@ namespace GameEngine.GUI.Components
 				return; // Text is only legitimately changed through Text, and that will call AlignText for us, so we don't need to do that here
 			};
 
-			// Keep the layer depth up to date
-			DrawOrderChanged += (a,b) => IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
+			// Keep the layer depths up to date
+			DrawOrderChanged += (a,b) =>
+			{
+				Library.DrawOrder = DrawOrder;
+				Library.LayerDepth = LayerDepth;
+
+				Cursor.DrawOrder = DrawOrder + 1;
+				Cursor.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+
+				Pencil.DrawOrder = DrawOrder + 2;
+				Pencil.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 2);
+
+				return;
+			};
 
 			// Initially align the text to make sure no one can out fox us
 			AlignText();
@@ -223,7 +233,7 @@ namespace GameEngine.GUI.Components
 			// The user may have additional interests which they can deal with on their own time
 			// If they care about when the background changes, they can provide appropriate delegates to the backgrounds
 			// We first pick off the input events
-			Game.Window.KeyDown += HandleInput;
+			Game!.Window.KeyDown += HandleInput; // We should never load content without a game
 			Game.Window.TextInput += HandleInput;
 
 			OnClick += (a,b) =>
@@ -240,7 +250,7 @@ namespace GameEngine.GUI.Components
 					// We only need to do this part if we weren't already active
 					if(IsInactive)
 					{
-						Library.ActiveComponentName = ActiveState;
+						Library.ActiveGameObjectName = ActiveState;
 						IsInactive = false;
 					}
 
@@ -313,7 +323,7 @@ namespace GameEngine.GUI.Components
 			{
 				// If we're not the active component, then we should hover
 				if(IsInactive)
-					Library.ActiveComponentName = HoverState;
+					Library.ActiveGameObjectName = HoverState;
 
 				IsHovering = true;
 				return;
@@ -323,7 +333,7 @@ namespace GameEngine.GUI.Components
 			{
 				// If we're not the active component, then we should go back to normal
 				if(IsInactive)
-					Library.ActiveComponentName = NormalState;
+					Library.ActiveGameObjectName = NormalState;
 
 				IsHovering = false;
 				return;
@@ -332,10 +342,10 @@ namespace GameEngine.GUI.Components
 			EnabledChanged += (a,b) =>
 			{
 				if(Enabled)
-					Library.ActiveComponentName = NormalState; // If we're hovering (we can never be the active component when we first are enabled), the next update cycle will catch it and hover, which is fine
+					Library.ActiveGameObjectName = NormalState; // If we're hovering (we can never be the active component when we first are enabled), the next update cycle will catch it and hover, which is fine
 				else
 				{
-					Library.ActiveComponentName = DisabledState;
+					Library.ActiveGameObjectName = DisabledState;
 					
 					IsInactive = true;
 					IsHovering = false;
@@ -484,9 +494,9 @@ namespace GameEngine.GUI.Components
 					
 					// Change our state now
 					if(IsHovering)
-						Library.ActiveComponentName = HoverState;
+						Library.ActiveGameObjectName = HoverState;
 					else
-						Library.ActiveComponentName = NormalState;
+						Library.ActiveGameObjectName = NormalState;
 					
 					// And now we can safely submit our text
 					FrameShieldSubmission = true;
@@ -706,9 +716,9 @@ namespace GameEngine.GUI.Components
 				IsInactive = true;
 
 				if(IsHovering)
-					Library.ActiveComponentName = HoverState;
+					Library.ActiveGameObjectName = HoverState;
 				else
-					Library.ActiveComponentName = NormalState;
+					Library.ActiveGameObjectName = NormalState;
 			}
 
 			return;
@@ -753,7 +763,9 @@ namespace GameEngine.GUI.Components
 		protected override void UnloadContentAddendum()
 		{
 			// We have to remove ourselves from the game's text input event
-			Game.Window.TextInput -= HandleInput;
+			if(Game is not null)
+				Game.Window.TextInput -= HandleInput;
+
 			return;
 		}
 
@@ -809,7 +821,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The means by which text is written in this textbox.
 		/// </summary>
-		public TextComponent Pencil
+		public TextGameObject Pencil
 		{get;}
 
 		/// <summary>
@@ -817,8 +829,6 @@ namespace GameEngine.GUI.Components
 		/// </summary>
 		public override Color Tint
 		{
-			get => base.Tint;
-
 			set
 			{
 				base.Tint = value;
@@ -1108,7 +1118,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The text cursor.
 		/// </summary>
-		protected ImageComponent Cursor
+		protected ImageGameObject Cursor
 		{get; set;}
 
 		/// <summary>
@@ -1185,7 +1195,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The component library to use for drawing this textbox's backgrounds.
 		/// </summary>
-		protected ComponentLibrary Library
+		protected GameObjectLibrary Library
 		{get; set;}
 
 		public override GUICore? Owner
@@ -1211,8 +1221,6 @@ namespace GameEngine.GUI.Components
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))

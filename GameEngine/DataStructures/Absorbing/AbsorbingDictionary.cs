@@ -125,7 +125,7 @@ namespace GameEngine.DataStructures.Absorbing
 	/// <summary>
 	/// Creates JSON converters for absorbing dictionaries.
 	/// </summary>
-	public class JsonAbsorbingDictionaryConverter : JsonBaseConverterFactory
+	file class JsonAbsorbingDictionaryConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

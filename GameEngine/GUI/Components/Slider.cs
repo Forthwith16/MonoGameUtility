@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI.Map;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
@@ -20,7 +20,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new slider.
 		/// </summary>
-		/// <param name="game">The game this slider belongs to.</param>
 		/// <param name="name">The name of this slider.</param>
 		/// <param name="bars">
 		///	The backgrounds to display for the disabled, normal, hovered, and mid-click states.
@@ -60,7 +59,7 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Slider(RenderTargetFriendlyGame game, string name, ComponentLibrary bars, ComponentLibrary knobs, int min = 0, int max = 100, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Slider(string name, GameObjectLibrary bars, GameObjectLibrary knobs, int min = 0, int max = 100, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Bars = bars;
 			Knobs = knobs;
@@ -85,36 +84,41 @@ namespace GameEngine.GUI.Components
 
 		protected override void LoadAdditionalContent()
 		{
-			Bars.Initialize();
 			Bars.Transform = Matrix2D.Identity;
 			Bars.Parent = this;
 			Bars.Renderer = Renderer;
-			Bars.LayerDepth = (this as IGUI).LayerDepth;
-
+			Bars.DrawOrder = DrawOrder;
+			Bars.LayerDepth = LayerDepth;
+			Bars.Initialize();
+			
 			// We want to leave the knobs' transformation alone so we can manipulate their position independently
-			Knobs.Initialize();
 			Knobs.Transform = Matrix2D.Identity;
 			Knobs.Parent = Bars; // Move the bar, not the knob, if we ever have to (aside from aligning the knob to the bar)
 			Knobs.Renderer = Renderer;
-			Knobs.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
-
+			Knobs.DrawOrder = DrawOrder + 1;
+			Knobs.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+			Knobs.Initialize();
+			
 			// We default to the normal state if we're enabled and the disabled state if not
 			if(Enabled)
 			{
-				Bars.ActiveComponentName = NormalState;
-				Knobs.ActiveComponentName = NormalState;
+				Bars.ActiveGameObjectName = NormalState;
+				Knobs.ActiveGameObjectName = NormalState;
 			}
 			else
 			{
-				Bars.ActiveComponentName = DisabledState;
-				Knobs.ActiveComponentName = DisabledState;
+				Bars.ActiveGameObjectName = DisabledState;
+				Knobs.ActiveGameObjectName = DisabledState;
 			}
 
 			// Keep the layer depth up to date
 			DrawOrderChanged += (a,b) =>
 			{
-				Bars.LayerDepth = (this as IGUI).LayerDepth;
-				Knobs.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
+				Bars.DrawOrder = DrawOrder;
+				Bars.LayerDepth = LayerDepth;
+				
+				Knobs.DrawOrder = DrawOrder + 1;
+				Knobs.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
 
 				return;
 			};
@@ -137,8 +141,8 @@ namespace GameEngine.GUI.Components
 			{
 				if(b.Button == MouseButton.Left) // Left click only thanks
 				{
-					Bars.ActiveComponentName = ClickState;
-					Knobs.ActiveComponentName = ClickState;
+					Bars.ActiveGameObjectName = ClickState;
+					Knobs.ActiveGameObjectName = ClickState;
 
 					// We only want to (and only meaningfully CAN) trigger additional click logic if we have a true blue mouse click
 					if(b.IsMouse)
@@ -159,8 +163,8 @@ namespace GameEngine.GUI.Components
 			OnRelease += (a,b) =>
 			{
 				// We can't not be hovering when we click a button, so if we trigger the release, then we were hovering
-				Bars.ActiveComponentName = HoverState;
-				Knobs.ActiveComponentName = HoverState;
+				Bars.ActiveGameObjectName = HoverState;
+				Knobs.ActiveGameObjectName = HoverState;
 
 				Clicking = false;
 				return;
@@ -170,8 +174,8 @@ namespace GameEngine.GUI.Components
 			{
 				if(!StillClicking)
 				{
-					Bars.ActiveComponentName = HoverState;
-					Knobs.ActiveComponentName = HoverState;
+					Bars.ActiveGameObjectName = HoverState;
+					Knobs.ActiveGameObjectName = HoverState;
 				}
 				
 				Clicking = StillClicking; // If we were still clicking when we enter, we should be clicking now
@@ -268,8 +272,8 @@ namespace GameEngine.GUI.Components
 
 				if(!StillClicking)
 				{
-					Bars.ActiveComponentName = NormalState;
-					Knobs.ActiveComponentName = NormalState;
+					Bars.ActiveGameObjectName = NormalState;
+					Knobs.ActiveGameObjectName = NormalState;
 				}
 
 				return;
@@ -279,13 +283,13 @@ namespace GameEngine.GUI.Components
 			{
 				if(Enabled)
 				{
-					Bars.ActiveComponentName = NormalState; // If we're hovering, the next update cycle will catch it and hover, which is fine
-					Knobs.ActiveComponentName = NormalState;
+					Bars.ActiveGameObjectName = NormalState; // If we're hovering, the next update cycle will catch it and hover, which is fine
+					Knobs.ActiveGameObjectName = NormalState;
 				}
 				else
 				{
-					Bars.ActiveComponentName = DisabledState;
-					Knobs.ActiveComponentName = DisabledState;
+					Bars.ActiveGameObjectName = DisabledState;
+					Knobs.ActiveGameObjectName = DisabledState;
 					
 					// If we get disabled while clicking, stop
 					Clicking = false;
@@ -341,8 +345,8 @@ namespace GameEngine.GUI.Components
 				{
 					StillClicking = false;
 
-					Bars.ActiveComponentName = NormalState;
-					Knobs.ActiveComponentName = NormalState;
+					Bars.ActiveGameObjectName = NormalState;
+					Knobs.ActiveGameObjectName = NormalState;
 				}
 
 			return;
@@ -544,19 +548,17 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The component library to use for drawing this slider's knobs.
 		/// </summary>
-		protected ComponentLibrary Knobs
+		protected GameObjectLibrary Knobs
 		{get; set;}
 
 		/// <summary>
 		/// The component library to use for drawing this slider's bars.
 		/// </summary>
-		protected ComponentLibrary Bars
+		protected GameObjectLibrary Bars
 		{get; set;}
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))

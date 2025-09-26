@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Framework;
 using System.Collections;
 
 namespace GameEngine.DataStructures.Sets
@@ -11,51 +11,18 @@ namespace GameEngine.DataStructures.Sets
 	/// To enable it to do so, back it with a set data structure which does check for duplicates.
 	/// The intended purpose of this is to provide for convenient batch operations, not to error check.
 	/// </remarks>
-	public class GameObjectSet<T> : ICollection<T> where T : IGameComponent
+	public class GameObjectSet<T> : ICollection<T> where T : GameObject
 	{
 		/// <summary>
 		/// Creates an empty game object set backed by a List.
 		/// </summary>
 		/// <param name="game">The game this set will add/remove objects from.</param>
-		public GameObjectSet(Game game) : this(game,new List<T>())
-		{return;}
-
-		/// <summary>
-		/// Creates a game object set backed by <paramref name="storage"/>.
-		/// </summary>
-		/// <param name="game">The game this set will add/remove objects to/from.</param>
-		/// <param name="storage">
-		///	The means by which items are stored.
-		///	Choose an appropriate data structure for your application.
-		///	The set will retain control of this collection.
-		///	Note that it is fine to populate this outside of here, but be careful not to expect this to notice.
-		/// </param>
-		public GameObjectSet(Game game, ICollection<T> storage)
+		public GameObjectSet(RenderTargetFriendlyGame game)
 		{
 			Game = game;
-			Storage = storage;
+			Storage = new AVLSet<T>(Comparer<T>.Create((a,b) => a.ID.CompareTo(b.ID)));
 
 			InGame = false;
-			return;
-		}
-
-		/// <summary>
-		/// Creates a game object set backed by <paramref name="storage"/>.
-		/// The set will add each element of <paramref name="seed"/> to it.
-		/// </summary>
-		/// <param name="game">The game this set will add/remove objects to/from.</param>
-		/// <param name="storage">
-		///	The means by which items are stored.
-		///	Choose an appropriate data structure for your application.
-		///	The set will retain control of this collection.
-		///	Note that it is fine to populate this outside of here, but be careful not to expect this to notice.
-		/// </param>
-		/// <param name="seed">A set of items to this set.</param>
-		public GameObjectSet(Game game, ICollection<T> storage, IEnumerable<T> seed) : this(game,storage)
-		{
-			foreach(T t in seed)
-				Add(t);
-			
 			return;
 		}
 
@@ -68,7 +35,7 @@ namespace GameEngine.DataStructures.Sets
 				return;
 
 			InGame = true;
-
+			
 			foreach(T t in this)
 				try
 				{Game.Components.Add(t);}
@@ -109,7 +76,7 @@ namespace GameEngine.DataStructures.Sets
 
 			return Storage.Remove(item);
 		}
-		
+
 		public bool Contains(T item) => Storage.Contains(item);
 
 		public void Clear()
@@ -128,7 +95,7 @@ namespace GameEngine.DataStructures.Sets
 		/// <summary>
 		/// The game this set adds/removes objects to/from.
 		/// </summary>
-		public Game Game
+		public RenderTargetFriendlyGame Game
 		{get;}
 		
 		/// <summary>
@@ -141,7 +108,7 @@ namespace GameEngine.DataStructures.Sets
 		/// <summary>
 		/// The way we store objects.
 		/// </summary>
-		protected ICollection<T> Storage
+		protected AVLSet<T> Storage
 		{get;}
 
 		/// <summary>

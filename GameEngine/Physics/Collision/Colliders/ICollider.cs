@@ -12,7 +12,7 @@
 		/// In general, the collider ID should never change.
 		/// However, it must not change during active collision resolution.
 		/// </summary>
-		public uint ID
+		public ColliderID<T> ColliderID
 		{get;}
 
 		/// <summary>
@@ -73,15 +73,6 @@
 		/// This event is called whenever a static collider is moved.
 		/// </summary>
 		public event StaticMovement<T> OnStaticMovement;
-
-		/// <summary>
-		/// Fetches the next available collider ID.
-		/// The next time this is accessed, it will return the next next collider ID available and so on.
-		/// </summary>
-		/// <remarks>This property is intended for internal initialization of a new collider's ID and nothing else.</remarks>
-		protected static uint NextID => _nid++;
-
-		private static uint _nid = 0;
 	}
 
 	/// <summary>

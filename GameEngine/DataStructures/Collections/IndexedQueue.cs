@@ -462,7 +462,7 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for indexed queues.
 	/// </summary>
-	public class JsonIndexedQueueConverter : JsonBaseConverterFactory
+	file class JsonIndexedQueueConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

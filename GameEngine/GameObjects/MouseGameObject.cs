@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameEngine.GameComponents
+namespace GameEngine.GameObjects
 {
 	/// <summary>
 	/// A mouse.
@@ -14,58 +14,55 @@ namespace GameEngine.GameComponents
 	/// In order to not have double vision, a game should hide the system mouse when it has its own custom mouse.
 	/// RenderTargetFriendlyGames have a custom mouse component built into its system.
 	/// </summary>
-	public class MouseComponent : DrawableAffineComponent
+	public class MouseGameObject : DrawableAffineObject
 	{
 		/// <summary>
-		/// Creates a mouse component backed by an ImageComponent.
+		/// Creates a mouse game object backed by an ImageGameObject.
 		/// </summary>
-		/// <param name="game">The game this mouse will belong to.</param>
-		/// <param name="src">The texture to pass off to the ImageComponent.</param>
+		/// <param name="src">The texture to pass off to the ImageGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseComponent(Game game, Texture2D src, SpriteBatch? renderer = null) : base(game,renderer)
+		public MouseGameObject(Texture2D src, SpriteBatch? renderer = null) : base(renderer)
 		{
-			CommonConstruction(new ImageComponent(game,renderer,src));
+			CommonConstruction(new ImageGameObject(renderer,src));
 			return;
 		}
 
 		/// <summary>
-		/// Creates a mouse component backed by a MultiImageComponent.
+		/// Creates a mouse game object backed by a MultiImageGameObject.
 		/// </summary>
-		/// <param name="game">The game this mouse will belong to.</param>
-		/// <param name="src">The image sources to pass off to the MultiImageComponent.</param>
+		/// <param name="src">The image sources to pass off to the MultiImageGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseComponent(Game game, SpriteSheet src, SpriteBatch? renderer = null) : base(game,renderer)
+		public MouseGameObject(SpriteSheet src, SpriteBatch? renderer = null) : base(renderer)
 		{
-			CommonConstruction(new MultiImageComponent(game,renderer,src));
+			CommonConstruction(new MultiImageGameObject(renderer,src));
 			return;
 		}
 
 		/// <summary>
-		/// Creates a mouse component backed by an AnimatedComponent.
+		/// Creates a mouse game object backed by an AnimatedGameObject.
 		/// </summary>
-		/// <param name="game">The game this mouse will belong to.</param>
-		/// <param name="src">The animation to pass off to the AnimatedComponent.</param>
+		/// <param name="src">The animation to pass off to the AnimatedGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseComponent(Game game, Animation2D src, SpriteBatch? renderer = null) : base(game,renderer)
+		public MouseGameObject(Animation2D src, SpriteBatch? renderer = null) : base(renderer)
 		{
-			CommonConstruction(new AnimatedComponent(game,renderer,src));
+			CommonConstruction(new AnimatedGameObject(renderer,src));
 			return;
 		}
 
 		/// <summary>
-		/// Creates a mouse component backed by some DrawbleAffineComponent.
+		/// Creates a mouse game object backed by some DrawbleAffineGameObject.
 		/// </summary>
 		/// <param name="game">The game this mouse will belong to.</param>
 		/// <param name="mouse">
 		///	The component that draws the mouse cursor.
 		///	This can be anything, but with great power comes great responsibility.
 		///	Its parent will be set to this (and should not be changed) but may otherwise be transformed freely (use this power responsibly).
-		///	This component will take responsibility for initializing, updating, and drawing <paramref name="mouse"/>.
+		///	This game object will take responsibility for initializing, updating, and drawing <paramref name="mouse"/>.
 		///	It will also take responsibility for disposing of it when this is disposed of.
 		///	No other limits are placed upon this.
 		/// </param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseComponent(Game game, DrawableAffineComponent mouse, SpriteBatch? renderer = null) : base(game,renderer)
+		public MouseGameObject(DrawableAffineObject mouse, SpriteBatch? renderer = null) : base(renderer)
 		{
 			CommonConstruction(mouse);
 			return;
@@ -74,8 +71,8 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// Performs the construction logic common to every constructor.
 		/// </summary>
-		/// <param name="mouse">The component that will actually draw the mouse.</param>
-		private void CommonConstruction(DrawableAffineComponent mouse)
+		/// <param name="mouse">The game object that will actually draw the mouse.</param>
+		private void CommonConstruction(DrawableAffineObject mouse)
 		{
 			_mc = mouse; // Make sure we assign _mc before we ever use MouseCursor
 			MouseCursor.Parent = this;
@@ -87,7 +84,7 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// Initializes this mouse component.
+		/// Initializes this mouse game object.
 		/// </summary>
 		public override void Initialize()
 		{
@@ -115,7 +112,7 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// Draws the mouse component.
+		/// Draws the mouse game object.
 		/// </summary>
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		public override void Draw(GameTime delta)
@@ -125,7 +122,7 @@ namespace GameEngine.GameComponents
 		}
 
 		/// <summary>
-		/// Called when a component is disposed of to unload any resources that must be closed or otherwise disposed of manually.
+		/// Called when a game object is disposed of to unload any resources that must be closed or otherwise disposed of manually.
 		/// </summary>
 		protected override void UnloadContent()
 		{
@@ -136,9 +133,9 @@ namespace GameEngine.GameComponents
 		/// <summary>
 		/// Creates a simple, default mouse cursor.
 		/// </summary>
-		/// <param name="game">The game to attach the mouse component to and to initialize the required texture with.</param>
+		/// <param name="game">The game to attach the mouse game object to and to initialize the required texture with.</param>
 		/// <returns>Returns a new mouse cursor that is standard and boring.</returns>
-		public static MouseComponent GenerateStandardMouse(RenderTargetFriendlyGame game)
+		public static MouseGameObject GenerateStandardMouse(RenderTargetFriendlyGame game)
 		{
 			Texture2D src = new Texture2D(game.GraphicsDevice,12,19);
 			
@@ -167,33 +164,33 @@ namespace GameEngine.GameComponents
 					   t,t,t,t,t,t,t,b,b,t,t,t};
 
 			src.SetData(c);
-			return new MouseComponent(game,src);
+			return new MouseGameObject(src);
 		}
 
 		/// <summary>
 		/// Creates a transparent cursor of the given dimensions.
 		/// Use this to enable the system cursor but still retain height and width information.
 		/// </summary>
-		/// <param name="game">The game to attach the mouse component to and to initialize the required texture with.</param>
+		/// <param name="g">The graphics device used to display the generated texture.</param>
 		/// <param name="w">The width the mouse to generate. The default value is the normal default width of the Windows 10 arrow cursor.</param>
 		/// <param name="h">The height the mouse to generate. The default value is the normal default height of the Windows 10 arrow cursor.</param>
 		/// <returns>Returns a transparent mouse cursor used for bookkeeping mouse dimensions.</returns>
-		public static MouseComponent GenerateTransparentMouse(RenderTargetFriendlyGame game, int w = 12, int h = 19)
+		public static MouseGameObject GenerateTransparentMouse(GraphicsDevice g, int w = 12, int h = 19)
 		{
-			Texture2D src = new Texture2D(game.GraphicsDevice,w,h);
+			Texture2D src = new Texture2D(g,w,h);
 			Color[] c = new Color[w * h];
 
 			for(int i = 0;i < c.Length;i++)
 				c[i] = Color.Transparent;
 
 			src.SetData(c);
-			return new MouseComponent(game,src);
+			return new MouseGameObject(src);
 		}
 
 		/// <summary>
 		/// The actual mouse cursor that we draw.
 		/// </summary>
-		public DrawableAffineComponent MouseCursor
+		public DrawableAffineObject MouseCursor
 		{
 			get => _mc!;
 
@@ -204,6 +201,7 @@ namespace GameEngine.GameComponents
 
 				_mc = value;
 
+				_mc.Game = Game;
 				_mc.Renderer = Renderer;
 				_mc.Tint = Tint;
 				_mc.LayerDepth = LayerDepth;
@@ -212,7 +210,7 @@ namespace GameEngine.GameComponents
 			}
 		}
 
-		protected DrawableAffineComponent? _mc;
+		protected DrawableAffineObject? _mc;
 
 		/// <summary>
 		/// The order that sprites are sorted when drawn.
@@ -263,10 +261,21 @@ namespace GameEngine.GameComponents
 		public Effect? Shader
 		{get; set;}
 
-		/// <summary>
-		/// This is the SpriteBatch used to draw this component.
-		/// If this is unassigned (null), then the draw will be skipped.
-		/// </summary>
+		public override RenderTargetFriendlyGame? Game
+		{
+			get => base.Game;
+
+			protected internal set
+			{
+				base.Game = value;
+
+				if(MouseCursor is not null)
+					MouseCursor.Game = value;
+
+				return;
+			}
+		}
+
 		public override SpriteBatch? Renderer
 		{
 			get => base.Renderer;
@@ -285,11 +294,6 @@ namespace GameEngine.GameComponents
 			}
 		}
 
-		/// <summary>
-		/// The tint/color to apply to this component.
-		/// <para/>
-		/// This defaults to Color.White for true color.
-		/// </summary>
 		public override Color Tint
 		{
 			get => base.Tint;
@@ -305,14 +309,6 @@ namespace GameEngine.GameComponents
 			}
 		}
 
-		/// <summary>
-		/// This is the drawing layer.
-		/// This value must be within [0,1].
-		/// With respect to the drawing order, larger values are the 'front' and smaller values are the 'back'.
-		/// This value only has significance when the SpriteBatch's SpriteSortMode is BackToFront (in which case smaller values are drawn on top) or FrontToBack (in which case larger values are drawn on top).
-		/// <para/>
-		/// This value defaults to 0.0f.
-		/// </summary>
 		public override float LayerDepth
 		{
 			get => base.LayerDepth;

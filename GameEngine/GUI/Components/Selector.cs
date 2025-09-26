@@ -1,9 +1,8 @@
 ﻿using GameEngine.Events;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,7 +20,6 @@ namespace GameEngine.GUI.Components
 		/// Creates a new selector.
 		/// It defaults to a Horizontal grouping with a Split alignment, item wrap around, and centered text.
 		/// </summary>
-		/// <param name="game">The game this selector will be part of.</param>
 		/// <param name="name">The name of this selector.</param>
 		/// <param name="decrement">The button to use to decrement the selected item. This selector will be responsible for initializing, updating, and drawing <paramref name="decrement"/> but will take no responsibility for disposing of it.</param>
 		/// <param name="increment">The button to use to increment the selected item. This selector will be responsible for initializing, updating, and drawing <paramref name="increment"/> but will take no responsibility for disposing of it.</param>
@@ -37,12 +35,12 @@ namespace GameEngine.GUI.Components
 		///	It will also force <paramref name="tooltip"/> to be initially invisible and will null its Parent.
 		///	The GUICore will manage its visibility and posiiton thereafter.
 		/// </param>
-		public Selector(RenderTargetFriendlyGame game, string name, Button decrement, Button increment, TextComponent pencil, DrawableAffineComponent? background = null, DrawableAffineComponent? tooltip = null) : base(game,name,tooltip)
+		public Selector(string name, Button decrement, Button increment, TextGameObject pencil, DrawableAffineObject? background = null, DrawableAffineObject? tooltip = null) : base(name,tooltip)
 		{
 			Decrement = decrement;
 			Increment = increment;
 			Pencil = pencil;
-			Background = background ?? new DummyAffineComponent(game);
+			Background = background ?? new DummyAffineGameObject();
 
 			Items = new List<T>();
 			ItemText = new List<string>();
@@ -68,26 +66,43 @@ namespace GameEngine.GUI.Components
 		{
 			// Load our basic components
 			// All of the basic properties are kept in sync already, and the transform will be assigned when we align all of our components
-			Decrement.Initialize();
 			Decrement.Parent = this;
-
-			Increment.Initialize();
+			Decrement.DrawOrder = DrawOrder;
+			Decrement.Initialize();
+			
 			Increment.Parent = this;
-
-			Background.Initialize();
+			Increment.DrawOrder = DrawOrder;
+			Increment.Initialize();
+			
 			Background.Parent = this;
-			Background.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder); // It's possible to get here without assigning the layer depth away from the always on top 0
-
-			Pencil.Initialize();
+			Background.DrawOrder = DrawOrder;
+			Background.LayerDepth = LayerDepth; // It's possible to get here without assigning the layer depth away from the always on top 0
+			Background.Initialize();
+			
 			Pencil.Parent = Background;
 			Pencil.DrawOrder = DrawOrder + 1;
-			Pencil.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
+			Pencil.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
 			Pencil.Text = SelectedItemIndex > -1 ? ItemText[SelectedItemIndex] : ""; // This will prevent anyone from being clever and assigning something random to the initial text
-
+			Pencil.Initialize();
+			
 			// The pencil's font is not necessarily loaded until now, so we need to calculate our item text dimensions now
 			CalculateTextSizes(); // This will align our components for us
 
 			// Subscribe to every event we must
+			DrawOrderChanged += (sender,e) =>
+			{
+				// We know Buttons only require DrawOrder
+				Decrement.DrawOrder = DrawOrder;
+				Increment.DrawOrder = DrawOrder;
+
+				// But we may need to set LayerDepth for these, since we know nothing about them
+				Pencil.DrawOrder = DrawOrder + 1;
+				Pencil.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(DrawOrder + 1);
+
+				Background.DrawOrder = DrawOrder;
+				Background.LayerDepth = LayerDepth;
+			};
+
 			OnSelectionChanged += (a,b,c,d,e) =>
 			{
 				DoubleDipping = true;
@@ -152,8 +167,8 @@ namespace GameEngine.GUI.Components
 				return;
 			
 			// If the active component is us, we need to redirect to a button
-			if(value.ActiveComponent == this)
-				if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.LEFT) == this)
+			if(ReferenceEquals(value.ActiveComponent,this))
+				if(ReferenceEquals(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.LEFT),this))
 					if(Grouping == ButtonGrouping.Vertical)
 						if(value.LastActiveComponent is not null && value.LastActiveComponent.GetAffinePosition().Y >= Decrement.GetAffinePosition().Y) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Decrement);
@@ -161,7 +176,7 @@ namespace GameEngine.GUI.Components
 							Owner.JumpToComponent(Increment); // We prefer to default to Increment if we don't know where we came from
 					else
 						Owner.JumpToComponent(Increment); // Moving left into this in a horizontal position means we move to increment
-				else if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.RIGHT) == this)
+				else if(ReferenceEquals(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.RIGHT),this))
 					if(Grouping == ButtonGrouping.Vertical)
 						if(value.LastActiveComponent is not null && value.LastActiveComponent.GetAffinePosition().Y >= Decrement.GetAffinePosition().Y) // If we have no clear destination, pick the approximately closer one
 							Owner.JumpToComponent(Decrement);
@@ -169,7 +184,7 @@ namespace GameEngine.GUI.Components
 							Owner.JumpToComponent(Increment); // We prefer to default to Increment if we don't know where we came from
 					else
 						Owner.JumpToComponent(Decrement); // Moving right into this in a horizontal position means we move to decrement
-				else if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.UP) == this)
+				else if(ReferenceEquals(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.UP),this))
 					if(Grouping == ButtonGrouping.Vertical)
 						Owner.JumpToComponent(Decrement); // Moving up into this in a vertical position means we move to decrement
 					else
@@ -177,7 +192,7 @@ namespace GameEngine.GUI.Components
 							Owner.JumpToComponent(Increment);
 						else
 							Owner.JumpToComponent(Decrement); // We prefer to default to Increment if we don't know where we came from
-				else if(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.DOWN) == this)
+				else if(ReferenceEquals(Owner.GetConnection(value.LastActiveComponent,Map.GUIMapDirection.DOWN),this))
 					if(Grouping == ButtonGrouping.Vertical)
 						Owner.JumpToComponent(Increment); // Moving up into this in a vertical position means we move to increment
 					else
@@ -621,7 +636,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The means by which the selected item text is written.
 		/// </summary>
-		public TextComponent Pencil
+		public TextGameObject Pencil
 		{get; protected set;}
 
 		/// <summary>
@@ -629,7 +644,7 @@ namespace GameEngine.GUI.Components
 		/// <br/><br/>
 		/// If no proper background is provided, a dummy component is placed here.
 		/// </summary>
-		public DrawableAffineComponent Background
+		public DrawableAffineObject Background
 		{get; protected set;}
 
 		/// <summary>
@@ -668,7 +683,7 @@ namespace GameEngine.GUI.Components
 
 		/// <summary>
 		/// The selected item.
-		/// If the selected item index is not valid, null is returned instead.
+		/// If the selected item index is not valid, default(<typeparamref name="T"/>) is returned instead.
 		/// </summary>
 		public T? SelectedItem => SelectedItemIndex >= 0 && SelectedItemIndex < Count ? Items[SelectedItemIndex] : default(T);
 
@@ -840,8 +855,6 @@ namespace GameEngine.GUI.Components
 
 		public override GUICore? Owner
 		{
-			get => base.Owner;
-			
 			set
 			{
 				if(ReferenceEquals(Owner,value))
@@ -865,8 +878,6 @@ namespace GameEngine.GUI.Components
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))
@@ -879,29 +890,6 @@ namespace GameEngine.GUI.Components
 				Increment.Renderer = value;
 				Pencil.Renderer = value;
 				Background.Renderer = value;
-
-				return;
-			}
-		}
-
-		public override int DrawOrder
-		{
-			get => base.DrawOrder;
-
-			set
-			{
-				if(DrawOrder == value)
-					return;
-
-				base.DrawOrder = value;
-
-				// These are always not null after construction
-				Decrement.DrawOrder = value;
-				Increment.DrawOrder = value;
-				Pencil.DrawOrder = value + 1;
-				Pencil.LayerDepth = IGUI.DrawOrderToLayerDepth(DrawOrder + 1);
-				Background.DrawOrder = value;
-				Background.LayerDepth = (this as IGUI).LayerDepth;
 
 				return;
 			}

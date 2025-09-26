@@ -165,7 +165,7 @@ namespace GameEngine.DataStructures.Collections
 	/// <summary>
 	/// Creates JSON converters for distributions.
 	/// </summary>
-	public class JsonDistributionConverter : JsonBaseConverterFactory
+	file class JsonDistributionConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

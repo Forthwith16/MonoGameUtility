@@ -233,7 +233,7 @@ namespace GameEngine.DataStructures.Maps
 	/// <summary>
 	/// Creates JSON converters for key value pairs.
 	/// </summary>
-	public class JsonBijectionConverter : JsonBaseConverterFactory
+	file class JsonBijectionConverter : JsonBaseConverterFactory
 	{
 		/// <summary>
 		/// Constructs the factory.

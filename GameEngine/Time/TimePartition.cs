@@ -1,5 +1,5 @@
 ﻿using GameEngine.Events;
-using GameEngine.GameComponents;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Time
@@ -10,10 +10,12 @@ namespace GameEngine.Time
 	/// We could set up time to send us a notification when the time passes the 0 ms mark, 100 ms mark, 200 ms mark, etc.
 	/// If we also want that animation to loop, we could set this partition to loop when it reaches 1000 ms and jump back to 0 ms.
 	/// <para/>
-	/// Although this class <i>can</i> be added to a Game, it is generally best for an object utilitizing it to manage it manually.
+	/// Although this class <i>can</i> be added to a Game, it is generally best for an object utilitizing it to manage it iternally and keep it hidden from the world.
 	/// This will include calling its Initialize, Update, and Dispose functions.
+	/// <para/>
+	/// Note also that this never needs to know what Game it belongs to.
 	/// </summary>
-	public class TimePartition : BareGameComponent, IObservable<TimeEvent>
+	public class TimePartition : GameObject, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Creates an empty time partition.
@@ -46,7 +48,7 @@ namespace GameEngine.Time
 		/// These are the times when new segments start.
 		/// The initial segment always begins at 0 (a value of 0 will be ignored), and the final segment extends forever.
 		/// Duplicate values will be ignored.
-		/// Best practice is to provide the segmented values as sorted in advance as possible to reduce sorting time.
+		/// Best practice is to provide the segmented values as sorted in advance to reduce sorting time.
 		/// </param>
 		public TimePartition(IEnumerable<float> segment_starts)
 		{
@@ -75,7 +77,7 @@ namespace GameEngine.Time
 		/// The new time partition must also be initialized.
 		/// </summary>
 		/// <param name="clock">The time partition to duplicate.</param>
-		public TimePartition(TimePartition clock)
+		public TimePartition(TimePartition clock) : base(clock)
 		{
 			Playing = false;
 			Loops = clock.Loops;
@@ -165,6 +167,9 @@ namespace GameEngine.Time
 		/// <param name="disposing">If true, we are disposing of this. If false, then this has already been disposed and is in a finalizer call.</param>
 		protected override void Dispose(bool disposing)
 		{
+			if(Disposed)
+				return;
+
 			foreach(IObserver<TimeEvent> eye in Observers)
 				eye.OnCompleted();
 			

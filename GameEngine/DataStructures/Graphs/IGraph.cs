@@ -394,7 +394,7 @@ namespace GameEngine.DataStructures.Graphs
 	/// <summary>
 	/// Creates JSON converters for graphs.
 	/// </summary>
-	public class JsonIGraphConverter : JsonBaseConverterFactory
+	file class JsonIGraphConverter : JsonBaseConverterFactory
 	{
 		public JsonIGraphConverter() : base((t,ops) => [],typeof(IGraph<,>),typeof(IGC<,>))
 		{return;}

@@ -504,7 +504,7 @@ namespace GameEngine.DataStructures.Geometry
 	/// <summary>
 	/// Performs the JSON conversion for a rectangle.
 	/// </summary>
-	public class JsonFRectangleConverter : JsonBaseConverter<FRectangle>
+	file class JsonFRectangleConverter : JsonBaseConverter<FRectangle>
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{

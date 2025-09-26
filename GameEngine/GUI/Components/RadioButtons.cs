@@ -1,7 +1,6 @@
 ﻿using GameEngine.DataStructures.Grid;
 using GameEngine.Events;
-using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI.Map;
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -21,7 +20,6 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// Creates a new, empty set of radio buttons.
 		/// </summary>
-		/// <param name="game">The game these radio buttons will belong to.</param>
 		/// <param name="name">The name of these radio buttons.</param>
 		/// <param name="backgrounds">
 		///	The backgrounds to display for the disabled and normal states.
@@ -35,7 +33,7 @@ namespace GameEngine.GUI.Components
 		/// <param name="v_padding">The vertical padding between radio buttons.</param>
 		/// <param name="left_aligned">If true, then the origin (of radio button positions) will be on the left of the group. If false, it will be on the right.</param>
 		/// <param name="top_aligned">If true, then the origin (of radio button positions) will be on the top of the group. If false, it will be on the bottom.</param>
-		public RadioButtons(RenderTargetFriendlyGame game, string name, ComponentLibrary? backgrounds, float h_padding = 5.0f, float v_padding = 5.0f, bool left_aligned = true, bool top_aligned = true) : base(game,name,null)
+		public RadioButtons(string name, GameObjectLibrary? backgrounds, float h_padding = 5.0f, float v_padding = 5.0f, bool left_aligned = true, bool top_aligned = true) : base(name,null)
 		{
 			// Create a space for our buttons
 			Buttons = new Dictionary<string,Checkbox>();
@@ -44,10 +42,10 @@ namespace GameEngine.GUI.Components
 			// If we have no backgrounds provided, then we need to generate some dummies to avoid special casing null
 			if(backgrounds is null)
 			{
-				ComponentLibrary dummies = new ComponentLibrary(game);
+				GameObjectLibrary dummies = new GameObjectLibrary();
 
-				dummies.Add(NormalState,new DummyAffineComponent(game));
-				dummies.Add(DisabledState,new DummyAffineComponent(game));
+				dummies.Add(NormalState,new DummyAffineGameObject());
+				dummies.Add(DisabledState,new DummyAffineGameObject());
 
 				Backgrounds = dummies;
 			}
@@ -84,22 +82,23 @@ namespace GameEngine.GUI.Components
 
 		protected override void LoadAdditionalContent()
 		{
-			Backgrounds.Initialize();
 			Backgrounds.Transform = Matrix2D.Identity;
 			Backgrounds.Parent = this;
 			Backgrounds.Renderer = Renderer;
-			Backgrounds.LayerDepth = (this as IGUI).LayerDepth;
+			Backgrounds.DrawOrder = DrawOrder;
+			Backgrounds.LayerDepth = LayerDepth;
 			Backgrounds.StateChange += (a,b,c) => AlignAllButtons();
+			Backgrounds.Initialize();
 
 			// The might (and should) be buttons already, and these are the sorts of things we only want to do once we're ready for initialization
 			// So we just wait until initialization to do them
 			foreach(Checkbox c in Buttons.Values)
 			{
-				c.Initialize();
 				c.Parent = this;
 				c.Renderer = Renderer;
 				c.DrawOrder = DrawOrder + 1;
-
+				c.Initialize();
+				
 				// We don't need to add a handler to each c's StateChanged since SelectionChanged for this class will catch all of the state changes
 				// This avoids the doubling up of a button being checked usually requiring another button to be unchecked
 				// We also omit assigning each c's Transform because we will do that later with mandatory button alignments
@@ -115,14 +114,14 @@ namespace GameEngine.GUI.Components
 			// We default to the normal state if we're enabled and the disabled state if not
 			if(Enabled)
 			{
-				Backgrounds.ActiveComponentName = NormalState;
+				Backgrounds.ActiveGameObjectName = NormalState;
 				
 				foreach(Checkbox c in Buttons.Values)
 					c.Enabled = true;
 			}
 			else
 			{
-				Backgrounds.ActiveComponentName = DisabledState;
+				Backgrounds.ActiveGameObjectName = DisabledState;
 
 				foreach(Checkbox c in Buttons.Values)
 					c.Enabled = false;
@@ -131,7 +130,8 @@ namespace GameEngine.GUI.Components
 			// Keep the layer depth up to date
 			DrawOrderChanged += (a,b) =>
 			{
-				Backgrounds.LayerDepth = (this as IGUI).LayerDepth;
+				Backgrounds.DrawOrder = DrawOrder;
+				Backgrounds.LayerDepth = LayerDepth;
 
 				foreach(Checkbox c in Buttons.Values)
 					c.DrawOrder = DrawOrder + 1;
@@ -159,14 +159,14 @@ namespace GameEngine.GUI.Components
 				// We default to the normal state if we're enabled and the disabled state if not
 				if(Enabled)
 				{
-					Backgrounds.ActiveComponentName = NormalState;
+					Backgrounds.ActiveGameObjectName = NormalState;
 
 					foreach(Checkbox c in Buttons.Values)
 						c.Enabled = true;
 				}
 				else
 				{
-					Backgrounds.ActiveComponentName = DisabledState;
+					Backgrounds.ActiveGameObjectName = DisabledState;
 
 					foreach(Checkbox c in Buttons.Values)
 						c.Enabled = false;
@@ -299,7 +299,7 @@ namespace GameEngine.GUI.Components
 			c.Owner = Owner;
 
 			// If we are our owner's active component, then this must be the first button, so immediately redirect the active component to this button
-			if(Owner is not null && Owner.ActiveComponent == this)
+			if(Owner is not null && ReferenceEquals(Owner.ActiveComponent,this))
 				Owner.JumpToComponent(c);
 
 			// Add the button to the list for easy acccess
@@ -312,12 +312,12 @@ namespace GameEngine.GUI.Components
 			// If we're already initialized, we need to make sure the checkbox is ready to go
 			if(Initialized)
 			{
-				c.Initialize();
 				c.Parent = this;
 				c.Renderer = Renderer;
 				c.DrawOrder = DrawOrder + 1;
 				c.Enabled = Enabled;
-
+				c.Initialize();
+				
 				c.StateChanged += (a,b) =>
 				{
 					if(b)
@@ -662,8 +662,7 @@ namespace GameEngine.GUI.Components
 			}
 			
 			// Removing c from our (shared) owner will do most of the removal logic we need it to (despite not being a top-level component)
-			if(Owner is not null)
-				Owner.Remove(c);
+			Owner?.Remove(c);
 
 			AlignAllButtons(); // We have to realign if a button is removed
 			return true;
@@ -792,7 +791,7 @@ namespace GameEngine.GUI.Components
 				return;
 
 			// If the active component is us, we need to redirect to the best available button (if any)
-			if(value.ActiveComponent == this)
+			if(ReferenceEquals(value.ActiveComponent,this))
 			{
 				if(SelectedRadioButton is null || !Owner.JumpToComponent(Buttons[SelectedRadioButton]))
 				{
@@ -877,13 +876,11 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The component library to use for drawing this radio button group's backgrounds.
 		/// </summary>
-		protected ComponentLibrary Backgrounds
+		protected GameObjectLibrary Backgrounds
 		{get; set;}
 
 		public override GUICore? Owner
 		{
-			get => base.Owner;
-
 			set
 			{
 				// If we're doing nothing, we should DO nothing
@@ -898,7 +895,7 @@ namespace GameEngine.GUI.Components
 				foreach(Checkbox c in Buttons.Values)
 					if(value is not null)
 					{
-						value.AddToMap(c);
+						value.AddToMap(c); // We have to do this early to copy links, and it won't hurt to do it again when we assign Owner
 
 						// Copy old direction connections
 						if(Owner is not null)
@@ -932,8 +929,6 @@ namespace GameEngine.GUI.Components
 
 		public override SpriteBatch? Renderer
 		{
-			protected get => base.Renderer;
-
 			set
 			{
 				if(ReferenceEquals(base.Renderer,value))
