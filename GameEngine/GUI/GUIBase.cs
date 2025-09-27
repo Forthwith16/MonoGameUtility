@@ -106,7 +106,7 @@ namespace GameEngine.GUI
 		protected override void UnloadContent()
 		{
 			UnloadContentAddendum();
-
+			
 			Owner = null; // This will make sure we unsubscribe to any events and remove ourselves from our owner
 			return;
 		}
@@ -224,21 +224,19 @@ namespace GameEngine.GUI
 		/// </summary>
 		public override int DrawOrder
 		{
-			get => _do;
+			get => base.DrawOrder;
 
 			set
 			{
-				if(_do == value || value < 1)
+				if(base.DrawOrder == value || value < 1)
 					return;
 
 				base.DrawOrder = value;
-				_ld = IGUI.DrawOrderToStandardDrawLayer(_do);
+				base.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(base.DrawOrder);
 
 				return;
 			}
 		}
-
-		protected int _do;
 
 		/// <summary>
 		/// In GUI systems, this value is always equal to 1 / <see cref="DrawOrder"/>.
@@ -247,13 +245,11 @@ namespace GameEngine.GUI
 		/// <remarks>Setting this does nothing.</remarks>
 		public override float LayerDepth
 		{
-			get => _ld; // We keep this value so we don't need to divide a lot for no reason
+			get => base.LayerDepth; // We keep this value so we don't need to divide a lot for no reason
 			
 			set
 			{return;}
 		}
-
-		protected float _ld;
 
 		public event Click OnClick;
 		public event Release OnRelease;
