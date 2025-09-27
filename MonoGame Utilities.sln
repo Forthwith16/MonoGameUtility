@@ -46,6 +46,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleQueryCollider", "Exa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleTouchControls", "ExampleTouchControls\ExampleTouchControls.csproj", "{32049A1D-8759-C2FC-A02C-2B6E7D231E91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GettingStarted", "GettingStarted\GettingStarted.csproj", "{240EFC04-3DF2-DF66-FC1E-AE6C03D25FF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniGolf", "MiniGolf\MiniGolf.csproj", "{61F10141-E2B0-BBC6-CBF7-A98C2C2D5348}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +132,14 @@ Global
 		{32049A1D-8759-C2FC-A02C-2B6E7D231E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32049A1D-8759-C2FC-A02C-2B6E7D231E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32049A1D-8759-C2FC-A02C-2B6E7D231E91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{240EFC04-3DF2-DF66-FC1E-AE6C03D25FF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{240EFC04-3DF2-DF66-FC1E-AE6C03D25FF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{240EFC04-3DF2-DF66-FC1E-AE6C03D25FF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{240EFC04-3DF2-DF66-FC1E-AE6C03D25FF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61F10141-E2B0-BBC6-CBF7-A98C2C2D5348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61F10141-E2B0-BBC6-CBF7-A98C2C2D5348}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61F10141-E2B0-BBC6-CBF7-A98C2C2D5348}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61F10141-E2B0-BBC6-CBF7-A98C2C2D5348}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
