@@ -77,11 +77,12 @@ namespace GameEngine.Framework
 			// Initialise the mouse data
 			_m = null;
 			_mr = null;
-			
+
 			// If we're building for Mac, we need these set to false
-			// Also, it doesn't hurt Windows builds, so we'll just go ahead and do this
+			#if MACOS
 			Graphics.SynchronizeWithVerticalRetrace = false;
 			IsFixedTimeStep = false;
+			#endif
 
 			return;
 		}
@@ -101,12 +102,12 @@ namespace GameEngine.Framework
 			Initializing = true;
 			base.Initialize();
 			
-			#if VerifyMidInitializationComponentAdds
+#if VerifyMidInitializationComponentAdds
 			// To ensure we actually catch all of the components to initialize, we have to do this (but only when we request it)
 			// This can occur when someone inserts something into Components before the current object of initialization during base.Initialize or at any time during LoadContent
 				while(MidInitializationAdds.Count > 0)
 					MidInitializationAdds.Dequeue().Initialize();
-			#endif
+#endif
 
 			Initializing = false;
 			Initialized = true;
@@ -164,7 +165,7 @@ namespace GameEngine.Framework
 			return;
 		}
 		
-		#if DEBUG
+#if DEBUG
 		/// <summary>
 		/// Updates the position of <paramref name="sender"/> in DebugComponents.
 		/// </summary>
@@ -194,7 +195,7 @@ namespace GameEngine.Framework
 			
 			return;
 		}
-		#endif
+#endif
 
 		/// <summary>
 		/// Adds a render target component indepenent of the ordinary Components collection.
@@ -240,7 +241,7 @@ namespace GameEngine.Framework
 			return true;
 		}
 		
-		#if DEBUG
+#if DEBUG
 		/// <summary>
 		/// Adds a debug component indepenent of the ordinary Components collection.
 		/// </summary>
@@ -262,9 +263,9 @@ namespace GameEngine.Framework
 			component.DebugDrawOrderChanged += UpdateDebugDrawOrder;
 			return true;
 		}
-		#endif
+#endif
 		
-		#if DEBUG
+#if DEBUG
 		/// <summary>
 		/// Removes a debug component independent of the ordinary Components collection.
 		/// </summary>
@@ -286,7 +287,7 @@ namespace GameEngine.Framework
 			component.DebugDrawOrderChanged -= UpdateDebugDrawOrder;
 			return true;
 		}
-		#endif
+#endif
 
 		/// <summary>
 		/// Updates this game.
@@ -320,7 +321,7 @@ namespace GameEngine.Framework
 
 			PreDraw(delta);
 
-			#if DEBUG
+#if DEBUG
 			// Don't draw debug information if we don't request it
 			if(GlobalConstants.DrawDebugInformation)
 			{
@@ -331,7 +332,7 @@ namespace GameEngine.Framework
 						if(draw.Visible)
 							draw.DebugDraw(delta);
 			}
-			#endif
+#endif
 
 			base.Draw(delta);
 			PostDraw(delta);
@@ -396,13 +397,13 @@ namespace GameEngine.Framework
 		protected SortedDictionary<int,HashSet<IRenderTargetDrawable>> RenderTargetComponents
 		{get; init;}
 
-		#if DEBUG
+#if DEBUG
 		/// <summary>
 		/// The set of components which draw debug information.
 		/// </summary>
 		protected SortedDictionary<int,HashSet<IDebugDrawable>> DebugComponents
 		{get; init;}
-		#endif
+#endif
 
 		/// <summary>
 		/// Compares IGUI objects by some draw order.
@@ -443,14 +444,14 @@ namespace GameEngine.Framework
 		public bool Initializing
 		{get; private set;}
 
-		#if VerifyMidInitializationComponentAdds
+#if VerifyMidInitializationComponentAdds
 		/// <summary>
 		/// A list of game components added while initializing the game.
 		/// They may have already been initialized, but as we have no way of checking (thanks MonoGame), we just have to initialize all of them in case we missed one due to dumb Components insertions and hope for the best.
 		/// </summary>
 		protected Queue<IGameComponent> MidInitializationAdds
 		{get; private set;}
-		#endif
+#endif
 
 		/// <summary>
 		/// If true, then this game has been initialized.
