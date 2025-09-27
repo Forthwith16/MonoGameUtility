@@ -1,5 +1,6 @@
 ﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.Serialization;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -161,8 +162,8 @@ namespace GameEngine.Physics.Collision.Colliders
 		/// </summary>
 		private static void ReleaseID(ColliderIDType id)
 		{
-			_lut.Remove(id);
-			_ndid.Push(id);
+			if(_lut.TryRemove(id,out _))
+				_ndid.Push(id);
 
 			return;
 		}
@@ -177,16 +178,22 @@ namespace GameEngine.Physics.Collision.Colliders
 			get
 			{
 				if(_ndid.Count == 0)
-					return _nid++;
+					lock(_ndid_lock)
+						return _nid++;
 
-				return _ndid.Pop();
+				if(_ndid.TryPop(out ColliderIDType ret))
+					return ret;
+
+				lock(_ndid_lock)
+					return _nid++;
 			}
 		}
 
-		private static Stack<ColliderIDType> _ndid = new Stack<ColliderIDType>();
+		private static ConcurrentStack<ColliderIDType> _ndid = new ConcurrentStack<ColliderIDType>();
 		private static ColliderIDType _nid = 1;
+		private static object _ndid_lock = new object();
 
-		private static Dictionary<ColliderID<T>,WeakReference> _lut = new Dictionary<ColliderID<T>,WeakReference>();
+		private static ConcurrentDictionary<ColliderID<T>,WeakReference> _lut = new ConcurrentDictionary<ColliderID<T>,WeakReference>();
 		#endregion
 	}
 
