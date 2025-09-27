@@ -685,7 +685,28 @@ namespace GameEngine.GUI.Components
 		/// The selected item.
 		/// If the selected item index is not valid, default(<typeparamref name="T"/>) is returned instead.
 		/// </summary>
-		public T? SelectedItem => SelectedItemIndex >= 0 && SelectedItemIndex < Count ? Items[SelectedItemIndex] : default(T);
+		/// <exception cref="ArgumentException">Thrown if attempting to set this to an item that doesn't exist.</exception>
+		public T? SelectedItem
+		{
+			get => SelectedItemIndex >= 0 && SelectedItemIndex < Count ? Items[SelectedItemIndex] : default(T);
+
+			set
+			{
+				if(value is null)
+				{
+					SelectedItemIndex = -1;
+					return;
+				}
+
+				int index = Items.IndexOf(value);
+
+				if(index < 0)
+					throw new ArgumentException();
+
+				SelectedItemIndex = index;
+				return;
+			}
+		}
 
 		/// <summary>
 		/// Obtains the potentially selected item at index <paramref name="index"/>.
