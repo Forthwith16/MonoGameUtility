@@ -231,7 +231,7 @@ namespace GameEngine.GUI
 				if(base.DrawOrder == value || value < 1)
 					return;
 				
-				base.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(base.DrawOrder);
+				base.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(value); // Set layer depth first so that it's up to date before we notify observers of the draw order change
 				base.DrawOrder = value;
 
 				return;
