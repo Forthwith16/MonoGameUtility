@@ -592,6 +592,10 @@ namespace GameEngine.GUI
 
 		public void DrawRenderTarget(GameTime delta)
 		{
+			// We can sometimes get here before LoadContent does its job...apparently
+			if(LocalRenderer is null)
+				return;
+
 			// First set the render target
 			Game!.GraphicsDevice.SetRenderTarget(RenderTarget); // We should only get here if Game is set
 
