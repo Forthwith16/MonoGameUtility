@@ -1,11 +1,10 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.Input;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -46,41 +45,41 @@ namespace ExampleSteeringBehavior
 			Input.AddMouseAxisInput("MY",false,false);
 
 			// Load the environment
-			Mountain = new RectangleComponent(this,Renderer,100,100,ColorFunctions.Ellipse(100,100,Color.RosyBrown));
+			Mountain = new RectangleGameObject(Renderer,100,100,ColorFunctions.Ellipse(100,100,Color.RosyBrown));
 			Mountain.Translate(Bounds.Width / 2.0f - 50.0f,Bounds.Height / 2.0f - 50.0f);
 			Mountain.LayerDepth = 1.0f;
 
 			// Load the triangle men
 			// The solo triangle man first
-			Solo = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.White);
+			Solo = new TriangleMan(Renderer,30,50,Color.Black,3,Color.White);
 			Solo.Position = new Vector2(Bounds.Width / 2.0f,Bounds.Height / 2.0f);
 
 			// Load the pursue/evade pair next
-			PairFirst = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.Purple);
+			PairFirst = new TriangleMan(Renderer,30,50,Color.Black,3,Color.Purple);
 			PairFirst.Position = new Vector2(Bounds.Width * 0.75f,Bounds.Height / 2.0f);
 			
-			PairSecond = new TriangleMan(this,Renderer,30,50,Color.Black,3,Color.Red);
+			PairSecond = new TriangleMan(Renderer,30,50,Color.Black,3,Color.Red);
 			PairSecond.Position = new Vector2(Bounds.Width * 0.25f,Bounds.Height / 2.0f);
 			
 			PairFirst.EvasionTarget = PairFirst.PursuitTarget = PairSecond;
 			PairSecond.EvasionTarget = PairSecond.PursuitTarget = PairFirst;
 
 			// Create the bounding box for things to have fun in
-			BoundingBox = new RectangleComponent(this,Renderer,Bounds.Width + 6,Bounds.Height + 6,ColorFunctions.Wireframe(Bounds.Width + 6,Bounds.Height + 6,3,Color.Black));
+			BoundingBox = new RectangleGameObject(Renderer,Bounds.Width + 6,Bounds.Height + 6,ColorFunctions.Wireframe(Bounds.Width + 6,Bounds.Height + 6,3,Color.Black));
 			BoundingBox.Translate(-3.0f,-3.0f);
 			BoundingBox.LayerDepth = 0.1f;
 			
 			// Create the background for the menu options
-			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
+			MenuBackground = new RectangleGameObject(Renderer,300,Bounds.Height,Color.MonoGameOrange);
 			MenuBackground.Translate(Bounds.Width,0.0f);
 			MenuBackground.LayerDepth = 0.3f;
 
 			// Create the GUI that will allow us to select our game mode
-			GUISystem = new GUICore(this,Renderer,false);
+			GUISystem = new GUICore(Renderer,false);
 			GUISystem.LayerDepth = 0.2f;
 
 			// The menu is what does the actual game mode selection
-			Menu = new RadioButtons(this,"menu",null);
+			Menu = new RadioButtons("menu",null);
 			Menu.AddRadioButton(CreateMenuOption("None","Does nothing."));
 			Menu.AddRadioButton(CreateMenuOption("Unnatural Seek","A single triangle will chase after the mouse.\nThis occurs with Aristotelian physics."));
 			Menu.AddRadioButton(CreateMenuOption("Broken Natural Seek","A single triangle will chase after the mouse.\nThis occurs with Newtonian physics."));
@@ -114,31 +113,31 @@ namespace ExampleSteeringBehavior
 		protected Checkbox CreateMenuOption(string option, string tool_tip)
 		{
 			const int side_width = 20;
-			ComponentLibrary bg = new ComponentLibrary(this);
+			GameObjectLibrary bg = new GameObjectLibrary();
 			
-			bg.Add(Checkbox.UncheckedNormalState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.5f,0.5f,0.5f))));
-			bg.Add(Checkbox.UncheckedHoverState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.3f,0.3f,0.3f))));
-			bg.Add(Checkbox.UncheckedClickState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.2f,0.2f,0.2f))));
-			bg.Add(Checkbox.UncheckedDisabledState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.75f,0.75f,0.75f))));
+			bg.Add(Checkbox.UncheckedNormalState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.5f,0.5f,0.5f))));
+			bg.Add(Checkbox.UncheckedHoverState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.3f,0.3f,0.3f))));
+			bg.Add(Checkbox.UncheckedClickState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.2f,0.2f,0.2f))));
+			bg.Add(Checkbox.UncheckedDisabledState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.75f,0.75f,0.75f))));
 
-			bg.Add(Checkbox.CheckedNormalState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.5f,0.0f)));
-			bg.Add(Checkbox.CheckedHoverState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.3f,0.0f)));
-			bg.Add(Checkbox.CheckedClickState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.2f,0.0f)));
-			bg.Add(Checkbox.CheckedDisabledState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.75f,0.0f)));
+			bg.Add(Checkbox.CheckedNormalState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.5f,0.0f)));
+			bg.Add(Checkbox.CheckedHoverState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.3f,0.0f)));
+			bg.Add(Checkbox.CheckedClickState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.2f,0.0f)));
+			bg.Add(Checkbox.CheckedDisabledState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.75f,0.0f)));
 
-			ComponentGroup? tt;
+			GameObjectGroup? tt;
 
 			if(tool_tip != "")
 			{
 
-				TextComponent text = new TextComponent(this,Renderer,Content.Load<SpriteFont>("Times New Roman"),tool_tip,Color.Black);
+				TextGameObject text = new TextGameObject(Renderer,Content.Load<SpriteFont>("Times New Roman"),tool_tip,Color.Black);
 				text.LayerDepth = 0.01f;
 				text.Translate(5.0f,0.0f);
 
-				RectangleComponent text_bg = new RectangleComponent(this,Renderer,text.Width + 10,text.Height,Color.Cornsilk);
+				RectangleGameObject text_bg = new RectangleGameObject(Renderer,text.Width + 10,text.Height,Color.Cornsilk);
 				text_bg.LayerDepth = 0.02f;
 				
-				tt = new ComponentGroup(this,text_bg,text);
+				tt = new GameObjectGroup(text_bg,text);
 				
 				text.Parent = text_bg;
 				text_bg.Parent = tt;
@@ -146,7 +145,7 @@ namespace ExampleSteeringBehavior
 			else
 				tt = null;
 			
-			return new Checkbox(this,option,bg,new TextComponent(this,Renderer,Content.Load<SpriteFont>("Times New Roman"),option,Color.Black),false,5.0f,false,tt);
+			return new Checkbox(option,bg,new TextGameObject(Renderer,Content.Load<SpriteFont>("Times New Roman"),option,Color.Black),false,5.0f,false,tt);
 		}
 
 		/// <summary>
@@ -346,10 +345,10 @@ namespace ExampleSteeringBehavior
 		
 		protected GUICore? GUISystem;
 		protected RadioButtons? Menu;
-		protected RectangleComponent? MenuBackground;
+		protected RectangleGameObject? MenuBackground;
 		
 		protected Boundary Bounds;
-		protected RectangleComponent? BoundingBox;
+		protected RectangleGameObject? BoundingBox;
 
 		// Triangle men
 		protected TriangleMan? Solo;
@@ -358,6 +357,6 @@ namespace ExampleSteeringBehavior
 		protected TriangleMan? PairSecond;
 
 		// Environmental items
-		protected RectangleComponent? Mountain;
+		protected RectangleGameObject? Mountain;
 	}
 }

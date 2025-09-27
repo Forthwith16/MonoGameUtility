@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
@@ -52,7 +52,7 @@ namespace ExampleAnimation
 			// All we need to do is provide it with the resource file for our animation, and the game will take care of the rest
 			// The format for the animation file is a simple XMLSerialization of an Animation2DAsset (look in Assets/AnimationAssets/Animation2DAsset.cs of the GameEnginePipleine for more information)
 			// You can make more animations manually by editing these files or by serializing such an asset with its Serialize method
-			Components.Add(_image = new AnimatedComponent(this,_spriteBatch,"Animations/test"));
+			Components.Add(_image = new AnimatedGameObject(_spriteBatch,"Animations/test"));
 			
 			// When you want to perform reflections to a drawn sprite, use a SpriteEffect rather than scaling by a negative factor
 			// MonoGame's SpriteBatch doesn't like negative scaling factors in the 2D world, unfortunately
@@ -105,7 +105,7 @@ namespace ExampleAnimation
 		}
 		
 		private SpriteBatch? _spriteBatch;
-		private ImageComponent? _image;
+		private ImageGameObject? _image;
 		protected InputManager? Input;
 	}
 }

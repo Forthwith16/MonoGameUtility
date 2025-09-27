@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
@@ -67,7 +67,7 @@ namespace ExampleTouchControls
 			Input.AddTouchAxisInput("TouchX",0,true,false);
 			Input.AddTouchAxisInput("TouchY",0,false,false);
 
-			Components.Add(TouchMe = new RectangleComponent(this,Renderer,TouchBoxSize,TouchBoxSize,Color.Red));
+			Components.Add(TouchMe = new RectangleGameObject(Renderer,TouchBoxSize,TouchBoxSize,Color.Red));
 			return;
 		}
 
@@ -109,7 +109,7 @@ namespace ExampleTouchControls
 		private InputManager? FakeTouch;
 
 		private const int TouchBoxSize = 100;
-		private RectangleComponent? TouchMe;
+		private RectangleGameObject? TouchMe;
 		private bool pressed = false;
 	}
 }

@@ -1,10 +1,10 @@
 ﻿#define DEBUG // We're defining the DEBUG token so we can use it for debug info; to disable it, just comment this out
 
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Physics.Collision;
 using GameEngine.Physics.Collision.Colliders;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
+using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,9 +20,9 @@ namespace ExampleQueryCollider
 	public class ExampleQueryCollider : RenderTargetFriendlyGame
 	{
 		// Pick one of the below (and only one) to see how each setting behaves
-		public const bool NoQueryColliders = true; // Uses no query colliders to walk forward
+		public const bool NoQueryColliders = false; // Uses no query colliders to walk forward
 		public const bool GroundQueryCollider = false; // Uses a ground query collider to walk forward better
-		public const bool ForwardQueryCollider = false; // Uses a ground and forward query collider to walk back and forth
+		public const bool ForwardQueryCollider = true; // Uses a ground and forward query collider to walk back and forth
 		public const bool OopsForwardQueryCollider = false; // Uses a ground and forward query collider to walk back and forth, but the koopa eventually falls off due to the changing position of the forward query
 
 		public ExampleQueryCollider() : base()
@@ -47,7 +47,7 @@ namespace ExampleQueryCollider
 			Renderer = new SpriteBatch(GraphicsDevice);
 
 			// Load the background
-			Components.Add(Background = new ImageComponent(this,Renderer,"background"));
+			Components.Add(Background = new ImageGameObject(Renderer,"background"));
 
 			// Load the background music
 			Song bgm = Content.Load<Song>("overworld");
@@ -56,25 +56,25 @@ namespace ExampleQueryCollider
 			
 			// Now we need to load the ground collision box
 			CollisionBox temp;
-			Colliders.AddLast(temp = new CollisionBox(this,Renderer,1280,128,Color.Red));
+			Colliders.AddLast(temp = new CollisionBox(Renderer,1280,128,Color.Red));
 			Components.Add(temp);
 			temp.Translate(0.0f,527.0f);
 			temp.IsStatic = true;
 			
 			// Now add the box collider(s)
-			Colliders.AddLast(temp = new CollisionBox(this,Renderer,320,64,Color.Red));
+			Colliders.AddLast(temp = new CollisionBox(Renderer,320,64,Color.Red));
 			Components.Add(temp);
 			temp.Translate(512.0f,271.0f);
 			temp.IsStatic = true;
 
 			// Now add the koopa
-			Components.Add(Koopa = new AnimatedComponent(this,Renderer,"Animations/koopa"));
+			Components.Add(Koopa = new AnimatedGameObject(Renderer,"Animations/koopa"));
 			Koopa.Scale(4.0f,4.0f);
 			Koopa.Translate(650.0f,-200.0f);
 			//Koopa.Animation.Paused = true;
 
 			// Now add the koopa's collider
-			Colliders.AddLast(KoopaBox = new CollisionBox(this,Renderer,18 * 4,27 * 4,Color.Red));
+			Colliders.AddLast(KoopaBox = new CollisionBox(Renderer,18 * 4,27 * 4,Color.Red));
 			Components.Add(KoopaBox);
 			KoopaBox.Parent = Koopa;
 			KoopaBox.Scale(0.25f);
@@ -82,7 +82,7 @@ namespace ExampleQueryCollider
 			// Create the ground query collider (this one doesn't need to be in the collision engine, at least not in this example)
 			// We'll set the query height to 5 for this example for visibility; in principle, we should use a height of 1 in 2D (where 1 height = 1 pixel) and in 3D the height can be whatever works
 			// We change how the collision resolution works here in this 2D exmaple to support a larger ground query, since we don't want to be grounded early and hover in the air
-			Components.Add(GroundQuery = new CollisionBox(this,Renderer,18 * 4,5,Color.Green));
+			Components.Add(GroundQuery = new CollisionBox(Renderer,18 * 4,5,Color.Green));
 			GroundQuery.Parent = KoopaBox;
 			GroundQuery.Translate(0.0f,27.0f * 4.0f);
 
@@ -90,7 +90,7 @@ namespace ExampleQueryCollider
 			// We'll set the query height just as with the ground query, because this is another ground query
 			// This time, however, we'll query AHEAD of our koopa to check to see if moving foward would cause him to fall (become ungrounded)
 			// We can do something similar, if desired, to avoid walking face first into walls
-			Components.Add(ForwardQuery = new CollisionBox(this,Renderer,5,5,Color.Blue));
+			Components.Add(ForwardQuery = new CollisionBox(Renderer,5,5,Color.Blue));
 			ForwardQuery.Parent = GroundQuery;
 			ForwardQuery.Translate(15.0f,0.0f); // More negative x values will allow us to turn around sooner; more positive will turn around later
 
@@ -380,9 +380,9 @@ namespace ExampleQueryCollider
 		}
 
 		private SpriteBatch? Renderer;
-		private ImageComponent? Background;
+		private ImageGameObject? Background;
 		
-		private AnimatedComponent? Koopa;
+		private AnimatedGameObject? Koopa;
 		private CollisionBox? KoopaBox;
 		private CollisionBox? GroundQuery;
 		private CollisionBox? ForwardQuery;

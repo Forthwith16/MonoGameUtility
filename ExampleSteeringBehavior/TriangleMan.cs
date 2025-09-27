@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Maths;
 using GameEngine.Texture;
@@ -14,19 +14,18 @@ namespace ExampleSteeringBehavior
 	/// <summary>
 	/// A triangle man that can be controlled via steering behaviors.
 	/// </summary>
-	public class TriangleMan : RectangleComponent
+	public class TriangleMan : RectangleGameObject
 	{
 		/// <summary>
 		/// Creates a new triangle man. Its head will be pointed in the positive y direction.
 		/// </summary>
-		/// <param name="game">The game this triangle man will belong to.</param>
 		/// <param name="renderer">The way we render a triangle man. This can be changed later.</param>
 		/// <param name="w">The width of the traingle man.</param>
 		/// <param name="h">The height of the triangle man.</param>
 		/// <param name="outline">The outline color of the triangle man.</param>
 		/// <param name="line_width">The width of the triangle man outline.</param>
 		/// <param name="inside">The internal color of the triangle man.</param>
-		public TriangleMan(Game game, SpriteBatch? renderer, int w, int h, Color outline, uint line_width, Color inside) : base(game,renderer,w,h,BuildTriangle(outline,w,h,line_width,inside))
+		public TriangleMan(SpriteBatch? renderer, int w, int h, Color outline, uint line_width, Color inside) : base(renderer,w,h,BuildTriangle(outline,w,h,line_width,inside))
 		{
 			Position = Vector2.Zero;
 			Rotation = 0.0f;
@@ -113,7 +112,7 @@ namespace ExampleSteeringBehavior
 		{
 			// We may need to generate a mouse target
 			// Since it won't take long, just do it here regardles of our behavior
-			InputManager Input = Game.Services.GetService<InputManager>();
+			InputManager Input = Game!.Services.GetService<InputManager>();
 			Vector2 mouse_pos = new Vector2(Input["MX"].CurrentAnalogValue,Input["MY"].CurrentAnalogValue);
 
 			// Grab the boundary from our game
@@ -222,7 +221,7 @@ namespace ExampleSteeringBehavior
 				Rotation = MathF.Atan2(Velocity.X,Velocity.Y); // The triangle initially points down, so we need a 90 degree rotation to get it to align with the x axis
 
 			// Now assign our transform
-			Transform = Matrix2D.FromPositionRotationScale(Position,Rotation,Vector2.One,Center);
+			Transform = Matrix2D.FromPositionRotationScaleOrigin(Position - Center,Rotation,Vector2.One,Center); // HACK: We add -Center here b/c we changed how this function works and didn't bother to rebuild this class to account for it
 			#endregion
 
 			return;

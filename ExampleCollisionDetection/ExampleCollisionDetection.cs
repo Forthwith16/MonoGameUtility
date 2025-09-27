@@ -1,9 +1,9 @@
 ﻿using GameEngine.DataStructures.Geometry;
 using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Physics.Collision;
 using GameEngine.Physics.Collision.Colliders;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
+using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,7 +44,7 @@ namespace ExampleCollisionDetection
 			for(int i = 0;i < len;i++)
 			{
 				offset = new Vector2(rand.Next(1501),rand.Next(801));
-				arr[i] = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
+				arr[i] = new SimpleCollider(Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
 				T.Add(arr[i]);
 			}
 
@@ -70,7 +70,7 @@ namespace ExampleCollisionDetection
 			{
 				Vector2 offset = new Vector2(rand.Next(1501),rand.Next(801));
 
-				SimpleCollider r = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,false);
+				SimpleCollider r = new SimpleCollider(Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,false);
 				r.Translate(offset);
 				r.Velocity = new Vector2(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized();
 
@@ -86,7 +86,7 @@ namespace ExampleCollisionDetection
 			{
 				Vector2 offset = new Vector2(rand.Next(1501),rand.Next(801));
 
-				SimpleCollider r = new SimpleCollider(this,Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
+				SimpleCollider r = new SimpleCollider(Renderer,Color.White,new FRectangle(0.0f,0.0f,100.0f,100.0f) + offset,true);
 				r.Translate(offset);
 				//r.Velocity = new Vector2(0.5f - (float)rand.NextDouble(),0.5f - (float)rand.NextDouble()).Normalized(); // You CAN move static colliders if you want, but the point of them is that static things DO NOT move or do so VERY RARELY
 
@@ -161,17 +161,17 @@ namespace ExampleCollisionDetection
 	/// It draws itself as a box via inheriting the RectangleComponent.
 	/// It otherwise has an absolute barebones implementation of ICollider2D so that we can put it into our collision engine.
 	/// </summary>
-	public class SimpleCollider : RectangleComponent, ICollider2D
+	public class SimpleCollider : RectangleGameObject, ICollider2D
 	{
-		public SimpleCollider(Game game, SpriteBatch? renderer, Color c, float l, float r, float b, float t, bool is_static) : this(game,renderer,c,new FRectangle(l,b,r - l,t - b),is_static)
+		public SimpleCollider(SpriteBatch? renderer, Color c, float l, float r, float b, float t, bool is_static) : this(renderer,c,new FRectangle(l,b,r - l,t - b),is_static)
 		{return;}
 
-		public SimpleCollider(Game game, SpriteBatch? renderer, Color c, FRectangle bounds, bool is_static) : base(game,renderer,(int)MathF.Ceiling(bounds.Width),(int)MathF.Ceiling(bounds.Height),c)
+		public SimpleCollider(SpriteBatch? renderer, Color c, FRectangle bounds, bool is_static) : base(renderer,(int)MathF.Ceiling(bounds.Width),(int)MathF.Ceiling(bounds.Height),c)
 		{
 			Boundary = bounds;
 			PreviousBoundary = FRectangle.Empty;
 
-			ID = ICollider<ICollider2D>.NextID;
+			ColliderID = ColliderID<ICollider2D>.GetFreshID(this);
 
 			_is = is_static;
 
@@ -196,7 +196,7 @@ namespace ExampleCollisionDetection
 
 		public bool CollidesWith(ICollider2D other) => true;
 
-		public bool Equals(ICollider2D? other) => other is null ? false : ID == other.ID;
+		public bool Equals(ICollider2D? other) => other is null ? false : ColliderID == other.ColliderID;
 
 		public override string ToString() => Boundary.ToString();
 
@@ -216,7 +216,7 @@ namespace ExampleCollisionDetection
 		public float PreviousBottomBound => PreviousBoundary.Bottom;
 		public float PreviousTopBound => PreviousBoundary.Top;
 		
-		public uint ID
+		public ColliderID<ICollider2D> ColliderID
 		{get;}
 
 		public bool IsStatic

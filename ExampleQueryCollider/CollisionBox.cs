@@ -1,8 +1,8 @@
 ﻿using GameEngine.DataStructures.Geometry;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Physics.Collision.Colliders;
 using GameEngine.Texture;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
+using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,17 +11,16 @@ namespace ExampleQueryCollider
 	/// <summary>
 	/// A collision box.
 	/// </summary>
-	public class CollisionBox : RectangleComponent, ICollider2D
+	public class CollisionBox : RectangleGameObject, ICollider2D
 	{
 		/// <summary>
 		/// Creates a collision box.
 		/// </summary>
-		/// <param name="game">The game this component will belong to.</param>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
 		/// <param name="w">The width of the collision box generated.</param>
 		/// <param name="h">The height of the collision box generated.</param>
 		/// <param name="c">The color to draw with in debug mode.</param>
-		public CollisionBox(Game game, SpriteBatch? renderer, int w, int h, Color c) : base(game,renderer,w,h,ColorFunctions.Wireframe(w,h,3,c))
+		public CollisionBox(SpriteBatch? renderer, int w, int h, Color c) : base(renderer,w,h,ColorFunctions.Wireframe(w,h,3,c))
 		{
 			_b = new FRectangle(0,0,w,h);
 			PreviousBoundary = FRectangle.Empty;
@@ -32,7 +31,7 @@ namespace ExampleQueryCollider
 			OnStaticStateChanged += (a,b) => {};
 			Resolve += (a,b,c) => {};
 			
-			ID = ICollider2D.NextID;
+			ColliderID = ColliderID<ICollider2D>.GetFreshID(this);
 			IsStatic = false;
 
 			Visible = false;
@@ -89,7 +88,7 @@ namespace ExampleQueryCollider
 		public Vector2 Velocity
 		{get; set;}
 
-		public uint ID
+		public ColliderID<ICollider2D> ColliderID
 		{get;}
 
 		public bool IsStatic

@@ -1,11 +1,10 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.Input;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -118,16 +117,17 @@ namespace ExampleShaders
 			TextureLightingEffect = Content.Load<Effect>("Shaders/TextureLighting");
 
 			// Create the background for the menu options
-			MenuBackground = new RectangleComponent(this,Renderer,300,Bounds.Height,Color.MonoGameOrange);
+			MenuBackground = new RectangleGameObject(Renderer,300,Bounds.Height,Color.MonoGameOrange);
 			MenuBackground.Translate(Bounds.Width,0.0f);
 			MenuBackground.LayerDepth = 0.3f;
 
 			// Create the GUI that will allow us to select our game mode
-			GUISystem = new GUICore(this,Renderer,false);
+			GUISystem = new GUICore(Renderer,false);
 			GUISystem.LayerDepth = 0.2f;
+			GUISystem.EnableDigital = false;
 
 			// The menu is what does the actual game mode selection
-			Menu = new RadioButtons(this,"menu",null);
+			Menu = new RadioButtons("menu",null);
 			Menu.AddRadioButton(CreateMenuOption("Default","Models in MonoGame have a default shader known as a BasicEffect.\nIt will perform most every basic common task, including lighting, texture mapping, fog, etc...\nYou will want to use custom shaders for specialized tasks and improvements over the basics."));
 			Menu.AddRadioButton(CreateMenuOption("Ambient","Uses a shader that applies only ambient light to the model.\nThis light source comes from nowhere and everywhere.\nOmnipresent, it applies lighting equally to all fragments."));
 			Menu.AddRadioButton(CreateMenuOption("Diffuse","Uses a shader that applies diffuse and ambient light to the model.\nThe diffuse light comes from a directional light.\n Light comes from 'infinitely far away' in that direction."));
@@ -196,30 +196,30 @@ namespace ExampleShaders
 		protected Checkbox CreateMenuOption(string option, string tool_tip)
 		{
 			const int side_width = 20;
-			ComponentLibrary bg = new ComponentLibrary(this);
+			GameObjectLibrary bg = new GameObjectLibrary();
 			
-			bg.Add(Checkbox.UncheckedNormalState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.5f,0.5f,0.5f))));
-			bg.Add(Checkbox.UncheckedHoverState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.3f,0.3f,0.3f))));
-			bg.Add(Checkbox.UncheckedClickState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.2f,0.2f,0.2f))));
-			bg.Add(Checkbox.UncheckedDisabledState,new RectangleComponent(this,Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.75f,0.75f,0.75f))));
+			bg.Add(Checkbox.UncheckedNormalState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.5f,0.5f,0.5f))));
+			bg.Add(Checkbox.UncheckedHoverState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.3f,0.3f,0.3f))));
+			bg.Add(Checkbox.UncheckedClickState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.2f,0.2f,0.2f))));
+			bg.Add(Checkbox.UncheckedDisabledState,new RectangleGameObject(Renderer,side_width,side_width,ColorFunctions.Wireframe(side_width,side_width,2,new Color(0.75f,0.75f,0.75f))));
 
-			bg.Add(Checkbox.CheckedNormalState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.5f,0.0f)));
-			bg.Add(Checkbox.CheckedHoverState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.3f,0.0f)));
-			bg.Add(Checkbox.CheckedClickState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.2f,0.0f)));
-			bg.Add(Checkbox.CheckedDisabledState,new RectangleComponent(this,Renderer,side_width,side_width,new Color(0.0f,0.75f,0.0f)));
+			bg.Add(Checkbox.CheckedNormalState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.5f,0.0f)));
+			bg.Add(Checkbox.CheckedHoverState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.3f,0.0f)));
+			bg.Add(Checkbox.CheckedClickState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.2f,0.0f)));
+			bg.Add(Checkbox.CheckedDisabledState,new RectangleGameObject(Renderer,side_width,side_width,new Color(0.0f,0.75f,0.0f)));
 
-			ComponentGroup? tt;
+			GameObjectGroup? tt;
 
 			if(tool_tip != "")
 			{
-				TextComponent text = new TextComponent(this,Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),tool_tip,Color.Black);
+				TextGameObject text = new TextGameObject(Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),tool_tip,Color.Black);
 				text.LayerDepth = 0.01f;
 				text.Translate(5.0f,0.0f);
 
-				RectangleComponent text_bg = new RectangleComponent(this,Renderer,text.Width + 10,text.Height,Color.Cornsilk);
+				RectangleGameObject text_bg = new RectangleGameObject(Renderer,text.Width + 10,text.Height,Color.Cornsilk);
 				text_bg.LayerDepth = 0.02f;
 				
-				tt = new ComponentGroup(this,text_bg,text);
+				tt = new GameObjectGroup(text_bg,text);
 				
 				text.Parent = text_bg;
 				text_bg.Parent = tt;
@@ -227,7 +227,7 @@ namespace ExampleShaders
 			else
 				tt = null;
 			
-			return new Checkbox(this,option,bg,new TextComponent(this,Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),option,Color.Black),false,5.0f,false,tt);
+			return new Checkbox(option,bg,new TextGameObject(Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),option,Color.Black),false,5.0f,false,tt);
 		}
 
 		/// <summary>
@@ -241,32 +241,32 @@ namespace ExampleShaders
 		{
 			const int slider_width = 260;
 			
-			ComponentLibrary bar = new ComponentLibrary(this);
+			GameObjectLibrary bar = new GameObjectLibrary();
 
-			bar.Add(Slider.NormalState,new RectangleComponent(this,Renderer,slider_width,10,Color.White));
-			bar.Add(Slider.HoverState,new RectangleComponent(this,Renderer,slider_width,10,Color.White));
-			bar.Add(Slider.ClickState,new RectangleComponent(this,Renderer,slider_width,10,Color.White));
-			bar.Add(Slider.DisabledState,new RectangleComponent(this,Renderer,slider_width,10,Color.LightGray));
+			bar.Add(Slider.NormalState,new RectangleGameObject(Renderer,slider_width,10,Color.White));
+			bar.Add(Slider.HoverState,new RectangleGameObject(Renderer,slider_width,10,Color.White));
+			bar.Add(Slider.ClickState,new RectangleGameObject(Renderer,slider_width,10,Color.White));
+			bar.Add(Slider.DisabledState,new RectangleGameObject(Renderer,slider_width,10,Color.LightGray));
 
-			ComponentLibrary knob = new ComponentLibrary(this);
+			GameObjectLibrary knob = new GameObjectLibrary();
 
-			knob.Add(Slider.NormalState,new RectangleComponent(this,Renderer,15,15,base_color));
-			knob.Add(Slider.HoverState,new RectangleComponent(this,Renderer,15,15,base_color * 1.2f));
-			knob.Add(Slider.ClickState,new RectangleComponent(this,Renderer,15,15,base_color * 1.4f));
-			knob.Add(Slider.DisabledState,new RectangleComponent(this,Renderer,15,15,base_color * 0.5f));
+			knob.Add(Slider.NormalState,new RectangleGameObject(Renderer,15,15,base_color));
+			knob.Add(Slider.HoverState,new RectangleGameObject(Renderer,15,15,base_color * 1.2f));
+			knob.Add(Slider.ClickState,new RectangleGameObject(Renderer,15,15,base_color * 1.4f));
+			knob.Add(Slider.DisabledState,new RectangleGameObject(Renderer,15,15,base_color * 0.5f));
 
-			ComponentGroup? tt;
+			GameObjectGroup? tt;
 
 			if(tool_tip != "")
 			{
-				TextComponent text = new TextComponent(this,Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),tool_tip,Color.Black);
+				TextGameObject text = new TextGameObject(Renderer,Content.Load<SpriteFont>("Fonts/Times New Roman"),tool_tip,Color.Black);
 				text.LayerDepth = 0.01f;
 				text.Translate(5.0f,0.0f);
 
-				RectangleComponent text_bg = new RectangleComponent(this,Renderer,text.Width + 10,text.Height,Color.Cornsilk);
+				RectangleGameObject text_bg = new RectangleGameObject(Renderer,text.Width + 10,text.Height,Color.Cornsilk);
 				text_bg.LayerDepth = 0.02f;
 				
-				tt = new ComponentGroup(this,text_bg,text);
+				tt = new GameObjectGroup(text_bg,text);
 				
 				text.Parent = text_bg;
 				text_bg.Parent = tt;
@@ -274,7 +274,7 @@ namespace ExampleShaders
 			else
 				tt = null;
 
-			return new Slider(this,name,bar,knob,min,max,tt);
+			return new Slider(name,bar,knob,min,max,tt);
 		}
 
 		/// <summary>
@@ -763,7 +763,7 @@ namespace ExampleShaders
 		
 		protected GUICore? GUISystem;
 		protected RadioButtons? Menu;
-		protected RectangleComponent? MenuBackground;
+		protected RectangleGameObject? MenuBackground;
 
 		protected Slider? R;
 		protected Slider? G;
@@ -777,7 +777,7 @@ namespace ExampleShaders
 		protected Slider? Shininess;
 
 		protected Boundary Bounds;
-		protected RectangleComponent? BoundingBox;
+		protected RectangleGameObject? BoundingBox;
 
 		protected float AspectRatio;
 

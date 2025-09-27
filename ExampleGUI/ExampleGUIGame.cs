@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.GUI.Map;
@@ -34,7 +34,7 @@ namespace ExampleGUI
 			Input.AddKeyInput("_E",Keys.Escape);
 			Input.AddEdgeTriggeredInput("Back","_E",true);
 
-			Services.AddService(new GUICore(this,null));
+			Services.AddService(new GUICore(null));
 			Components.Add(Services.GetService<GUICore>());
 
 			return;
@@ -89,24 +89,24 @@ namespace ExampleGUI
 		{
 			// The button requires a drawable component to display for each of its states
 			// These can all be different or all the same, depending on context
-			ComponentLibrary lib = new ComponentLibrary(this);
+			GameObjectLibrary lib = new GameObjectLibrary();
 
 			// The disabled state is when the button is disabled and unable to be interacted with (but still visible)
-			lib.Add(Button.DisabledState,new RectangleComponent(this,null,w,h,Color.Gray));
+			lib.Add(Button.DisabledState,new RectangleGameObject(null,w,h,Color.Gray));
 
 			// The normal state is the state the button is in whenever it is not in another state
-			lib.Add(Button.NormalState,new RectangleComponent(this,null,w,h,Color.Blue));
+			lib.Add(Button.NormalState,new RectangleGameObject(null,w,h,Color.Blue));
 
 			// The hover state is when the mouse (or digital input) is hovered over the button but not clicked
-			lib.Add(Button.HoverState,new RectangleComponent(this,null,w,h,Color.Green));
+			lib.Add(Button.HoverState,new RectangleGameObject(null,w,h,Color.Green));
 
 			// The click state is when the button is begin clicked (by the mouse or digitally)
-			lib.Add(Button.ClickState,new RectangleComponent(this,null,w,h,Color.Pink));
+			lib.Add(Button.ClickState,new RectangleGameObject(null,w,h,Color.Pink));
 			
 			// We create a button
 			// The TextComponent we provide to draw the button's text doesn't need a SpriteBatch to render it
 			// The GUICore will assign that itself
-			Button b = new Button(this,name,lib,text is null ? null : new TextComponent(this,null,Content.Load<SpriteFont>("Times New Roman"),text,Color.Black));
+			Button b = new Button(name,lib,text is null ? null : new TextGameObject(null,Content.Load<SpriteFont>("Times New Roman"),text,Color.Black));
 			b.Transform = b.Transform.Translate(position);
 			
 			return b;

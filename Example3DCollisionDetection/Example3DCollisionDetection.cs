@@ -200,7 +200,7 @@ namespace Example3DCollisionDetection
 			float ar = (float)FriendlyGame.Graphics.GraphicsDevice.Viewport.Width / FriendlyGame.Graphics.GraphicsDevice.Viewport.Height;
 			Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),ar,1.0f,1000.0f);
 
-			ID = ICollider<ICollider3D>.NextID;
+			ColliderID = ColliderID<ICollider3D>.GetFreshID(this);
 
 			_is = is_static;
 
@@ -251,7 +251,7 @@ namespace Example3DCollisionDetection
 
 		public bool CollidesWith(ICollider3D other) => true;
 
-		public bool Equals(ICollider3D? other) => other is null ? false : ID == other.ID;
+		public bool Equals(ICollider3D? other) => other is null ? false : ColliderID == other.ColliderID;
 
 		public override string ToString() => Boundary.ToString();
 
@@ -275,7 +275,7 @@ namespace Example3DCollisionDetection
 		public float PreviousNearBound => PreviousBoundary.Near;
 		public float PreviousFarBound => PreviousBoundary.Far;
 		
-		public uint ID
+		public ColliderID<ICollider3D> ColliderID
 		{get;}
 
 		public bool IsStatic

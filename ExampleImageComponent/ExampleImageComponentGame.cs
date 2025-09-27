@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Maths;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +29,7 @@ namespace ExampleImageComponent
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// Create an ImageComponent
-			_image = new ImageComponent(this,_spriteBatch,"Pokeball");
+			_image = new ImageGameObject(_spriteBatch,"Pokeball");
 
 			// The ImageComponent's transform is initialized to the Identity matrix, but you can change it however you like
 			// The Matrix2D struct will allow you to create new matrices from old ones to apply more transformations
@@ -103,6 +103,6 @@ namespace ExampleImageComponent
 		}
 		
 		private SpriteBatch _spriteBatch;
-		private ImageComponent _image;
+		private ImageGameObject _image;
 	}
 }

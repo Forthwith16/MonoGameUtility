@@ -1,5 +1,5 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameComponents;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
@@ -69,7 +69,7 @@ namespace ExampleInputManager
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			_image = new ImageComponent(this,_spriteBatch,"Pokeball");
+			_image = new ImageGameObject(_spriteBatch,"Pokeball");
 			Components.Add(_image);
 
 			return;
@@ -128,7 +128,7 @@ namespace ExampleInputManager
 		}
 		
 		private SpriteBatch _spriteBatch;
-		private ImageComponent _image;
+		private ImageGameObject _image;
 		
 		protected InputManager Input;
 		protected bool digital;

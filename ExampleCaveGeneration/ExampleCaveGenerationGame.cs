@@ -1,7 +1,7 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Framework;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,11 +9,10 @@ using System;
 
 namespace ExampleCaveGeneration
 {
-	public class ExampleCaveGenerationGame : Game
+	public class ExampleCaveGenerationGame : RenderTargetFriendlyGame
 	{
-		public ExampleCaveGenerationGame()
+		public ExampleCaveGenerationGame() : base()
 		{
-			Graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 
@@ -26,7 +25,7 @@ namespace ExampleCaveGeneration
 
 			PreviousRocks = new bool[Width,Height];
 			Rocks = new bool[Width,Height];
-			Cave = new RectangleComponent[Width,Height];
+			Cave = new RectangleGameObject[Width,Height];
 
 			RockOdds = 0.5f;
 			RockSurvivalThreshold = 5;
@@ -52,7 +51,7 @@ namespace ExampleCaveGeneration
 				{
 					PreviousRocks[i,j] = Rocks[i,j] = rand.NextDouble() <= RockOdds;
 
-					Components.Add(Cave[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
+					Components.Add(Cave[i,j] = new RectangleGameObject(Renderer,TileWidth,TileWidth,Color.White));
 					Cave[i,j].Translate(new Vector2(TileWidth * i,TileWidth * j));
 				}
 
@@ -78,6 +77,20 @@ namespace ExampleCaveGeneration
 				StepSimulation();
 
 			base.Update(delta);
+			return;
+		}
+
+		protected override void PreDraw(GameTime delta)
+		{
+			GraphicsDevice.Clear(Color.CornflowerBlue);
+			Renderer!.Begin(SpriteSortMode.BackToFront,BlendState.NonPremultiplied,SamplerState.LinearClamp,null,null,null,null);
+
+			return;
+		}
+
+		protected override void PostDraw(GameTime delta)
+		{
+			Renderer!.End();
 			return;
 		}
 
@@ -109,24 +122,12 @@ namespace ExampleCaveGeneration
 
 		private bool WasRock(int i, int j) => i < 0 || i >= Width || j < 0 || j >= Height || PreviousRocks[i,j];
 
-		protected override void Draw(GameTime delta)
-		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
-
-			Renderer!.Begin(SpriteSortMode.BackToFront);
-			base.Draw(delta);
-			Renderer.End();
-
-			return;
-		}
-
-		private GraphicsDeviceManager Graphics;
 		private SpriteBatch? Renderer;
 		private InputManager? Input;
 
 		private bool[,] PreviousRocks;
 		private bool[,] Rocks;
-		private RectangleComponent[,] Cave;
+		private RectangleGameObject[,] Cave;
 
 		private readonly int Width;
 		private readonly int Height;

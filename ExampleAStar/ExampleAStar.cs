@@ -1,7 +1,7 @@
-﻿using GameEngine.GameComponents;
+﻿using GameEngine.Framework;
+using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
-using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,11 +12,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ExampleAStar
 {
-	public class ExampleAStar : Game
+	public class ExampleAStar : RenderTargetFriendlyGame
 	{
-		public ExampleAStar()
+		public ExampleAStar() : base()
 		{
-			Graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 
@@ -33,17 +32,17 @@ namespace ExampleAStar
 
 			Search = 0;
 			
-			HTerrain = new RectangleComponent[Width,Height];
+			HTerrain = new RectangleGameObject[Width,Height];
 			HQ = new PriorityQueue<FDistancePoint,float>(Comparer<float>.Create((a,b) => a.CompareTo(b)));
 			HPrev = new Dictionary<Point,FDistancePoint>();
 			HDone = true;
 
-			ATerrain = new RectangleComponent[Width,Height];
+			ATerrain = new RectangleGameObject[Width,Height];
 			AQ = new PriorityQueue<FDistancePoint,float>(Comparer<float>.Create((a,b) => a.CompareTo(b)));
 			APrev = new Dictionary<Point,FDistancePoint>();
 			ADone = true;
 
-			DTerrain = new RectangleComponent[Width,Height];
+			DTerrain = new RectangleGameObject[Width,Height];
 			DQ = new PriorityQueue<DistancePoint,int>(Comparer<int>.Create((a,b) => a.CompareTo(b)));
 			DPrev = new Dictionary<Point,DistancePoint>();
 			DDone = true;
@@ -100,13 +99,13 @@ namespace ExampleAStar
 				{
 					Rocks[i,j] = rand.NextSingle() <= RockThreshold;
 					
-					Components.Add(HTerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
+					Components.Add(HTerrain[i,j] = new RectangleGameObject(Renderer,TileWidth,TileWidth,Color.White));
 					HTerrain[i,j].Translate(new Vector2(TileWidth * i,TileWidth * j));
 
-					Components.Add(ATerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
+					Components.Add(ATerrain[i,j] = new RectangleGameObject(Renderer,TileWidth,TileWidth,Color.White));
 					ATerrain[i,j].Translate(new Vector2(TileWidth * (Width + 2 + i),TileWidth * j));
 
-					Components.Add(DTerrain[i,j] = new RectangleComponent(this,Renderer,TileWidth,TileWidth,Color.White));
+					Components.Add(DTerrain[i,j] = new RectangleGameObject(Renderer,TileWidth,TileWidth,Color.White));
 					DTerrain[i,j].Translate(new Vector2(TileWidth * (2 * Width + 4 + i),TileWidth * j));
 				}
 
@@ -461,18 +460,20 @@ namespace ExampleAStar
 			return;
 		}
 
-		protected override void Draw(GameTime delta)
+		protected override void PreDraw(GameTime delta)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
-
-			Renderer!.Begin(SpriteSortMode.BackToFront);
-			base.Draw(delta);
-			Renderer.End();
+			Renderer!.Begin(SpriteSortMode.BackToFront,BlendState.NonPremultiplied,SamplerState.LinearClamp,null,null,null,null);
 
 			return;
 		}
 
-		private GraphicsDeviceManager Graphics;
+		protected override void PostDraw(GameTime delta)
+		{
+			Renderer!.End();
+			return;
+		}
+
 		private SpriteBatch? Renderer;
 		private InputManager? Input;
 
@@ -485,17 +486,17 @@ namespace ExampleAStar
 		private readonly List<Point> Grass;
 		private readonly float RockThreshold;
 
-		private readonly RectangleComponent[,] HTerrain;
+		private readonly RectangleGameObject[,] HTerrain;
 		private readonly PriorityQueue<FDistancePoint,float> HQ;
 		private readonly Dictionary<Point,FDistancePoint> HPrev;
 		private bool HDone;
 
-		private readonly RectangleComponent[,] ATerrain;
+		private readonly RectangleGameObject[,] ATerrain;
 		private readonly PriorityQueue<FDistancePoint,float> AQ;
 		private readonly Dictionary<Point,FDistancePoint> APrev;
 		private bool ADone;
 
-		private readonly RectangleComponent[,] DTerrain;
+		private readonly RectangleGameObject[,] DTerrain;
 		private readonly PriorityQueue<DistancePoint,int> DQ;
 		private readonly Dictionary<Point,DistancePoint> DPrev;
 		private bool DDone;
