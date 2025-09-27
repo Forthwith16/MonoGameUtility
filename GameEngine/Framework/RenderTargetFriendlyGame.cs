@@ -78,6 +78,11 @@ namespace GameEngine.Framework
 			_m = null;
 			_mr = null;
 			
+			// If we're building for Mac, we need these set to false
+			// Also, it doesn't hurt Windows builds, so we'll just go ahead and do this
+			Graphics.SynchronizeWithVerticalRetrace = false;
+			IsFixedTimeStep = false;
+
 			return;
 		}
 
