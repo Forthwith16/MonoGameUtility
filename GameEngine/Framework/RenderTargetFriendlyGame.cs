@@ -19,9 +19,9 @@ namespace GameEngine.Framework
 			Initialized = false;
 			Initializing = false;
 
-			#if VerifyMidInitializationComponentAdds
+#if VerifyMidInitializationComponentAdds
 			MidInitializationAdds = new Queue<IGameComponent>();
-			#endif
+#endif
 
 			// Create the graphics device manager
 			Graphics = new GraphicsDeviceManager(this);
@@ -30,9 +30,9 @@ namespace GameEngine.Framework
 			RenderTargetComponents = new SortedDictionary<int,HashSet<IRenderTargetDrawable>>();
 			
 			// Do the same for the debug list
-			#if DEBUG
+#if DEBUG
 			DebugComponents = new SortedDictionary<int,HashSet<IDebugDrawable>>();
-			#endif
+#endif
 
 			// We'll need to keep track of render target components coming in and going out
 			// Do the same for debug components
@@ -54,10 +54,10 @@ namespace GameEngine.Framework
 				// This will take care of initialization for anything that gets added
 				if(Initialized)
 					b.GameComponent.Initialize();
-				#if VerifyMidInitializationComponentAdds
+#if VerifyMidInitializationComponentAdds
 				else if(Initializing)
 					MidInitializationAdds.Enqueue(b.GameComponent);
-				#endif
+#endif
 				return;
 			};
 
@@ -66,10 +66,10 @@ namespace GameEngine.Framework
 				if(b.GameComponent is IRenderTargetDrawable obj)
 					RemoveRenderTargetComponent(obj);
 
-				#if DEBUG
+#if DEBUG
 				if(b.GameComponent is IDebugDrawable obj2)
 					RemoveDebugComponent(obj2);
-				#endif
+#endif
 
 				return;
 			};
@@ -79,10 +79,10 @@ namespace GameEngine.Framework
 			_mr = null;
 
 			// If we're building for Mac, we need these set to false
-			#if MACOS
+#if MACOS
 			Graphics.SynchronizeWithVerticalRetrace = false;
 			IsFixedTimeStep = false;
-			#endif
+#endif
 
 			return;
 		}
