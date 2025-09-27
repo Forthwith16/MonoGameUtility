@@ -68,7 +68,7 @@ namespace GameEngine.GameObjects
 
 		protected override void UnloadContent()
 		{
-			Source!.Dispose();
+			Source?.Dispose();
 			return;
 		}
 
