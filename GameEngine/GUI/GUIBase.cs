@@ -230,9 +230,9 @@ namespace GameEngine.GUI
 			{
 				if(base.DrawOrder == value || value < 1)
 					return;
-
-				base.DrawOrder = value;
+				
 				base.LayerDepth = IGUI.DrawOrderToStandardDrawLayer(base.DrawOrder);
+				base.DrawOrder = value;
 
 				return;
 			}
@@ -243,7 +243,7 @@ namespace GameEngine.GUI
 		/// See <see cref="DrawOrder"/> for more details.
 		/// </summary>
 		/// <remarks>Setting this does nothing.</remarks>
-		public override float LayerDepth
+		public sealed override float LayerDepth
 		{
 			get => base.LayerDepth; // We keep this value so we don't need to divide a lot for no reason
 			
