@@ -1,6 +1,6 @@
 ﻿Programming Todo
 ----------------
-Fix the million bugs we've introduced into projects
+The new version of MonoGame may not requires to track mid initialize adds, although if we're allowed to insert (check this) then we would still have a problem b/c the initialization loop is just a for loop from 0 to Count - 1
 
 
 
@@ -29,13 +29,6 @@ Try to support instantiation all the way in the base project.
 
 Instantiate should return TSelf, not TSelf?
 -This is only the case if we can get it working everywhere
-
-
-
-
-
-MAAAAAAYBE make Matrix2D agree with MonoGame's weird matrix orientation
--Or not; this would be a big pain and could break everything everywhere
 
 
 
