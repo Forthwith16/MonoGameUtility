@@ -805,6 +805,17 @@ namespace GameEngine.GUI.Components
 			return;
 		}
 
+		public override void NotifyGameChange()
+		{
+			foreach(Checkbox c in Buttons.Values)
+				c.Game = Game;
+
+			Backgrounds.Game = Game;
+
+			base.NotifyGameChange();
+			return;
+		}
+
 		/// <summary>
 		/// Determines if this radio button group contains the position <paramref name="pos"/>.
 		/// This is true if the mouse is over any of the radio <i>buttons</i>.

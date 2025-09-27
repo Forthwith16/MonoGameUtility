@@ -529,6 +529,17 @@ namespace GameEngine.GUI.Components
 			return;
 		}
 
+		public override void NotifyGameChange()
+		{
+			Decrement.Game = Game;
+			Increment.Game = Game;
+			Pencil.Game = Game;
+			Background.Game = Game;
+
+			base.NotifyGameChange();
+			return;
+		}
+
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
 		{return Decrement.Contains(pos,out component,include_children) || Increment.Contains(pos,out component,include_children);}
 

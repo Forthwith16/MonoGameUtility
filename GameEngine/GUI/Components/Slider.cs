@@ -360,6 +360,15 @@ namespace GameEngine.GUI.Components
 			return;
 		}
 
+		public override void NotifyGameChange()
+		{
+			Bars.Game = Game;
+			Knobs.Game = Game;
+
+			base.NotifyGameChange();
+			return;
+		}
+
 		/// <summary>
 		/// Determines if this slider contains the position <paramref name="pos"/>.
 		/// This is true if the knob <i>could</i> be at any position containing the mouse (with a fine enough granularity on its values).

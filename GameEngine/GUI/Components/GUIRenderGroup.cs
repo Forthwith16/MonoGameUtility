@@ -175,7 +175,10 @@ namespace GameEngine.GUI.Components
 
 			// Lastly, initialize if we already are
 			if(Initialized)
+			{
+				component.NotifyGameChange();
 				component.Initialize();
+			}
 
 			return true;
 		}
@@ -235,6 +238,15 @@ namespace GameEngine.GUI.Components
 			component.Owner = null;
 
 			return true;
+		}
+
+		public override void NotifyGameChange()
+		{
+			foreach(IGUI c in DrawChildren) // UpdateChildren = DrawChildren, just ordered differently
+				c.NotifyGameChange();
+
+			base.NotifyGameChange();
+			return;
 		}
 
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)

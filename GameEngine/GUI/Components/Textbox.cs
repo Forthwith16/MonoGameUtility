@@ -769,6 +769,16 @@ namespace GameEngine.GUI.Components
 			return;
 		}
 
+		public override void NotifyGameChange()
+		{
+			Library.Game = Game;
+			Pencil.Game = Game;
+			Cursor.Game = Game;
+
+			base.NotifyGameChange();
+			return;
+		}
+
 		public override bool Contains(Vector2 pos, out IGUI? component, bool include_children = true)
 		{
 			// Transform pos into the local coordinate system

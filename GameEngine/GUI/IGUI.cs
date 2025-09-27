@@ -85,6 +85,12 @@ namespace GameEngine.GUI
 		public void PerformExit(MouseHoverEventArgs args);
 
 		/// <summary>
+		/// Notifies an IGUI that the game it will be part of has changed.
+		/// To know what game it belongs to, it should reference its <see cref="Owner"/>'s Game property.
+		/// </summary>
+		public void NotifyGameChange();
+
+		/// <summary>
 		/// Converts a DrawOrder value to a DrawLayer via 1 / <paramref name="order"/>.
 		/// </summary>
 		/// <param name="order">The DrawOrder value. If this is nonpositive, this returns 1.0f.</param>

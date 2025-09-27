@@ -117,6 +117,14 @@ namespace GameEngine.GUI
 		protected virtual void UnloadContentAddendum()
 		{return;}
 
+		public virtual void NotifyGameChange()
+		{
+			if(Tooltip is not null)
+				Tooltip.Game = Game;
+
+			return;
+		}
+
 		public bool Contains(Point p, out IGUI? component, bool include_children = true) => Contains(new Vector2(p.X,p.Y),out component,include_children);
 		public abstract bool Contains(Vector2 pos, out IGUI? component, bool include_children = true);
 
@@ -187,13 +195,22 @@ namespace GameEngine.GUI
 		{get; protected set;}
 
 		/// <inheritdoc/>
-		/// <remarks>This cannot be set. It always references its <see cref="Owner"/>'s game.</remarks>
-		public override RenderTargetFriendlyGame? Game
+		/// <remarks>
+		/// This cannot be set.
+		/// It always references its <see cref="Owner"/>'s game.
+		/// <para/>
+		/// Setting this will automatically call <see cref="NotifyGameChange"/>.
+		/// Deriving classes that need to notify internal components about a game set should override <see cref="NotifyGameChange()"/>.
+		/// </remarks>
+		public sealed override RenderTargetFriendlyGame? Game
 		{
 			get => Owner?.Game;
 
 			protected internal set
-			{return;}
+			{
+				NotifyGameChange();
+				return;
+			}
 		}
 
 		public override SpriteBatch? Renderer

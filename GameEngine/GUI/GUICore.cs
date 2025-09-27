@@ -652,7 +652,10 @@ namespace GameEngine.GUI
 
 			// Lastly, initialize if we already are
 			if(Initialized)
+			{
+				component.NotifyGameChange(); // We (normally) only are initialized if we are added to the game
 				component.Initialize();
+			}
 
 			return true;
 		}
@@ -931,6 +934,21 @@ namespace GameEngine.GUI
 		/// </summary>
 		protected GUIMap Map
 		{get; set;}
+
+		public override RenderTargetFriendlyGame? Game
+		{
+			get => base.Game;
+
+			protected internal set
+			{
+				base.Game = value;
+
+				foreach(IGUI c in DrawChildren) // UpdateChildren = DrawChildren, just ordered differently
+					c.NotifyGameChange();
+
+				return;
+			}
+		}
 
 		public override SpriteBatch? Renderer
 		{
