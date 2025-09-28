@@ -48,5 +48,6 @@ Asset Todo
 ----------
 Make assets JSON
 -Also streamline them a bit
+-Remember, we can serialize assets, but we should go through the content system to load assets, not deserialize them
 
 Add start frame to Animation
