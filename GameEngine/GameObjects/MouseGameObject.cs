@@ -21,7 +21,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="src">The texture to pass off to the ImageGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseGameObject(Texture2D src, SpriteBatch? renderer = null) : base(renderer)
+		public MouseGameObject(Texture2D src, SpriteRenderer? renderer = null) : base(renderer)
 		{
 			CommonConstruction(new ImageGameObject(renderer,src));
 			return;
@@ -32,7 +32,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="src">The image sources to pass off to the MultiImageGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseGameObject(SpriteSheet src, SpriteBatch? renderer = null) : base(renderer)
+		public MouseGameObject(SpriteSheet src, SpriteRenderer? renderer = null) : base(renderer)
 		{
 			CommonConstruction(new MultiImageGameObject(renderer,src));
 			return;
@@ -43,7 +43,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="src">The animation to pass off to the AnimatedGameObject.</param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseGameObject(Animation2D src, SpriteBatch? renderer = null) : base(renderer)
+		public MouseGameObject(Animation2D src, SpriteRenderer? renderer = null) : base(renderer)
 		{
 			CommonConstruction(new AnimatedGameObject(renderer,src));
 			return;
@@ -62,7 +62,7 @@ namespace GameEngine.GameObjects
 		///	No other limits are placed upon this.
 		/// </param>
 		/// <param name="renderer">The renderer to use to draw with (this can be changed later).</param>
-		public MouseGameObject(DrawableAffineObject mouse, SpriteBatch? renderer = null) : base(renderer)
+		public MouseGameObject(DrawableAffineObject mouse, SpriteRenderer? renderer = null) : base(renderer)
 		{
 			CommonConstruction(mouse);
 			return;
@@ -224,7 +224,7 @@ namespace GameEngine.GameObjects
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			get => base.Renderer;
 

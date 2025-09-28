@@ -7,6 +7,7 @@ using GameEngine.GUI.Map;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.EnumExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -32,7 +33,7 @@ namespace GameEngine.GUI
 		/// </summary>
 		/// <param name="renderer">The renderer for the GUI core. This can be changed later.</param>
 		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
-		public GUICore(SpriteBatch? renderer, bool enable_digital = true) : base(null,null)
+		public GUICore(SpriteRenderer? renderer, bool enable_digital = true) : base(null,null)
 		{
 			Input = new InputManager(); // Does not need to be initialized
 			Renderer = renderer;
@@ -108,8 +109,8 @@ namespace GameEngine.GUI
 		protected override void LoadContent()
 		{
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
-			LocalRenderer = new SpriteBatch(Game!.GraphicsDevice); // We should only get here if Game is set
-			RenderTarget = new RenderTarget2D(Game.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
+			LocalRenderer = new SpriteRenderer(Game!); // We should only get here if Game is set
+			RenderTarget = new RenderTarget2D(Game!.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
 			
 			Source = new ImageGameObject(Renderer,RenderTarget);
 			Source.Parent = this;
@@ -950,7 +951,7 @@ namespace GameEngine.GUI
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			get => base.Renderer;
 
@@ -965,9 +966,9 @@ namespace GameEngine.GUI
 		}
 
 		/// <summary>
-		/// The SpriteBatch for all GUI drawing in this GUICore.
+		/// The SpriteRenderer for all GUI drawing in this GUICore.
 		/// </summary>
-		public SpriteBatch? LocalRenderer
+		public SpriteRenderer? LocalRenderer
 		{
 			get => _lr;
 			
@@ -985,7 +986,7 @@ namespace GameEngine.GUI
 			}
 		}
 
-		protected SpriteBatch? _lr;
+		protected SpriteRenderer? _lr;
 
 		/// <summary>
 		/// The texture that we will render to.

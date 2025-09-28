@@ -1,7 +1,7 @@
 ﻿using GameEngine.Events;
 using GameEngine.Framework;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GUI
 {
@@ -131,12 +131,12 @@ namespace GameEngine.GUI
 		{get;}
 
 		/// <summary>
-		/// This is the SpriteBatch used to draw this GUI component.
+		/// This is the SpriteRenderer used to draw this GUI component.
 		/// If this is unassigned (null), then the draw will be skipped.
 		/// <para/>
 		/// This should always be equal to Owner.Renderer but serves as a way to notify compilcated GUI components of renderer changes without having to check every draw cycle.
 		/// </summary>
-		public SpriteBatch? Renderer
+		public SpriteRenderer? Renderer
 		{set;}
 
 		/// <summary>

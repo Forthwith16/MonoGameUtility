@@ -5,6 +5,7 @@ using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
@@ -1229,7 +1230,7 @@ namespace GameEngine.GUI.Components
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{

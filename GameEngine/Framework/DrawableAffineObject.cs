@@ -1,4 +1,5 @@
 ﻿using GameEngine.Events;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json.Serialization;
@@ -17,7 +18,7 @@ namespace GameEngine.Framework
 		/// <param name="game">The game this game object will belong to.</param>
 		/// <param name="renderer">The renderer to draw with (this can be changed later).</param>
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
-		protected DrawableAffineObject(SpriteBatch? renderer = null, Color? c = null)
+		protected DrawableAffineObject(SpriteRenderer? renderer = null, Color? c = null)
 		{
 			_v = true;
 			_do = 0;
@@ -144,10 +145,10 @@ namespace GameEngine.Framework
 		private int _do;
 
 		/// <summary>
-		/// This is the SpriteBatch used to draw this game object.
+		/// This is the SpriteRenderer used to draw this game object.
 		/// If this is unassigned (null), then the draw will be skipped.
 		/// </summary>
-		public virtual SpriteBatch? Renderer
+		public virtual SpriteRenderer? Renderer
 		{get; set;}
 
 		/// <summary>
@@ -171,7 +172,7 @@ namespace GameEngine.Framework
 		/// This value must be within [0,1].
 		/// <para/>
 		/// With respect to the drawing order, larger values are the 'front' and smaller values are the 'back'.
-		/// This value only has significance when the SpriteBatch's SpriteSortMode is BackToFront (in which case smaller values are drawn on top) or FrontToBack (in which case larger values are drawn on top).
+		/// This value only has significance when the SpriteRenderer's SpriteSortMode is BackToFront (in which case smaller values are drawn on top) or FrontToBack (in which case larger values are drawn on top).
 		/// <para/>
 		/// This value defaults to 0.0f.
 		/// </summary>

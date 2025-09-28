@@ -1,4 +1,5 @@
 ﻿using GameEngine.Framework;
+using GameEngine.Sprites;
 using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,7 +18,7 @@ namespace GameEngine.GameObjects
 		/// Creates an image game object whose child class will take care of assigning Source itself.
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
-		protected ImageGameObject(SpriteBatch? renderer) : base(renderer,Color.White)
+		protected ImageGameObject(SpriteRenderer? renderer) : base(renderer,Color.White)
 		{
 			Source = null;
 			Resource = null;
@@ -30,7 +31,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="resource">The name of the texture resource to load.</param>
-		public ImageGameObject(SpriteBatch? renderer, string resource) : base(renderer,Color.White)
+		public ImageGameObject(SpriteRenderer? renderer, string resource) : base(renderer,Color.White)
 		{
 			Source = null;
 			Resource = resource;
@@ -44,7 +45,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="texture">The texture of this image.</param>
-		public ImageGameObject(SpriteBatch? renderer, Texture2D texture) : base(renderer,Color.White)
+		public ImageGameObject(SpriteRenderer? renderer, Texture2D texture) : base(renderer,Color.White)
 		{
 			Source = texture;
 			Resource = null;
@@ -123,7 +124,7 @@ namespace GameEngine.GameObjects
 
 		/// <summary>
 		/// This is the source rectangle to sample Source from during a draw call.
-		/// This value can be larger than Source is, in which case the SpriteBatch's wrap mode (SamplerState) will determine how out of bounds values are processed.
+		/// This value can be larger than Source is, in which case the SpriteRenderer's wrap mode (SamplerState) will determine how out of bounds values are processed.
 		/// When it is null, it draws all of Source.
 		/// <para/>
 		/// This value defaults to null.

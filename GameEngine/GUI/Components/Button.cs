@@ -2,9 +2,9 @@
 using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GUI.Components
 {
@@ -225,7 +225,7 @@ namespace GameEngine.GUI.Components
 		public GameObjectLibrary Library
 		{get; protected set;}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{

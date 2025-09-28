@@ -1,4 +1,5 @@
 ﻿using GameEngine.Framework;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,7 +17,7 @@ namespace GameEngine.GameObjects
 		/// <param name="font">The font to write with (this can be changed later).</param>
 		/// <param name="msg">The message to write (this can be changed later).</param>
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
-		public TextGameObject(SpriteBatch? renderer, string font, string msg, Color? c = null) : base(renderer,c)
+		public TextGameObject(SpriteRenderer? renderer, string font, string msg, Color? c = null) : base(renderer,c)
 		{
 			MessageDimensions = Vector2.Zero;
 
@@ -37,7 +38,7 @@ namespace GameEngine.GameObjects
 		/// <param name="font">The font to write with (this can be changed later).</param>
 		/// <param name="msg">The message to write (this can be changed later).</param>
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
-		public TextGameObject(SpriteBatch? renderer, SpriteFont font, string msg, Color? c = null) : base(renderer,c)
+		public TextGameObject(SpriteRenderer? renderer, SpriteFont font, string msg, Color? c = null) : base(renderer,c)
 		{
 			MessageDimensions = Vector2.Zero;
 

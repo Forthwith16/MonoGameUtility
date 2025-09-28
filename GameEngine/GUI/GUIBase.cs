@@ -1,7 +1,7 @@
 ﻿using GameEngine.Events;
 using GameEngine.Framework;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GUI
 {
@@ -213,7 +213,7 @@ namespace GameEngine.GUI
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{

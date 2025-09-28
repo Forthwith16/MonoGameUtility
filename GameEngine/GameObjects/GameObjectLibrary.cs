@@ -1,6 +1,6 @@
 ﻿using GameEngine.Framework;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GameObjects
 {
@@ -212,7 +212,7 @@ namespace GameEngine.GameObjects
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{

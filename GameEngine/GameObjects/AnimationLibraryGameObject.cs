@@ -16,7 +16,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
 		/// <param name="resource">The path to the animations for this game object.</param>
-		public AnimationLibraryGameObject(SpriteBatch? renderer, string resource) : base(renderer,resource)
+		public AnimationLibraryGameObject(SpriteRenderer? renderer, string resource) : base(renderer,resource)
 		{
 			// We'll load these in LoadContent
 			Animations = null;
@@ -30,7 +30,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
 		/// <param name="animations">The animations for this game object.</param>
-		public AnimationLibraryGameObject(SpriteBatch? renderer, Animation2DCollection animations) : base(renderer)
+		public AnimationLibraryGameObject(SpriteRenderer? renderer, Animation2DCollection animations) : base(renderer)
 		{
 			Animations = animations;
 

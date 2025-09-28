@@ -76,7 +76,7 @@ namespace GameEngine.Maths
 		/// <param name="origin">The origin of rotation and scaling.</param>
 		/// <param name="righthanded_chirality">
 		/// Positive rotation values result in a counterclockwise rotation about its axis.
-		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		/// Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		/// The rotation matrix this function generates follows this scheme when this value is false.
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -100,13 +100,13 @@ namespace GameEngine.Maths
 		/// <summary>
 		/// Decomposes this matrix into its translation, rotation, and scale.
 		/// These values can be transformed into an equivalent matrix via the appropriate matrices for translation * scale * rotation.
-		/// For a SpriteBatch's Draw call, these parameters correspond to position, -rotation (with origin = Vector2.Zero), and scale.
+		/// For a SpriteRenderer's Draw call, these parameters correspond to position, -rotation (with origin = Vector2.Zero), and scale.
 		/// </summary>
 		/// <param name="translation">Where the translation values will be returned.</param>
 		/// <param name="rotation">Where the rotation value will be returned.</param>
 		/// <param name="scale">Where the <b>unsigned</b> scale values will be returned.</param>
 		/// <returns>Returns true if the decomposition is possible and false otherwise. If this returns false, then none of <paramref name="translation"/>, <paramref name="rotation"/>, and <paramref name="scale"/> are valid.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead.</remarks>
 		public bool Decompose(out Vector2 translation, out float rotation, out Vector2 scale)
 		{
 			Matrix m = this;
@@ -211,7 +211,7 @@ namespace GameEngine.Maths
 		/// <param name="angle">The rotation angle (in radians).</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -227,7 +227,7 @@ namespace GameEngine.Maths
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -244,7 +244,7 @@ namespace GameEngine.Maths
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -258,7 +258,7 @@ namespace GameEngine.Maths
 		/// <param name="angle">The rotation angle (in radians).</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -280,7 +280,7 @@ namespace GameEngine.Maths
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -295,7 +295,7 @@ namespace GameEngine.Maths
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -310,7 +310,7 @@ namespace GameEngine.Maths
 		/// <param name="times">The number of 90 degree clockwise rotations to perform.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -327,7 +327,7 @@ namespace GameEngine.Maths
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -345,7 +345,7 @@ namespace GameEngine.Maths
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -361,7 +361,7 @@ namespace GameEngine.Maths
 		/// <param name="times">The number of 90 degree clockwise rotations to perform.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -411,7 +411,7 @@ namespace GameEngine.Maths
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -428,7 +428,7 @@ namespace GameEngine.Maths
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -441,7 +441,7 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float s)
 		{return Scale(s,s);}
 
@@ -453,7 +453,7 @@ namespace GameEngine.Maths
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float s, float x, float y)
 		{return Scale(s,s,x,y);}
 
@@ -464,7 +464,7 @@ namespace GameEngine.Maths
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float s, Vector2 pos)
 		{return Scale(s,s,pos.X,pos.Y);}
 
@@ -475,7 +475,7 @@ namespace GameEngine.Maths
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float sx, float sy)
 		{return Scaling(sx,sy) * this;}
 
@@ -488,7 +488,7 @@ namespace GameEngine.Maths
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float sx, float sy, float x, float y)
 		{return Translation(x,y) * Scaling(sx,sy) * Translation(-x,-y) * this;}
 
@@ -500,7 +500,7 @@ namespace GameEngine.Maths
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(float sx, float sy, Vector2 pos)
 		{return Translation(pos.X,pos.Y) * Scaling(sx,sy) * Translation(-pos.X,-pos.Y) * this;}
 
@@ -510,7 +510,7 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(Vector2 s)
 		{return Scale(s.X,s.Y);}
 
@@ -522,7 +522,7 @@ namespace GameEngine.Maths
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(Vector2 s, float x, float y)
 		{return Scale(s.X,s.Y,x,y);}
 
@@ -533,7 +533,7 @@ namespace GameEngine.Maths
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="pos">The position to scale about.</param>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D Scale(Vector2 s, Vector2 pos)
 		{return Scale(s.X,s.Y,pos.X,pos.Y);}
 
@@ -541,7 +541,7 @@ namespace GameEngine.Maths
 		/// Creates a new scale matrix.
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float s)
 		{return Scaling(s,s);}
 
@@ -551,7 +551,7 @@ namespace GameEngine.Maths
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float s, float x, float y)
 		{return Scaling(s,s,x,y);}
 
@@ -560,7 +560,7 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float s, Vector2 pos)
 		{return Scaling(s,s,pos.X,pos.Y);}
 
@@ -569,7 +569,7 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float sx, float sy)
 		{return new Matrix2D(sx,0.0f,0.0f,0.0f,sy,0.0f);}
 
@@ -580,7 +580,7 @@ namespace GameEngine.Maths
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float sx, float sy, float x, float y)
 		{return Translation(x,y) * new Matrix2D(sx,0.0f,0.0f,0.0f,sy,0.0f) * Translation(-x,-y);}
 
@@ -590,7 +590,7 @@ namespace GameEngine.Maths
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(float sx, float sy, Vector2 pos)
 		{return Scaling(sx,sy,pos.X,pos.Y);}
 
@@ -598,7 +598,7 @@ namespace GameEngine.Maths
 		/// Creates a new scale matrix.
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(Vector2 s)
 		{return Scaling(s.X,s.Y);}
 
@@ -608,7 +608,7 @@ namespace GameEngine.Maths
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(Vector2 s, float x, float y)
 		{return Scaling(s.X,s.Y,x,y);}
 
@@ -617,7 +617,7 @@ namespace GameEngine.Maths
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D Scaling(Vector2 s, Vector2 pos)
 		{return Scaling(s.X,s.Y,pos.X,pos.Y);}
 
@@ -626,14 +626,14 @@ namespace GameEngine.Maths
 		/// This is equivalent to a left multiplication by a (-1,1) scale matrix.
 		/// </summary>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D ReflectHorizontal()
 		{return HorizontalReflection() * this;}
 
 		/// <summary>
 		/// Creates a new horizontal reflection.
 		/// </summary>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D HorizontalReflection()
 		{return Scaling(-1.0f,1.0f);}
 
@@ -642,14 +642,14 @@ namespace GameEngine.Maths
 		/// This is equivalent to a left multiplication by a (1,-1) scale matrix.
 		/// </summary>
 		/// <returns>Returns a new matrix containing the result.</returns>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public Matrix2D ReflectVertical()
 		{return VerticalReflection() * this;}
 
 		/// <summary>
 		/// Creates a new vertical reflection.
 		/// </summary>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Reflections are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static Matrix2D VerticalReflection()
 		{return Scaling(1.0f,-1.0f);}
 

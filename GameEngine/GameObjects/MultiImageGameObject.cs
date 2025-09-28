@@ -14,7 +14,7 @@ namespace GameEngine.GameObjects
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="resource">The name of the sprite sheet resource to load.</param>
 		/// <param name="selection">The initially selected image.</param>
-		public MultiImageGameObject(SpriteBatch? renderer, string resource, int selection = 0) : base(renderer,resource)
+		public MultiImageGameObject(SpriteRenderer? renderer, string resource, int selection = 0) : base(renderer,resource)
 		{
 			Sprites = null;
 			_si = selection;
@@ -29,7 +29,7 @@ namespace GameEngine.GameObjects
 		/// <param name="renderer">The image renderer to draw with (this can be changed later).</param>
 		/// <param name="textures">The texture sources of this image.</param>
 		/// <param name="selection">The initially selected image.</param>
-		public MultiImageGameObject(SpriteBatch? renderer, SpriteSheet textures, int selection = 0) : base(renderer,textures.Source)
+		public MultiImageGameObject(SpriteRenderer? renderer, SpriteSheet textures, int selection = 0) : base(renderer,textures.Source)
 		{
 			Sprites = textures;
 			_si = selection;

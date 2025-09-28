@@ -3,6 +3,7 @@ using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,7 +22,7 @@ namespace GameEngine.GUI.Components
 	/// Ensure that the render quality is sufficiently high to permit any rotation/scaling required of it.
 	/// </summary>
 	/// <remarks>
-	///	Using Immediate mode for GUICore is incompatible with ComponentGroups (and other nested renderers) since Immediate mode SpriteBatches set the GraphicsDevice state immediately.
+	///	Using Immediate mode for GUICore is incompatible with ComponentGroups (and other nested renderers) since Immediate mode SpriteRendereres set the GraphicsDevice state immediately.
 	///	In general, it is inefficient regardless, so this is no great loss.
 	///	<para/>
 	///	This class will take no responsibility for the disposal of items added to it.
@@ -77,7 +78,7 @@ namespace GameEngine.GUI.Components
 
 			// Load the render engine first
 			RenderTarget = new RenderTarget2D(Game.GraphicsDevice,Width,Height);
-			LocalRenderer = new SpriteBatch(Game.GraphicsDevice);
+			LocalRenderer = new SpriteRenderer(Game);
 
 			// Initialize our drawing material
 			Source = new ImageGameObject(Renderer,RenderTarget);
@@ -321,7 +322,7 @@ namespace GameEngine.GUI.Components
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{
@@ -340,7 +341,7 @@ namespace GameEngine.GUI.Components
 		/// <summary>
 		/// The means by which our children will render themselves into RenderTarget.
 		/// </summary>
-		protected SpriteBatch? LocalRenderer
+		protected SpriteRenderer? LocalRenderer
 		{
 			get => _lr;
 			
@@ -359,7 +360,7 @@ namespace GameEngine.GUI.Components
 			}
 		}
 
-		protected SpriteBatch? _lr;
+		protected SpriteRenderer? _lr;
 
 		/// <summary>
 		/// The color to clear the background of the render texture to.

@@ -18,7 +18,14 @@ namespace GameEngine.Sprites
 		{
 			Owner = game;
 
-			CommonConstruction();
+			Order = SpriteSortMode.BackToFront;
+			Blend = BlendState.NonPremultiplied;
+			Wrap = SamplerState.LinearClamp;
+			DepthRecord = DepthStencilState.None;
+			Cull = RasterizerState.CullCounterClockwise;
+			Shader = null;
+			Transform = null;
+
 			return;
 		}
 
@@ -30,20 +37,11 @@ namespace GameEngine.Sprites
 		{
 			Owner = id;
 
-			CommonConstruction();
-			return;
-		}
-
-		/// <summary>
-		/// Finishes construction with all default parameters.
-		/// </summary>
-		protected void CommonConstruction()
-		{
 			Order = SpriteSortMode.BackToFront;
 			Blend = BlendState.NonPremultiplied;
-			Wrap = null;
-			DepthRecord = null;
-			Cull = null;
+			Wrap = SamplerState.LinearClamp;
+			DepthRecord = DepthStencilState.None;
+			Cull = RasterizerState.CullCounterClockwise;
 			Shader = null;
 			Transform = null;
 
@@ -77,33 +75,33 @@ namespace GameEngine.Sprites
 		/// <summary>
 		/// A blend mode to draw with.
 		/// <para/>
-		/// This value defaults to NonPremultiplied (null defaults to NonPremultiplied).
+		/// This value defaults to NonPremultiplied.
 		/// </summary>
-		public BlendState? Blend
+		public BlendState Blend
 		{get; set;}
 
 		/// <summary>
 		/// A sampler wrap mode to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to LinearClamp).
+		/// This value defaults to LinearClamp.
 		/// </summary>
-		public SamplerState? Wrap
+		public SamplerState Wrap
 		{get; set;}
 
 		/// <summary>
 		/// The manner of depth stencil to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to None).
+		/// This value defaults to None.
 		/// </summary>
-		public DepthStencilState? DepthRecord
+		public DepthStencilState DepthRecord
 		{get; set;}
 
 		/// <summary>
 		/// The cull state used when drawing.
 		/// <para/>
-		/// This value defaults to null (which in turn deaults to CullCounterClockwise).
+		/// This value defaults to CullCounterClockwise.
 		/// </summary>
-		public RasterizerState? Cull
+		public RasterizerState Cull
 		{get; set;}
 
 		/// <summary>

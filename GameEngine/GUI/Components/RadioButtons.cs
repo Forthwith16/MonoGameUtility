@@ -3,9 +3,9 @@ using GameEngine.Events;
 using GameEngine.GameObjects;
 using GameEngine.GUI.Map;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GUI.Components
 {
@@ -938,7 +938,7 @@ namespace GameEngine.GUI.Components
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			set
 			{

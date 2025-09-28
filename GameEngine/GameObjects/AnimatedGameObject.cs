@@ -16,7 +16,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
 		/// <param name="resource">The path to the animation for this game object. The animation can be changed later.</param>
-		public AnimatedGameObject(SpriteBatch? renderer, string resource) : base(renderer,resource)
+		public AnimatedGameObject(SpriteRenderer? renderer, string resource) : base(renderer,resource)
 		{return;}
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace GameEngine.GameObjects
 		/// </summary>
 		/// <param name="renderer">The image renderer to draw with (can be changed later).</param>
 		/// <param name="animation">The animation for this game object (this can be changed later).</param>
-		public AnimatedGameObject(SpriteBatch? renderer, Animation2D animation) : base(renderer,animation.Source.Source)
+		public AnimatedGameObject(SpriteRenderer? renderer, Animation2D animation) : base(renderer,animation.Source.Source)
 		{
 			Animation = animation;
 			return;

@@ -1,6 +1,6 @@
-﻿using GameEngine.Texture;
+﻿using GameEngine.Sprites;
+using GameEngine.Texture;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GameObjects
 {
@@ -16,7 +16,7 @@ namespace GameEngine.GameObjects
 		/// <param name="w">The width of the image generated.</param>
 		/// <param name="h">The height of the image generated.</param>
 		/// <param name="c">The color to draw with.</param>
-		public RectangleGameObject(SpriteBatch? renderer, int w, int h, Color c) : this(renderer,w,h,ColorFunctions.SolidColor(c))
+		public RectangleGameObject(SpriteRenderer? renderer, int w, int h, Color c) : this(renderer,w,h,ColorFunctions.SolidColor(c))
 		{return;}
 		
 		/// <summary>
@@ -26,7 +26,7 @@ namespace GameEngine.GameObjects
 		/// <param name="w">The width of the image generated.</param>
 		/// <param name="h">The height of the image generated.</param>
 		/// <param name="func">The color generating function.</param>
-		public RectangleGameObject(SpriteBatch? renderer, int w, int h, ColorFunction func) : base(renderer)
+		public RectangleGameObject(SpriteRenderer? renderer, int w, int h, ColorFunction func) : base(renderer)
 		{
 			Generator = func;
 

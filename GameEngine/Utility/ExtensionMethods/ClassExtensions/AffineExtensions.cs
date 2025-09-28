@@ -21,7 +21,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="origin">The origin of rotation and scaling.</param>
 		/// <param name="righthanded_chirality">
 		/// Positive rotation values result in a counterclockwise rotation about its axis.
-		/// Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		/// Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		/// The rotation matrix this function generates follows this scheme when this value is false.
 		/// If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -63,7 +63,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="angle">The rotation angle (in radians).</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -82,7 +82,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -102,7 +102,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -121,7 +121,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="times">The number of 90 degree clockwise rotations to perform.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -141,7 +141,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="point">The point to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -162,7 +162,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="y">The y coordinate to rotate around.</param>
 		/// <param name="righthanded_chirality">
 		///	Positive rotation values result in a counterclockwise rotation about its axis.
-		///	Monogame's SpriteBatch Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
+		///	Monogame's SpriteRenderer Draw (but not Begin) z-axis points outward (left-handed), resulting in screen-counterclockwise rotations with positive values.
 		///	The rotation matrix this function generates follows this scheme when this value is false.
 		///	If this is true, it will produce the opposite result (a right-handed rotation matrix with the z-axis pointing inward).
 		/// </param>
@@ -177,7 +177,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// This is equivalent to a left multiplication by a scale matrix.
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float s)
 		{
 			me.Transform = me.Transform.Scale(s);
@@ -191,7 +191,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float s, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(s,x,y);
@@ -204,7 +204,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// </summary>
 		/// <param name="s">The uniform scale factor along both axes.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float s, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(s,pos);
@@ -217,7 +217,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// </summary>
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float sx, float sy)
 		{
 			me.Transform = me.Transform.Scale(sx,sy);
@@ -232,7 +232,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float sx, float sy, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(sx,sy,x,y);
@@ -246,7 +246,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="sx">The scale factor for the horizontal axis.</param>
 		/// <param name="sx">The scale factor for the vertical axis.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, float sx, float sy, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(sx,sy,pos);
@@ -258,7 +258,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// This is equivalent to a left multiplication by a scale matrix.
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, Vector2 s)
 		{
 			me.Transform = me.Transform.Scale(s);
@@ -272,7 +272,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="x">The x position to scale about.</param>
 		/// <param name="y">The y position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, Vector2 s, float x, float y)
 		{
 			me.Transform = me.Transform.Scale(s,x,y);
@@ -285,7 +285,7 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 		/// </summary>
 		/// <param name="s">The scale factor for each axis.</param>
 		/// <param name="pos">The position to scale about.</param>
-		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteBatch, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
+		/// <remarks>Reflections are not propertly supported (i.e. negative scalings) via MonoGame's SpriteRenderer, so use SpriteEffects to achieve reflections instead. Negative scalings are not, however, prohibited, as there are other uses for matrices.</remarks>
 		public static void Scale(this AffineObject me, Vector2 s, Vector2 pos)
 		{
 			me.Transform = me.Transform.Scale(s,pos);

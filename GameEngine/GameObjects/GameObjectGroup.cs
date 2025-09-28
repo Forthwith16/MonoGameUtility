@@ -1,9 +1,9 @@
 ﻿using GameEngine.DataStructures.Absorbing;
 using GameEngine.Framework;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.GameObjects
 {
@@ -103,7 +103,7 @@ namespace GameEngine.GameObjects
 			}
 		}
 
-		public override SpriteBatch? Renderer
+		public override SpriteRenderer? Renderer
 		{
 			get => base.Renderer;
 
