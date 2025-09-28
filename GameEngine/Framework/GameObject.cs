@@ -7,7 +7,7 @@ namespace GameEngine.Framework
 	/// <summary>
 	/// This is the basic game object type for use with all GameEngine tools and derived projects.
 	/// </summary>
-	[JsonConverter(typeof(GameObjectJsonConverter))]
+	[JsonConverter(typeof(JsonGameObjectConverter))]
 	public abstract class GameObject : IGameComponent, IUpdateable, IDisposable, IEquatable<GameObject>
 	{
 		/// <summary>

@@ -77,9 +77,6 @@ namespace GameEngine.GameObjects
 			_mc = mouse; // Make sure we assign _mc before we ever use MouseCursor
 			MouseCursor.Parent = this;
 
-			Order = SpriteSortMode.BackToFront;
-			Blend = BlendState.NonPremultiplied;
-			
 			return;
 		}
 
@@ -211,55 +208,6 @@ namespace GameEngine.GameObjects
 		}
 
 		protected DrawableAffineObject? _mc;
-
-		/// <summary>
-		/// The order that sprites are sorted when drawn.
-		/// If the mouse component has many children to draw the mouse, changing this value may be necessary.
-		/// <para/>
-		/// This value defaults to BackToFront.
-		/// </summary>
-		public SpriteSortMode Order
-		{get; set;}
-
-		/// <summary>
-		/// A blend mode for the mouse to be drawn with.
-		/// <para/>
-		/// This value defaults to NonPremultiplied (null defaults to NonPremultiplied).
-		/// </summary>
-		public BlendState? Blend
-		{get; set;}
-
-		/// <summary>
-		/// A sampler wrap mode for the mouse to be drawn with.
-		/// <para/>
-		/// This value defaults to null (which in turn defaults to LinearClamp).
-		/// </summary>
-		public SamplerState? Wrap
-		{get; set;}
-
-		/// <summary>
-		/// A shader for the mouse to be drawn with.
-		/// <para/>
-		/// This value defaults to null (which in turn defaults to None).
-		/// </summary>
-		public DepthStencilState? DepthRecord
-		{get; set;}
-
-		/// <summary>
-		/// The cull state used when drawing the mouse.
-		/// <para/>
-		/// This value defaults to null (which in turn deaults to CullCounterClockwise).
-		/// </summary>
-		public RasterizerState? Cull
-		{get; set;}
-
-		/// <summary>
-		/// A shader for the mouse to be drawn with.
-		/// <para/>
-		/// This value defaults to null (which in turn defaults to the default sprite effect).
-		/// </summary>
-		public Effect? Shader
-		{get; set;}
 
 		public override RenderTargetFriendlyGame? Game
 		{

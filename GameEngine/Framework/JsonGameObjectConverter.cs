@@ -24,12 +24,12 @@ namespace GameEngine.Framework
 	/// To achieve this, simply make every top-level game object the child of some variety of dummy GameObject class.
 	/// Then serialize/deserialize the dummy, which can be discarded afterward.
 	/// </remarks>
-	public class GameObjectJsonConverter : JsonBaseTypeConverter<GameObject>
+	public class JsonGameObjectConverter : JsonBaseTypeConverter<GameObject>
 	{
 		/// <summary>
 		/// Initializes this converter.
 		/// </summary>
-		public GameObjectJsonConverter() : base()
+		public JsonGameObjectConverter() : base()
 		{
 			IDConverter = null;
 			return;
@@ -177,6 +177,60 @@ namespace GameEngine.Framework
 		}
 
 		private static ConcurrentDictionary<GameObjectID,GameObjectID> OldIDToNewID = new ConcurrentDictionary<GameObjectID,GameObjectID>();
+		#endregion
+
+		#region Static Helper Methods
+		/// <summary>
+		/// Reads a standard property from a game object.
+		/// </summary>
+		/// <param name="reader">The JSON reader.</param>
+		/// <param name="property">
+		/// The property to read.
+		/// Valid options are:
+		/// <list type="bullet">
+		///	<item>Enabled</item>
+		///	<item>UpdateOrder</item>
+		/// </list>
+		/// </param>
+		/// <param name="ops">The JSON deserialization options.</param>
+		/// <param name="output">The property read if this returns true or null if this returns false.</param>
+		/// <returns>Returns true if a standard property was read or false otherwise.</returns>
+		/// <exception cref="JsonException">Thrown if a standard property was formatted incorrectly.</exception>
+		public static bool ReadStandardGameObjectProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops, out object? output)
+		{
+			switch(property)
+			{
+			case "Enabled":
+				if(!reader.HasNextBool())
+					throw new JsonException();
+
+				output = reader.GetBoolean();
+				return true;
+			case "UpdateOrder":
+				if(!reader.HasNextNumber())
+					throw new JsonException();
+
+				output = reader.GetInt32();
+				return true;
+			default:
+				output = null;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Writes all standard GameObject properties to <paramref name="writer"/>.
+		/// </summary>
+		/// <param name="writer">The JSON writer.</param>
+		/// <param name="value">The value whose properties should be written.</param>
+		/// <param name="ops">The JSON serialization options.</param>
+		public static void WriteStandardProperties(Utf8JsonWriter writer, GameObject value, JsonSerializerOptions ops)
+		{
+			writer.WriteBoolean("Enabled",value.Enabled);
+			writer.WriteNumber("UpdateOrder",value.UpdateOrder);
+
+			return;
+		}
 		#endregion
 	}
 }

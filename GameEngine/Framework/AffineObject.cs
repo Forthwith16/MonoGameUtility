@@ -7,7 +7,7 @@ namespace GameEngine.Framework
 	/// <summary>
 	/// The base requirements for a game object to be affine.
 	/// </summary>
-	[JsonConverter(typeof(GameObjectJsonConverter))]
+	[JsonConverter(typeof(JsonGameObjectConverter))]
 	public abstract class AffineObject : GameObject
 	{
 		/// <summary>

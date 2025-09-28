@@ -1,5 +1,6 @@
 ﻿using GameEngine.Events;
 using GameEngine.GameObjects;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,6 +16,9 @@ namespace GameEngine.Framework
 		/// </summary>
 		protected RenderTargetFriendlyGame() : base()
 		{
+			// Grab an ID
+			ID = GameID.GetFreshID(this);
+
 			// Initialize initialzation data
 			Initialized = false;
 			Initializing = false;
@@ -83,7 +87,16 @@ namespace GameEngine.Framework
 			Graphics.SynchronizeWithVerticalRetrace = false;
 			IsFixedTimeStep = false;
 #endif
+			
+			return;
+		}
 
+		/// <summary>
+		/// Unloads any loaded content.
+		/// </summary>
+		~RenderTargetFriendlyGame()
+		{
+			ID.Dispose();
 			return;
 		}
 
@@ -92,7 +105,7 @@ namespace GameEngine.Framework
 			BeforeInitialize();
 			
 			// Replace the system mouse with a custom one
-			MouseRenderer = new SpriteBatch(GraphicsDevice);
+			MouseRenderer = new SpriteRenderer(this);
 			Mouse = MouseGameObject.GenerateStandardMouse(this);
 			IsMouseVisible = false;
 			IsCustomMouseVisible = true;
@@ -340,7 +353,7 @@ namespace GameEngine.Framework
 			// Draw the mouse (there will be some small lag for those with good eyes if drawing below the system cursor's dedicated hardware refresh rate)
 			if(Mouse is not null && IsCustomMouseVisible)
 			{
-				MouseRenderer!.Begin(Mouse.Order,Mouse.Blend,Mouse.Wrap,Mouse.DepthRecord,Mouse.Cull,Mouse.Shader);
+				MouseRenderer!.Begin();
 				Mouse.Draw(delta);
 				MouseRenderer.End();
 			}
@@ -390,6 +403,12 @@ namespace GameEngine.Framework
 		/// <param name="delta">The elapsed time since the last Draw call.</param>
 		protected virtual void AfterDraw(GameTime delta)
 		{return;}
+
+		/// <summary>
+		/// The ID of this game.
+		/// </summary>
+		public GameID ID
+		{get;}
 
 		/// <summary>
 		/// The render target components to draw.
@@ -494,7 +513,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// The sprite batch that will render the mouse cursor.
 		/// </summary>
-		private SpriteBatch? MouseRenderer
+		private SpriteRenderer? MouseRenderer
 		{
 			get => _mr;
 			
@@ -512,7 +531,7 @@ namespace GameEngine.Framework
 			}
 		}
 
-		private SpriteBatch? _mr;
+		private SpriteRenderer? _mr;
 		
 		/// <summary>
 		/// Gets or sets the custom mouse's visibility.

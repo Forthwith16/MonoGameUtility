@@ -1,5 +1,4 @@
 ﻿using GameEngine.Framework;
-using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -33,21 +32,10 @@ namespace GameEngine.GameObjects
 	{
 		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
 		{
-			switch(property)
-			{
-			case "Enabled":
-				if(!reader.HasNextBool())
-					throw new JsonException();
+			if(JsonGameObjectConverter.ReadStandardGameObjectProperty(ref reader,property,ops,out object? p))
+				return p;
 
-				return reader.GetBoolean();
-			case "UpdateOrder":
-				if(!reader.HasNextNumber())
-					throw new JsonException();
-
-				return reader.GetInt32();
-			default:
-				throw new JsonException();
-			}
+			throw new JsonException();
 		}
 
 		protected override DummyGameObject ConstructT(Dictionary<string,object?> properties)
@@ -62,9 +50,7 @@ namespace GameEngine.GameObjects
 
 		protected override void WriteProperties(Utf8JsonWriter writer, DummyGameObject value, JsonSerializerOptions ops)
 		{
-			writer.WriteBoolean("Enabled",value.Enabled);
-			writer.WriteNumber("UpdateOrder",value.UpdateOrder);
-			
+			JsonGameObjectConverter.WriteStandardProperties(writer,value,ops);
 			return;
 		}
 	}
