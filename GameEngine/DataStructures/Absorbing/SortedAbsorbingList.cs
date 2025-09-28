@@ -22,7 +22,7 @@
 		/// </summary>
 		/// <param name="scale">The means by which items are compared.</param>
 		/// <param name="seed">The initial items to add to the list.</param>
-		public SortedAbsorbingList(IComparer<T> scale,IEnumerable<T> seed) : this(scale) // base(IEnumerable<T>) uses Add, but we need to assign Scale first for that to work
+		public SortedAbsorbingList(IComparer<T> scale, IEnumerable<T> seed) : this(scale) // base(IEnumerable<T>) uses Add, but we need to assign Scale first for that to work
 		{
 			foreach(T t in seed.OrderBy(t => t,Scale)) // We pre-sort for speed
 				Add(t);
@@ -35,7 +35,7 @@
 		/// </summary>
 		/// <param name="scale">The means by which items are compared.</param>
 		/// <param name="capacity">The initial capacity.</param>
-		public SortedAbsorbingList(IComparer<T> scale,int capacity) : base(capacity)
+		public SortedAbsorbingList(IComparer<T> scale, int capacity) : base(capacity)
 		{
 			Scale = scale;
 			return;
@@ -53,7 +53,7 @@
 			return;
 		}
 
-		public override void Insert(int index,T item)
+		public override void Insert(int index ,T item)
 		{throw new NotSupportedException();}
 
 		/// <summary>
@@ -80,7 +80,7 @@
 		///	If <paramref name="t"/> is not found and <paramref name="t"/> is greater than all elements in this list, the negative number returned is the bitwise complement of Count.
 		/// </returns>
 		/// <typeparam name="E">A type to compare <typeparamref name="T"/> types against.</typeparam>
-		public int BinarySearch<E>(E e,Func<T,E> extractor,IComparer<E> scale)
+		public int BinarySearch<E>(E e, Func<T,E> extractor, IComparer<E> scale)
 		{
 			int lo = 0;
 			int hi = Count - 1;
