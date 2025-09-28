@@ -1,20 +1,23 @@
 ﻿using GameEngine.Framework;
+using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Sprites
 {
 	/// <summary>
 	/// An extended version of a sprite
 	/// </summary>
-	
+	[JsonConverter(typeof(JsonSpriteRendererConverter))]
 	public class SpriteRenderer : SpriteBatch
 	{
 		/// <summary>
 		/// Creates a sprite renderer.
 		/// </summary>
 		/// <param name="game">The game whose GraphicsDevice to draw upon for rendering.</param>
-		public SpriteRenderer(Game game) : base(game.GraphicsDevice)
+		public SpriteRenderer(RenderTargetFriendlyGame game) : base(game.GraphicsDevice)
 		{
 			Owner = game;
 
@@ -61,7 +64,7 @@ namespace GameEngine.Sprites
 		/// <summary>
 		/// The game whose GraphicsDevice we use to draw with.
 		/// </summary>
-		public Game Owner
+		public RenderTargetFriendlyGame Owner
 		{get;}
 
 		/// <summary>
@@ -119,5 +122,59 @@ namespace GameEngine.Sprites
 		/// </summary>
 		public Matrix? Transform
 		{get; set;}
+	}
+
+	/// <summary>
+	/// Converts a SpriteRenderer to/from JSON.
+	/// </summary>
+	/// <remarks>For this to deserialize properly, it must have the correct GameID.</remarks>
+	file class JsonSpriteRendererConverter : JsonBaseConverter<SpriteRenderer>
+	{
+		public JsonSpriteRendererConverter()
+		{
+			IDConverter = null;
+			return;
+		}
+
+		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
+		{
+			if(IDConverter is null)
+				IDConverter = (JsonConverter<GameID>)ops.GetConverter(typeof(GameID));
+
+			switch(property)
+			{
+			case "ID":
+				
+			default:
+				throw new JsonException();
+			}
+		}
+
+		protected override SpriteRenderer ConstructT(Dictionary<string,object?> properties)
+		{
+			SpriteRenderer ret = new SpriteRenderer((GameID)properties["ID"]!);
+
+
+
+			return ret;
+		}
+
+		protected override void WriteProperties(Utf8JsonWriter writer, SpriteRenderer value, JsonSerializerOptions ops)
+		{
+			if(IDConverter is null)
+				IDConverter = (JsonConverter<GameID>)ops.GetConverter(typeof(GameID));
+
+			writer.WritePropertyName("ID");
+			IDConverter.Write(writer,value.Owner.ID,ops);
+
+
+
+			return;
+		}
+
+		/// <summary>
+		/// Converts game IDs to/from JSON.
+		/// </summary>
+		private JsonConverter<GameID>? IDConverter;
 	}
 }

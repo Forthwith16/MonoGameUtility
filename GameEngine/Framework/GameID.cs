@@ -58,14 +58,14 @@ namespace GameEngine.Framework
 		/// Obtains the game with this ID.
 		/// </summary>
 		/// <exception cref="KeyNotFoundException">Thrown if there is no game with this ID.</exception>
-		public static implicit operator Game(GameID id) => Get(id);
+		public static implicit operator RenderTargetFriendlyGame(GameID id) => Get(id);
 
 		/// <summary>
 		/// Trys to fetch the game associated with this ID.
 		/// </summary>
 		/// <param name="output">The game with this ID or null when this returns false.</param>
 		/// <returns>Returns true if a game with this ID was found and false otherwise.</returns>
-		public bool TryGetGameObject([MaybeNullWhen(false)] out Game output) => TryGet(this,out output);
+		public bool TryGetGame([MaybeNullWhen(false)] out RenderTargetFriendlyGame output) => TryGet(this,out output);
 
 		public static bool operator ==(GameID a, GameID b) => a.ID == b.ID;
 		public static bool operator !=(GameID a, GameID b) => a.ID != b.ID;
@@ -104,7 +104,7 @@ namespace GameEngine.Framework
 		/// </summary>
 		/// <param name="obj">The game this ID will be assigned to.</param>
 		/// <returns>Returns the new ID.</returns>
-		public static GameID GetFreshID(Game obj)
+		public static GameID GetFreshID(RenderTargetFriendlyGame obj)
 		{
 			GameID ret = new GameID(NextID);
 			_lut[ret] = new WeakReference(obj,false);
@@ -118,7 +118,7 @@ namespace GameEngine.Framework
 		/// <param name="id">The ID of the game to obtain.</param>
 		/// <returns>Returns the game with ID <paramref name="id"/>.</returns>
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="id"/> is not the ID of a game.</exception>
-		public static Game Get(GameID id)
+		public static RenderTargetFriendlyGame Get(GameID id)
 		{
 			WeakReference ptr = _lut[id];
 			
@@ -128,7 +128,7 @@ namespace GameEngine.Framework
 				throw new KeyNotFoundException();
 			}
 			
-			return (Game)ptr.Target;
+			return (RenderTargetFriendlyGame)ptr.Target;
 		}
 
 		/// <summary>
@@ -137,7 +137,7 @@ namespace GameEngine.Framework
 		/// <param name="id">The ID of the game to obtain.</param>
 		/// <param name="ret">The discovered game or null when this returns false.</param>
 		/// <returns>Returns true if there is a game with the given ID and false otherwise.</returns>
-		public static bool TryGet(GameID id, [MaybeNullWhen(false)] out Game ret)
+		public static bool TryGet(GameID id, [MaybeNullWhen(false)] out RenderTargetFriendlyGame ret)
 		{
 			if(!_lut.TryGetValue(id,out WeakReference? ptr))
 			{
@@ -153,7 +153,7 @@ namespace GameEngine.Framework
 				return false;
 			}
 
-			ret = (Game)ptr.Target;
+			ret = (RenderTargetFriendlyGame)ptr.Target;
 			return true;
 		}
 
