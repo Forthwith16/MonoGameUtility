@@ -33,7 +33,7 @@ namespace GameEngine.Physics.Collision.Colliders
 		/// </summary>
 		/// <param name="id">The raw ID value.</param>
 		/// <remarks>
-		///	The intended way to obtain new IDs it so call <see cref="GetFreshID(T)"/>.
+		///	The intended way to obtain new IDs is to call <see cref="GetFreshID(T)"/>.
 		///	This is used for creating dummy IDs to search for things or store information.
 		/// </remarks>
 		public ColliderID(ColliderIDType id)
