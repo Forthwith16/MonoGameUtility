@@ -1,25 +1,5 @@
 ﻿Programming Todo
 ----------------
-The new version of MonoGame may not requires to track mid initialize adds, although if we're allowed to insert (check this) then we would still have a problem b/c the initialization loop is just a for loop from 0 to Count - 1
-
-
-
-
-
-GUI stuff probably needs to override Owner and/or Game to assign everything properly
--Possibly Renderer too if needed
-
-
-
-
-
-Can consider making a concrete GameObjectSet since we have universal IDs
--This would allow a Get, but maybe we don't care about that
-
-
-
-
-
 Try to support instantiation all the way in the base project.
 -Some base game objects require instantiation to make copy constructors
 --MouseGameObject
