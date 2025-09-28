@@ -1,5 +1,6 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +16,7 @@ namespace MiniGolf
 		/// </summary>
 		/// <param name="renderer">The means by which this golf ball will be rendered. This can be changed later.</param>
 		/// <param name="texture">The golf ball texture.</param>
-		public GolfBall(SpriteBatch? renderer, Texture2D texture) : base(renderer,texture)
+		public GolfBall(SpriteRenderer? renderer, Texture2D texture) : base(renderer,texture)
 		{
 			_v = Vector2.Zero;
 			return;
@@ -26,7 +27,7 @@ namespace MiniGolf
 		/// </summary>
 		/// <param name="renderer">The means by which this golf ball will be rendered. This can be changed later.</param>
 		/// <param name="texture">The texture resource to load later.</param>
-		public GolfBall(SpriteBatch? renderer, string resource) : base(renderer,resource)
+		public GolfBall(SpriteRenderer? renderer, string resource) : base(renderer,resource)
 		{
 			_v = Vector2.Zero;
 			return;

@@ -513,11 +513,11 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// The sprite batch that will render the mouse cursor.
 		/// </summary>
-		private SpriteRenderer? MouseRenderer
+		public SpriteRenderer? MouseRenderer
 		{
 			get => _mr;
 			
-			set
+			private set
 			{
 				if(value is null || ReferenceEquals(_m,value))
 					return;

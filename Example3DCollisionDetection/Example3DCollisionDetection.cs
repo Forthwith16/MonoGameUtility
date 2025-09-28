@@ -164,7 +164,7 @@ namespace Example3DCollisionDetection
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			
-			// The custom mouse is being rendered via a SpriteBatch, so we'll need to reset these values
+			// The custom mouse is being rendered via a SpriteRenderer, so we'll need to reset these values
 			GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 			GraphicsDevice.BlendState = BlendState.Opaque;
 			GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;

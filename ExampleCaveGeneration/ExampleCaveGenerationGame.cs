@@ -1,6 +1,7 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,7 +36,7 @@ namespace ExampleCaveGeneration
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			Components.Add(Input = new InputManager());
 			
 			Input.AddKeyInput("Escape",Keys.Escape);
@@ -122,7 +123,7 @@ namespace ExampleCaveGeneration
 
 		private bool WasRock(int i, int j) => i < 0 || i >= Width || j < 0 || j >= Height || PreviousRocks[i,j];
 
-		private SpriteBatch? Renderer;
+		private SpriteRenderer? Renderer;
 		private InputManager? Input;
 
 		private bool[,] PreviousRocks;

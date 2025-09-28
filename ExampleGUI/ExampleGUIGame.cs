@@ -4,6 +4,7 @@ using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.GUI.Map;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,7 +45,7 @@ namespace ExampleGUI
 		{
 			// To get a service out of Services, you just call GetService with the type you want out
 			GUICore menu = Services.GetService<GUICore>();
-			menu.Renderer = Renderer = new SpriteBatch(GraphicsDevice);
+			menu.Renderer = Renderer = new SpriteRenderer(this);
 
 			// Let's add four buttons
 			Button tl = CreateButton("Top Left",new Vector2(100.0f,100.0f),"TL");
@@ -104,7 +105,7 @@ namespace ExampleGUI
 			lib.Add(Button.ClickState,new RectangleGameObject(null,w,h,Color.Pink));
 			
 			// We create a button
-			// The TextComponent we provide to draw the button's text doesn't need a SpriteBatch to render it
+			// The TextComponent we provide to draw the button's text doesn't need a SpriteRenderer to render it
 			// The GUICore will assign that itself
 			Button b = new Button(name,lib,text is null ? null : new TextGameObject(null,Content.Load<SpriteFont>("Times New Roman"),text,Color.Black));
 			b.Transform = b.Transform.Translate(position);
@@ -135,7 +136,7 @@ namespace ExampleGUI
 			return;
 		}
 
-		protected SpriteBatch? Renderer;
+		protected SpriteRenderer? Renderer;
 		protected InputManager? Input;
 	}
 }

@@ -2,10 +2,10 @@
 using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
@@ -25,7 +25,7 @@ namespace ExampleSteeringBehavior
 		/// <param name="outline">The outline color of the triangle man.</param>
 		/// <param name="line_width">The width of the triangle man outline.</param>
 		/// <param name="inside">The internal color of the triangle man.</param>
-		public TriangleMan(SpriteBatch? renderer, int w, int h, Color outline, uint line_width, Color inside) : base(renderer,w,h,BuildTriangle(outline,w,h,line_width,inside))
+		public TriangleMan(SpriteRenderer? renderer, int w, int h, Color outline, uint line_width, Color inside) : base(renderer,w,h,BuildTriangle(outline,w,h,line_width,inside))
 		{
 			Position = Vector2.Zero;
 			Rotation = 0.0f;

@@ -3,6 +3,7 @@ using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Physics.Collision;
 using GameEngine.Physics.Collision.Colliders;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
@@ -57,7 +58,7 @@ namespace ExampleCollisionDetection
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 
 			// Generate a lot of random squares
 			Random rand = new Random();
@@ -151,7 +152,7 @@ namespace ExampleCollisionDetection
 			return;
 		}
 
-		protected SpriteBatch? Renderer;
+		protected SpriteRenderer? Renderer;
 		protected CollisionEngine2D? Detection;
 		protected List<SimpleCollider>? Squares;
 	}
@@ -163,10 +164,10 @@ namespace ExampleCollisionDetection
 	/// </summary>
 	public class SimpleCollider : RectangleGameObject, ICollider2D
 	{
-		public SimpleCollider(SpriteBatch? renderer, Color c, float l, float r, float b, float t, bool is_static) : this(renderer,c,new FRectangle(l,b,r - l,t - b),is_static)
+		public SimpleCollider(SpriteRenderer? renderer, Color c, float l, float r, float b, float t, bool is_static) : this(renderer,c,new FRectangle(l,b,r - l,t - b),is_static)
 		{return;}
 
-		public SimpleCollider(SpriteBatch? renderer, Color c, FRectangle bounds, bool is_static) : base(renderer,(int)MathF.Ceiling(bounds.Width),(int)MathF.Ceiling(bounds.Height),c)
+		public SimpleCollider(SpriteRenderer? renderer, Color c, FRectangle bounds, bool is_static) : base(renderer,(int)MathF.Ceiling(bounds.Width),(int)MathF.Ceiling(bounds.Height),c)
 		{
 			Boundary = bounds;
 			PreviousBoundary = FRectangle.Empty;

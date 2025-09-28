@@ -1,6 +1,7 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
@@ -55,7 +56,7 @@ namespace ExampleAStar
 			// Title will not persist if set in the constructor, so we'll set it here
 			Window.Title = "Zero-cost A* vs A* vs. Dijkstra";
 
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			Input = new InputManager();
 			
 			Input.AddKeyInput("Escape",Keys.Escape);
@@ -474,7 +475,7 @@ namespace ExampleAStar
 			return;
 		}
 
-		private SpriteBatch? Renderer;
+		private SpriteRenderer? Renderer;
 		private InputManager? Input;
 
 		private Point Source;

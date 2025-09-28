@@ -1,7 +1,7 @@
 ﻿using GameEngine.GameObjects;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace MiniGolf
@@ -19,7 +19,7 @@ namespace MiniGolf
 		/// <param name="w">The width of the image generated.</param>
 		/// <param name="h">The height of the image generated.</param>
 		/// <param name="c">The color to draw with.</param>
-		public Meter(SpriteBatch? renderer, int w, int h, Color c) : this(renderer,w,h,ColorFunctions.SolidColor(c))
+		public Meter(SpriteRenderer? renderer, int w, int h, Color c) : this(renderer,w,h,ColorFunctions.SolidColor(c))
 		{return;}
 		
 		/// <summary>
@@ -29,7 +29,7 @@ namespace MiniGolf
 		/// <param name="w">The width of the image generated.</param>
 		/// <param name="h">The height of the image generated.</param>
 		/// <param name="func">The color generating function.</param>
-		public Meter(SpriteBatch? renderer, int w, int h, ColorFunction func) : base(renderer,w,h,func) // The meter is always full initially, so we can ignore it
+		public Meter(SpriteRenderer? renderer, int w, int h, ColorFunction func) : base(renderer,w,h,func) // The meter is always full initially, so we can ignore it
 		{
 			MeterPercentage = 1.0f;
 			Function = (x,y) => MeterPercentage >= (float)x / Width ? func(x,y) : Color.Transparent;

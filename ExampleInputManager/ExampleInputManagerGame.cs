@@ -1,6 +1,7 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -67,7 +68,7 @@ namespace ExampleInputManager
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteRenderer(this);
 
 			_image = new ImageGameObject(_spriteBatch,"Pokeball");
 			Components.Add(_image);
@@ -127,7 +128,7 @@ namespace ExampleInputManager
 			return;
 		}
 		
-		private SpriteBatch _spriteBatch;
+		private SpriteRenderer _spriteBatch;
 		private ImageGameObject _image;
 		
 		protected InputManager Input;

@@ -1,6 +1,7 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,7 +27,7 @@ namespace ExampleImageComponent
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteRenderer(this);
 
 			// Create an ImageComponent
 			_image = new ImageGameObject(_spriteBatch,"Pokeball");
@@ -72,20 +73,20 @@ namespace ExampleImageComponent
 		/// The PreDraw method is called every Draw call before Draw.
 		/// It has two primary intended uses.
 		/// First, clear the screen.
-		/// Second, call Begin on any SpriteBatches used to render game components from the GameEngine library.
+		/// Second, call Begin on any SpriteRendereres used to render game components from the GameEngine library.
 		/// </summary>
 		/// <param name="delta">The usual elapsed time.</param>
 		protected override void PreDraw(GameTime delta)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			// A SpriteBatch has many possible global parameters to its later Draw calls
+			// A SpriteRenderer has many possible global parameters to its later Draw calls
 			// These are the normal choices to make for 2D drawing with two notes
 			// The first parameter indicates how sprites are sorted when drawn according to a depth parameter ranging within [0,1]
 			// The last parameter is the global 'camera' matrix, which can be used to transform ALL draws made with the sprite batch until the next End call
 			// You can provide Matrix2D matrices to this parameter for a Matrix2D m via m.Invert().SwapChirality()
 			// Note that a camera does opposite transforms as per normal (e.g. if you move the camera left, it moves all objects in the scene right)
-			// Also, the SwapChirality call is a necessary component for this particular parameter (and only this one) due to how Monogame handles SpriteBatching and Matrices
+			// Also, the SwapChirality call is a necessary component for this particular parameter (and only this one) due to how Monogame handles SpriteRenderering and Matrices
 			_spriteBatch!.Begin(SpriteSortMode.BackToFront,BlendState.NonPremultiplied,SamplerState.LinearWrap,null,null,null,null);
 			
 			return;
@@ -93,7 +94,7 @@ namespace ExampleImageComponent
 
 		/// <summary>
 		/// The PostDraw method is called every Draw call after Draw.
-		/// Its primary intended use is to call End on any SpriteBatches whose Begin was called in PreDraw.
+		/// Its primary intended use is to call End on any SpriteRendereres whose Begin was called in PreDraw.
 		/// </summary>
 		/// <param name="delta">The usual elapsed time.</param>
 		protected override void PostDraw(GameTime delta)
@@ -102,7 +103,7 @@ namespace ExampleImageComponent
 			return;
 		}
 		
-		private SpriteBatch _spriteBatch;
+		private SpriteRenderer _spriteBatch;
 		private ImageGameObject _image;
 	}
 }

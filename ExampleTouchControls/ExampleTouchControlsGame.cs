@@ -3,6 +3,7 @@ using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,7 +22,7 @@ namespace ExampleTouchControls
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			
 			Components.Add(FakeTouch = new InputManager());
 			FakeTouch.UpdateOrder = 0;
@@ -104,7 +105,7 @@ namespace ExampleTouchControls
 			return;
 		}
 
-		private SpriteBatch? Renderer;
+		private SpriteRenderer? Renderer;
 		private InputManager? Input;
 		private InputManager? FakeTouch;
 

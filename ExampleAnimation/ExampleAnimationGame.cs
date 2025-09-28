@@ -1,6 +1,7 @@
 ﻿using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -46,7 +47,7 @@ namespace ExampleAnimation
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteRenderer(this);
 
 			// AnimatedComponents are also ImageComponents and we can use them as such
 			// All we need to do is provide it with the resource file for our animation, and the game will take care of the rest
@@ -55,7 +56,7 @@ namespace ExampleAnimation
 			Components.Add(_image = new AnimatedGameObject(_spriteBatch,"Animations/test"));
 			
 			// When you want to perform reflections to a drawn sprite, use a SpriteEffect rather than scaling by a negative factor
-			// MonoGame's SpriteBatch doesn't like negative scaling factors in the 2D world, unfortunately
+			// MonoGame's SpriteRenderer doesn't like negative scaling factors in the 2D world, unfortunately
 			_image.Effect = SpriteEffects.FlipHorizontally;
 
 			// You may notice some stray pixels with this scaling due to the sampler's LinearWrap setting below
@@ -104,7 +105,7 @@ namespace ExampleAnimation
 			return;
 		}
 		
-		private SpriteBatch? _spriteBatch;
+		private SpriteRenderer? _spriteBatch;
 		private ImageGameObject? _image;
 		protected InputManager? Input;
 	}

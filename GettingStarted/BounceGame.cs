@@ -1,5 +1,6 @@
 ﻿using GameEngine.Framework;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -41,7 +42,7 @@ namespace GettingStarted
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteRenderer(this);
 			return;
 		}
 
@@ -112,7 +113,7 @@ namespace GettingStarted
 			return;
 		}
 
-		private SpriteBatch? _spriteBatch;
+		private SpriteRenderer? _spriteBatch;
 		private Texture2D? _image;
 		private Matrix2D transform;
 

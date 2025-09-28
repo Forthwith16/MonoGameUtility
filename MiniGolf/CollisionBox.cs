@@ -1,8 +1,8 @@
 ﻿using GameEngine.GameObjects;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MiniGolf
 {
@@ -18,7 +18,7 @@ namespace MiniGolf
 		/// <param name="w">The width of the collision box generated.</param>
 		/// <param name="h">The height of the collision box generated.</param>
 		/// <param name="c">The color to draw with in debug mode.</param>
-		public CollisionBox(SpriteBatch? renderer, int w, int h, Color c) : base(renderer,w,h,ColorFunctions.Wireframe(w,h,1,c))
+		public CollisionBox(SpriteRenderer? renderer, int w, int h, Color c) : base(renderer,w,h,ColorFunctions.Wireframe(w,h,1,c))
 		{
 			_width = w;
 			_hw = _width / 2.0f;

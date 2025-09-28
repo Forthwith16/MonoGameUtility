@@ -3,6 +3,7 @@ using GameEngine.GameObjects;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -45,7 +46,7 @@ namespace MiniGolf
 			Input.AddMouseAxisInput("MY",false,false);
 
 			// Set up the renderer
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			 
 			// Load the sound effects
 			Hit = Content.Load<SoundEffect>("hit");
@@ -439,7 +440,7 @@ namespace MiniGolf
 		}
 		
 		protected InputManager Input;
-		protected SpriteBatch? Renderer;
+		protected SpriteRenderer? Renderer;
 		protected List<CollisionBox> Colliders;
 		protected GolfBall? Ball;
 		protected Meter? PowerMeter;

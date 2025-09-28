@@ -1,4 +1,5 @@
-﻿using GameEngine.Texture;
+﻿using GameEngine.Sprites;
+using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 namespace ExamplePrimitiveDrawing
 {
 	/// <summary>
-	/// Shows how to use the primitive drawing extensions to the SpriteBatch class.
+	/// Shows how to use the primitive drawing extensions to the SpriteRenderer class.
 	/// </summary>
 	public class ExamplePrimitiveDrawingGame : Game
 	{
@@ -25,7 +26,7 @@ namespace ExamplePrimitiveDrawing
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			DoublePixel = ColorFunctions.GenerateTexture(this,2,1,(x,y) => x == 0 ? Color.Blue : Color.Green);
 
 			return;
@@ -62,7 +63,7 @@ namespace ExamplePrimitiveDrawing
 		}
 
 		private GraphicsDeviceManager Graphics;
-		private SpriteBatch? Renderer;
+		private SpriteRenderer? Renderer;
 		private Texture2D? DoublePixel;
 	}
 }

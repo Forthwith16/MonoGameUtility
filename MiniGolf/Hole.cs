@@ -1,7 +1,7 @@
 ﻿using GameEngine.GameObjects;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MiniGolf
 {
@@ -15,7 +15,7 @@ namespace MiniGolf
 		/// </summary>
 		/// <param name="renderer">The way to render this hole. This can be changed later.</param>
 		/// <param name="d">The diameter of the hole.</param>
-		public Hole(Game game, SpriteBatch? renderer, int d) : base(renderer,d,d,ColorFunctions.Ellipse(d,d,Color.Gray))
+		public Hole(Game game, SpriteRenderer? renderer, int d) : base(renderer,d,d,ColorFunctions.Ellipse(d,d,Color.Gray))
 		{
 			Radius = d >> 1;
 

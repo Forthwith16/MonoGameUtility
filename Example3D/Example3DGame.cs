@@ -42,9 +42,9 @@ namespace Example3DGame
 			Components.Add(doughnut = new ExampleModelComponent(this,Content.Load<Model>("doughnut")));
 
 			// This will ensure the mouse is drawn on top of models
-			Mouse.DepthRecord = DepthStencilState.Default;
-			Mouse.Blend = BlendState.NonPremultiplied;
-
+			MouseRenderer.DepthRecord = DepthStencilState.Default;
+			MouseRenderer.Blend = BlendState.NonPremultiplied;
+			
 			return;
 		}
 
@@ -95,11 +95,11 @@ namespace Example3DGame
 			// They are very important to have, as 2D drawing will typically change some of your GPU settings that 3D applications depend upon //
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// This first line is important so that the depth buffer is enabled for 3D drawing
-			// 2D drawing with SpriteBatches disables it (unless you use the depth stencil in a SpriteBatch begin) even between drawing cycles (the state is not reset between cycles)
+			// 2D drawing with SpriteRendereres disables it (unless you use the depth stencil in a SpriteRenderer begin) even between drawing cycles (the state is not reset between cycles)
 			// You can assign a nondefault value, of course, but the default is the default for a reason
 			GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-			// The following two settings are also clobbered by SpriteBatch Begin/End calls (though a SpriteBatch may actually set them to values you want to use depending on the Begin mode)
+			// The following two settings are also clobbered by SpriteRenderer Begin/End calls (though a SpriteRenderer may actually set them to values you want to use depending on the Begin mode)
 			// These are the default values that you will likely want to use, but you can use any other values or not bother resetting them if you desire
 			GraphicsDevice.BlendState = BlendState.Opaque;
 			GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;

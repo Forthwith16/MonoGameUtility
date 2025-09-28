@@ -1,10 +1,10 @@
 ﻿using GameEngine.DataStructures.Geometry;
 using GameEngine.GameObjects;
 using GameEngine.Physics.Collision.Colliders;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace ExampleQueryCollider
 {
@@ -20,7 +20,7 @@ namespace ExampleQueryCollider
 		/// <param name="w">The width of the collision box generated.</param>
 		/// <param name="h">The height of the collision box generated.</param>
 		/// <param name="c">The color to draw with in debug mode.</param>
-		public CollisionBox(SpriteBatch? renderer, int w, int h, Color c) : base(renderer,w,h,ColorFunctions.Wireframe(w,h,3,c))
+		public CollisionBox(SpriteRenderer? renderer, int w, int h, Color c) : base(renderer,w,h,ColorFunctions.Wireframe(w,h,3,c))
 		{
 			_b = new FRectangle(0,0,w,h);
 			PreviousBoundary = FRectangle.Empty;

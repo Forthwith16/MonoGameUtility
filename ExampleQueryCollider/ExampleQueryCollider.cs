@@ -4,6 +4,7 @@ using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Physics.Collision;
 using GameEngine.Physics.Collision.Colliders;
+using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,7 +45,7 @@ namespace ExampleQueryCollider
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 
 			// Load the background
 			Components.Add(Background = new ImageGameObject(Renderer,"background"));
@@ -379,7 +380,7 @@ namespace ExampleQueryCollider
 			return;
 		}
 
-		private SpriteBatch? Renderer;
+		private SpriteRenderer? Renderer;
 		private ImageGameObject? Background;
 		
 		private AnimatedGameObject? Koopa;

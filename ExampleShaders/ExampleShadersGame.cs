@@ -3,6 +3,7 @@ using GameEngine.GameObjects;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -42,7 +43,7 @@ namespace ExampleShaders
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			AspectRatio = GraphicsDevice.Viewport.AspectRatio;
 			
 			Input = new InputManager();
@@ -71,8 +72,8 @@ namespace ExampleShaders
 			Input.AddKeyInput("UT",Keys.U);
 
 			// This will ensure the mouse is drawn on top of models
-			Mouse!.DepthRecord = DepthStencilState.Default;
-			Mouse.Blend = BlendState.NonPremultiplied;
+			MouseRenderer!.DepthRecord = DepthStencilState.Default;
+			MouseRenderer.Blend = BlendState.NonPremultiplied;
 
 			// Load some models
 			doughnut = new SimpleModel(this,Content.Load<Model>("Models/doughnut"));
@@ -759,7 +760,7 @@ namespace ExampleShaders
 
 		// System components
 		protected InputManager? Input;
-		protected SpriteBatch? Renderer;
+		protected SpriteRenderer? Renderer;
 		
 		protected GUICore? GUISystem;
 		protected RadioButtons? Menu;

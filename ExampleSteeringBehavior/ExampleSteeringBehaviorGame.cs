@@ -3,6 +3,7 @@ using GameEngine.GameObjects;
 using GameEngine.GUI;
 using GameEngine.GUI.Components;
 using GameEngine.Input;
+using GameEngine.Sprites;
 using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
@@ -32,7 +33,7 @@ namespace ExampleSteeringBehavior
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteBatch(GraphicsDevice);
+			Renderer = new SpriteRenderer(this);
 			
 			Input = new InputManager();
 			Services.AddService(Input);
@@ -341,7 +342,7 @@ namespace ExampleSteeringBehavior
 
 		// System components
 		protected InputManager? Input;
-		protected SpriteBatch? Renderer;
+		protected SpriteRenderer? Renderer;
 		
 		protected GUICore? GUISystem;
 		protected RadioButtons? Menu;
