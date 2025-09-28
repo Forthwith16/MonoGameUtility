@@ -1,5 +1,4 @@
 ﻿using GameEngine.Events;
-using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using System.Text.Json.Serialization;
 
@@ -8,7 +7,7 @@ namespace GameEngine.Framework
 	/// <summary>
 	/// This is the basic game object type for use with all GameEngine tools and derived projects.
 	/// </summary>
-	[JsonConverter(typeof(JsonGameObjectConverter))]
+	[JsonConverter(typeof(GameObjectJsonConverter))]
 	public abstract class GameObject : IGameComponent, IUpdateable, IDisposable, IEquatable<GameObject>
 	{
 		/// <summary>
@@ -202,10 +201,4 @@ namespace GameEngine.Framework
 		/// </summary>
 		public event EventHandler<EventArgs>? UpdateOrderChanged;
 	}
-
-	/// <summary>
-	/// Converts game objects to/from JSON.
-	/// </summary>
-	file class JsonGameObjectConverter : JsonBaseTypeConverter<GameObject>
-	{}
 }

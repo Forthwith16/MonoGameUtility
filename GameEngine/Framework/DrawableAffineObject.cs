@@ -1,12 +1,14 @@
 ﻿using GameEngine.Events;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Framework
 {
 	/// <summary>
 	/// The base requirements for a game object to be both drawable and affine.
 	/// </summary>
+	[JsonConverter(typeof(GameObjectJsonConverter))]
 	public abstract class DrawableAffineObject : AffineObject, IDrawable
 	{
 		/// <summary>

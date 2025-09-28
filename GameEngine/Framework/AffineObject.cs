@@ -1,11 +1,13 @@
 ﻿using GameEngine.DataStructures.Sets;
 using GameEngine.Maths;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Framework
 {
 	/// <summary>
 	/// The base requirements for a game object to be affine.
 	/// </summary>
+	[JsonConverter(typeof(GameObjectJsonConverter))]
 	public abstract class AffineObject : GameObject
 	{
 		/// <summary>
