@@ -1,5 +1,4 @@
-﻿using GameEngine.Sprites;
-using GameEngine.Texture;
+﻿using GameEngine.Texture;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,7 +25,7 @@ namespace ExamplePrimitiveDrawing
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteBatch(GraphicsDevice);
 			DoublePixel = ColorFunctions.GenerateTexture(this,2,1,(x,y) => x == 0 ? Color.Blue : Color.Green);
 
 			return;
@@ -63,7 +62,7 @@ namespace ExamplePrimitiveDrawing
 		}
 
 		private GraphicsDeviceManager Graphics;
-		private SpriteRenderer? Renderer;
+		private SpriteBatch? Renderer;
 		private Texture2D? DoublePixel;
 	}
 }

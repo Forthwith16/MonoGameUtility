@@ -1,5 +1,4 @@
-﻿using GameEngine.Sprites;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -50,8 +49,8 @@ namespace ExampleDrawImage
 		/// </summary>
 		protected override void LoadContent()
 		{
-			// We create a new SpriteRenderer using the Game's GraphicsDevice (which is ordinarily initialized between Initialize and LoadContent, i.e. in base.Initialize)
-			_spriteBatch = new SpriteRenderer(this);
+			// We create a new SpriteBatch using the Game's GraphicsDevice (which is ordinarily initialized between Initialize and LoadContent, i.e. in base.Initialize)
+			_spriteBatch = new SpriteBatch(GraphicsDevice);
 			
 			// We load content relative to Content.RootDirectory and omit file extensions
 			// The type of content loaded is given as the generic parameter
@@ -99,7 +98,7 @@ namespace ExampleDrawImage
 		}
 
 		private GraphicsDeviceManager _graphics;
-		private SpriteRenderer _spriteBatch;
+		private SpriteBatch _spriteBatch;
 		private Texture2D _image;
 	}
 }
