@@ -42,7 +42,7 @@ namespace Example3DGame
 			Components.Add(doughnut = new ExampleModelComponent(this,Content.Load<Model>("doughnut")));
 
 			// This will ensure the mouse is drawn on top of models
-			MouseRenderer.DepthRecord = DepthStencilState.Default;
+			MouseRenderer.DepthStencil = DepthStencilState.Default;
 			MouseRenderer.Blend = BlendState.NonPremultiplied;
 			
 			return;

@@ -47,7 +47,7 @@ namespace ExampleAnimation
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteRenderer(this);
+			_spriteBatch = new SpriteRenderer(GraphicsDevice);
 
 			// AnimatedComponents are also ImageComponents and we can use them as such
 			// All we need to do is provide it with the resource file for our animation, and the game will take care of the rest

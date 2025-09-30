@@ -45,7 +45,7 @@ namespace ExampleQueryCollider
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 
 			// Load the background
 			Components.Add(Background = new ImageGameObject(Renderer,"background"));

@@ -56,7 +56,7 @@ namespace ExampleAStar
 			// Title will not persist if set in the constructor, so we'll set it here
 			Window.Title = "Zero-cost A* vs A* vs. Dijkstra";
 
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			Input = new InputManager();
 			
 			Input.AddKeyInput("Escape",Keys.Escape);

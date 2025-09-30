@@ -46,7 +46,7 @@ namespace MiniGolf
 			Input.AddMouseAxisInput("MY",false,false);
 
 			// Set up the renderer
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			 
 			// Load the sound effects
 			Hit = Content.Load<SoundEffect>("hit");

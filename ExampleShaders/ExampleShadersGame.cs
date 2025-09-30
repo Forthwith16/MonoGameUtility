@@ -43,7 +43,7 @@ namespace ExampleShaders
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			AspectRatio = GraphicsDevice.Viewport.AspectRatio;
 			
 			Input = new InputManager();
@@ -72,7 +72,7 @@ namespace ExampleShaders
 			Input.AddKeyInput("UT",Keys.U);
 
 			// This will ensure the mouse is drawn on top of models
-			MouseRenderer!.DepthRecord = DepthStencilState.Default;
+			MouseRenderer!.DepthStencil = DepthStencilState.Default;
 			MouseRenderer.Blend = BlendState.NonPremultiplied;
 
 			// Load some models

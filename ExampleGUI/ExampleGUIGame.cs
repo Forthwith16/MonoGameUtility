@@ -45,7 +45,7 @@ namespace ExampleGUI
 		{
 			// To get a service out of Services, you just call GetService with the type you want out
 			GUICore menu = Services.GetService<GUICore>();
-			menu.Renderer = Renderer = new SpriteRenderer(this);
+			menu.Renderer = Renderer = new SpriteRenderer(GraphicsDevice);
 
 			// Let's add four buttons
 			Button tl = CreateButton("Top Left",new Vector2(100.0f,100.0f),"TL");

@@ -22,7 +22,7 @@ namespace ExampleTouchControls
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			
 			Components.Add(FakeTouch = new InputManager());
 			FakeTouch.UpdateOrder = 0;

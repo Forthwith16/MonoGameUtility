@@ -68,7 +68,7 @@ namespace ExampleInputManager
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteRenderer(this);
+			_spriteBatch = new SpriteRenderer(GraphicsDevice);
 
 			_image = new ImageGameObject(_spriteBatch,"Pokeball");
 			Components.Add(_image);

@@ -33,7 +33,7 @@ namespace ExampleSteeringBehavior
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			
 			Input = new InputManager();
 			Services.AddService(Input);

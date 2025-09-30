@@ -58,7 +58,7 @@ namespace ExampleCollisionDetection
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 
 			// Generate a lot of random squares
 			Random rand = new Random();

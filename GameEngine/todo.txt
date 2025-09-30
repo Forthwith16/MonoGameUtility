@@ -57,6 +57,12 @@ Jump to component doesn't trigger the on entry thing but it does get us there
 
 Add a Platform property to RenderTargetFriendlyGame via "_services.AddService(typeof(GamePlatform),Platform);" in the base constructor
 
+
+
+
+
+Add IDs to SpriteRenderer.
+
 Asset Todo
 ----------
 Assets with dependences make their own builds of the dependency

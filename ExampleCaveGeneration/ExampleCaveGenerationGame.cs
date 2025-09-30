@@ -36,7 +36,7 @@ namespace ExampleCaveGeneration
 
 		protected override void LoadContent()
 		{
-			Renderer = new SpriteRenderer(this);
+			Renderer = new SpriteRenderer(GraphicsDevice);
 			Components.Add(Input = new InputManager());
 			
 			Input.AddKeyInput("Escape",Keys.Escape);

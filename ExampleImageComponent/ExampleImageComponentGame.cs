@@ -27,7 +27,7 @@ namespace ExampleImageComponent
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteRenderer(this);
+			_spriteBatch = new SpriteRenderer(GraphicsDevice);
 
 			// Create an ImageComponent
 			_image = new ImageGameObject(_spriteBatch,"Pokeball");

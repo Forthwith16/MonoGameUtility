@@ -42,7 +42,7 @@ namespace GettingStarted
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteRenderer(this);
+			_spriteBatch = new SpriteRenderer(GraphicsDevice);
 			return;
 		}
 
