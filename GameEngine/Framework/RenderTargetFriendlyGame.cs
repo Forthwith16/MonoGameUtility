@@ -127,7 +127,6 @@ namespace GameEngine.Framework
 			Initialized = true;
 			
 			PostInitialize();
-
 			return;
 		}
 
