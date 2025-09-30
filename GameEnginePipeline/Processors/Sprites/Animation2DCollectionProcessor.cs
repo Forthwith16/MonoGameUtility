@@ -31,10 +31,10 @@ namespace GameEnginePipeline.Processors.Sprites
 			return input;
 		}
 
-		protected override void CreateDependencies(TOutput output, ContentProcessorContext context)
+		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
 			foreach(string path in output.SourceFullNames)
-				output.AddReference<Animation2DContent>(context,path,new OpaqueDataDictionary());
+				output.AddExternalReference<Animation2DContent>(context,path);
 
 			return;
 		}

@@ -19,7 +19,7 @@ namespace GameEnginePipeline.Importers.Sprites
 		{
 			if(asset.Source is null)
 				return false;
-
+			
 			context.AddDependency(Path.Combine(Path.GetDirectoryName(filename) ?? "",asset.Source));
 			return true;
 		}

@@ -31,7 +31,7 @@ namespace GameEnginePipeline.Writers.Sprites
 			for(int i = 0;i < asset.Animations.Length;i++)
 			{
 				cout.Write(asset.Animations[i].Name!);
-				cout.WriteExternalReference(value.GetReference<Animation2DContent>(value.SourceFullNames[i]));
+				cout.WriteExternalReference(value.GetExternalReference<Animation2DContent>(value.SourceFullNames[i]));
 			}
 
 			// Now write the idle animation name

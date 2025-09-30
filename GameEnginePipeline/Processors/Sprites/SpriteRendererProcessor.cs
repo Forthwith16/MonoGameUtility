@@ -15,10 +15,10 @@ namespace GameEnginePipeline.Processors.Sprites
 	{
 		protected override TOutput? ValidateContent(TInput input, ContentProcessorContext context) => input; // There is nothing to validate with sprite renderers; the are always in a valid state
 
-		protected override void CreateDependencies(TOutput output, ContentProcessorContext context)
+		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
 			if(output.SourceFullName is not null)
-				output.AddReference<EffectContent>(context,output.SourceFullName,new OpaqueDataDictionary());
+				output.AddExternalReference<EffectContent>(context,output.SourceFullName);
 
 			return;
 		}

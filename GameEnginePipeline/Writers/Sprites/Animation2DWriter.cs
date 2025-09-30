@@ -28,7 +28,7 @@ namespace GameEnginePipeline.Writers.Sprites
 			Animation2DAsset asset = value.Asset;
 
 			// First list the source texture
-			cout.WriteExternalReference(value.GetReference<SpriteSheetContent>(value.SourceFullName));
+			cout.WriteExternalReference(value.GetExternalReference<SpriteSheetContent>(value.SourceFullName));
 
 			// Write the number of frames
 			cout.Write(asset.Frames!.Length);

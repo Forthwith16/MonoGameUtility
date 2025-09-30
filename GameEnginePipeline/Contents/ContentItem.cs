@@ -23,16 +23,19 @@ namespace GameEnginePipeline
 			return;
 		}
 
-		public void AddReference<TContent>(ContentProcessorContext context, string filename, OpaqueDataDictionary parameters) where TContent : notnull
+		public void AddExternalReference<TContent>(ContentProcessorContext context, string filename, string? processor_name = null, OpaqueDataDictionary? parameters = null, string? importer_name = null, string? asset_name = null) where TContent : notnull
 		{
-			ExternalReferences.Add(filename,context.BuildAsset<TContent,TContent>(new ExternalReference<TContent>(filename),"",parameters,"",""));
+			// To ensure caching works correctly, we need to use the EXACT same path every time, so we use the absolute path with all .. shenanigans stripped out
+			string path = Path.GetFullPath(filename);
+
+			ExternalReferences.Add(path,context.BuildAsset<TContent,TContent>(new ExternalReference<TContent>(path),processor_name,parameters,importer_name,asset_name));
 			return;
 		}
 
-		public ExternalReference<TContent> GetReference<TContent>(string filename) where TContent : notnull
+		public ExternalReference<TContent> GetExternalReference<TContent>(string filename) where TContent : notnull
 		{
-			if(!ExternalReferences.TryGetValue(filename,out ContentItem? item))
-				throw new ArgumentException("Failed to find external reference " + filename);
+			if(!ExternalReferences.TryGetValue(Path.GetFullPath(filename),out ContentItem? item))
+				throw new ArgumentException("Failed to find external reference " + filename); // We provide the raw filename to allow for superior diagnostic information
 			
 			return (ExternalReference<TContent>)item;
 		}

@@ -26,7 +26,7 @@ namespace GameEnginePipeline.Processors
 				throw new InvalidContentException("The asset " + input.Identity.SourceFilename + " was invalid and could not be processed");
 
 			context.Logger.LogMessage("Creating dependencies for asset: " + input.Identity.SourceFilename);
-			CreateDependencies(ret,context);
+			CreateExternalDependencies(ret,context);
 			
 			context.Logger.LogMessage("Finished processing asset: " + input.Identity.SourceFilename);
 			return ret;
@@ -45,6 +45,6 @@ namespace GameEnginePipeline.Processors
 		/// </summary>
 		/// <param name="output">The content to add dependencies for.</param>
 		/// <param name="context">The processor context.</param>
-		protected abstract void CreateDependencies(TOutput output, ContentProcessorContext context);
+		protected abstract void CreateExternalDependencies(TOutput output, ContentProcessorContext context);
 	}
 }

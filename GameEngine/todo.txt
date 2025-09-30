@@ -46,8 +46,4 @@ Assets should only serialize in the sense of telling us where to load them from,
 
 Asset Todo
 ----------
-Assets with dependences make their own builds of the dependency
--e.g. a sprite sheet makes its own copy of its reference texture
--WriteSharedResource might solve the problem?
-
 There's an object version of Read; maybe this is where the existing instance comes into play?

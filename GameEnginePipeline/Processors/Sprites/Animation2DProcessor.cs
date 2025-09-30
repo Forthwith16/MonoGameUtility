@@ -59,9 +59,9 @@ namespace GameEnginePipeline.Processors.Sprites
 			return input;
 		}
 
-		protected override void CreateDependencies(TOutput output, ContentProcessorContext context)
+		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
-			output.AddReference<SpriteSheetContent>(context,output.SourceFullName,new OpaqueDataDictionary());
+			output.AddExternalReference<SpriteSheetContent>(context,output.SourceFullName);
 			return;
 		}
 	}

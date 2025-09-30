@@ -28,7 +28,7 @@ namespace GameEnginePipeline.Writers.Sprites
 			cout.Write(value.SourceFullName is not null);
 
 			if(value.SourceFullName is not null)
-				cout.WriteExternalReference(value.GetReference<Texture2DContent>(value.SourceFullName));
+				cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.SourceFullName));
 			
 			// We need to write out every enum
 			cout.Write(asset.Order);
