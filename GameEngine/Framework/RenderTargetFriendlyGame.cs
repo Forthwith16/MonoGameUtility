@@ -106,7 +106,6 @@ namespace GameEngine.Framework
 			
 			// Replace the system mouse with a custom one
 			MouseRenderer = new SpriteRenderer(GraphicsDevice);
-			MouseRenderer.Blend = BlendState.NonPremultiplied;
 
 			Mouse = MouseGameObject.GenerateStandardMouse(this);
 			IsMouseVisible = false;
@@ -548,7 +547,7 @@ namespace GameEngine.Framework
 			{
 				if(Mouse is null || value == Mouse.Visible)
 					return;
-
+				
 				Mouse.Visible = value;
 				return;
 			}

@@ -47,7 +47,8 @@ namespace GameEngine.GUI.Components
 		///	<para/>
 		///	When null, this will default to Color.Transparent.
 		/// </param>
-		public GUIRenderGroup(string name, int w, int h, Color? bgc = null) : base(name)
+		/// <param name="render_resource">The resource file to load for this group's internal SpriteRenderer. If null, this will use the default set of values.</param>
+		public GUIRenderGroup(string name, int w, int h, Color? bgc = null, string? render_resource = null) : base(name)
 		{
 			Width = w;
 			Height = h;
@@ -64,6 +65,7 @@ namespace GameEngine.GUI.Components
 			RenderTargetDrawOrderChanged += (a,b) => {};
 			_rtdo = 0;
 
+			LocalRenderPath = render_resource;
 			return;
 		}
 
@@ -79,9 +81,7 @@ namespace GameEngine.GUI.Components
 
 			// Load the render engine first
 			RenderTarget = new RenderTarget2D(Game.GraphicsDevice,Width,Height);
-
-			LocalRenderer = new SpriteRenderer(Game.GraphicsDevice);
-			LocalRenderer.Blend = BlendState.NonPremultiplied;
+			LocalRenderer = LocalRenderPath is null ? new SpriteRenderer(Game.GraphicsDevice) : Game.Content.Load<SpriteRenderer>(LocalRenderPath);
 
 			// Initialize our drawing material
 			Source = new ImageGameObject(Renderer,RenderTarget);
@@ -367,6 +367,13 @@ namespace GameEngine.GUI.Components
 		protected SpriteRenderer? _lr;
 
 		/// <summary>
+		/// The path to the local renderer resource.
+		/// If this is null, then the default renderer will be used instead.
+		/// </summary>
+		private string? LocalRenderPath
+		{get;}
+
+		/// <summary>
 		/// The color to clear the background of the render texture to.
 		/// </summary>
 		public Color ClearColor
@@ -453,8 +460,6 @@ namespace GameEngine.GUI.Components
 		/// The number of top-level GUI components in this GUICore.
 		/// </summary>
 		public int Count => UpdateChildren.Count;
-
-
 
 		/// <summary>
 		/// The blend mode to draw with.

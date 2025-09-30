@@ -15,13 +15,30 @@ namespace GameEngine.Sprites
 		public SpriteRenderer(GraphicsDevice g) : base(g)
 		{
 			Order = SpriteSortMode.BackToFront;
-			Blend = BlendState.AlphaBlend;
+			Blend = BlendState.NonPremultiplied;
 			Wrap = SamplerState.LinearClamp;
 			DepthStencil = DepthStencilState.None;
 			Cull = RasterizerState.CullCounterClockwise;
 			Shader = null;
 			Transform = null;
 			
+			return;
+		}
+
+		/// <summary>
+		/// Creates a deep copy of <paramref name="other"/>, or at least a copy deep enough to operate normally.
+		/// </summary>
+		/// <param name="other">The SpriteRenderer to copy.</param>
+		public SpriteRenderer(SpriteRenderer other) : base(other.GraphicsDevice)
+		{
+			Order = other.Order;
+			Blend = other.Blend;
+			Wrap = other.Wrap;
+			DepthStencil = other.DepthStencil;
+			Cull = other.Cull;
+			Shader = other.Shader;
+			Transform = other.Transform;
+
 			return;
 		}
 
@@ -46,7 +63,7 @@ namespace GameEngine.Sprites
 		/// <summary>
 		/// A blend mode to draw with.
 		/// <para/>
-		/// This value defaults to AlphaBlend (the null value default).
+		/// This value defaults to NonPremultiplied (the null value defaults to AlphaBlend).
 		/// </summary>
 		public BlendState? Blend
 		{get; set;}

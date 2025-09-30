@@ -33,7 +33,8 @@ namespace GameEngine.GUI
 		/// </summary>
 		/// <param name="renderer">The renderer for the GUI core. This can be changed later.</param>
 		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
-		public GUICore(SpriteRenderer? renderer, bool enable_digital = true) : base(null,null)
+		/// <param name="render_resource">The resource file to load for this group's internal SpriteRenderer. If null, this will use the default set of values.</param>
+		public GUICore(SpriteRenderer? renderer, bool enable_digital = true, string? render_resource = null) : base(null,null)
 		{
 			Input = new InputManager(); // Does not need to be initialized
 			Renderer = renderer;
@@ -91,34 +92,24 @@ namespace GameEngine.GUI
 			// Assign source/layer info
 			_s = null;
 			_ld = 0.0f;
-
-			return;
-		}
-
-		public override void Initialize()
-		{
-			if(Initialized)
-				return;
-
-			// Initialize all the children
-			foreach(IGUI component in UpdateChildren)
-				component.Initialize(); // Always initialize regardless of Enabled or Visible
-
-			base.Initialize(); // This will call LoadContent
+			
+			LocalRenderPath = render_resource;
 			return;
 		}
 
 		protected override void LoadContent()
 		{
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
-			LocalRenderer = new SpriteRenderer(Game!.GraphicsDevice); // We should only get here if Game is set
-			LocalRenderer.Blend = BlendState.NonPremultiplied;
-
 			RenderTarget = new RenderTarget2D(Game!.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
+			LocalRenderer = LocalRenderPath is null ? new SpriteRenderer(Game.GraphicsDevice) : Game.Content.Load<SpriteRenderer>(LocalRenderPath);
 			
 			Source = new ImageGameObject(Renderer,RenderTarget);
 			Source.Parent = this;
 			Source.Initialize();
+
+			// Initialize all the children
+			foreach(IGUI component in UpdateChildren)
+				component.Initialize(); // Always initialize regardless of Enabled or Visible
 
 			return;
 		}
@@ -994,6 +985,13 @@ namespace GameEngine.GUI
 		protected SpriteRenderer? _lr;
 
 		/// <summary>
+		/// The path to the local renderer resource.
+		/// If this is null, then the default renderer will be used instead.
+		/// </summary>
+		private string? LocalRenderPath
+		{get;}
+
+		/// <summary>
 		/// The texture that we will render to.
 		/// </summary>
 		protected RenderTarget2D? RenderTarget
@@ -1111,7 +1109,7 @@ namespace GameEngine.GUI
 		/// <summary>
 		/// The blend mode to draw with.
 		/// <para/>
-		/// This value defaults to NonPremultiplied (null defaults to AlphaBlend).
+		/// This value defaults to NonPremultiplied (the null value defaults to AlphaBlend).
 		/// </summary>
 		public BlendState? Blend
 		{

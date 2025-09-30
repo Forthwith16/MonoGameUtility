@@ -51,18 +51,6 @@ Assets should only serialize in the sense of telling us where to load them from,
 Jump to component doesn't trigger the on entry thing but it does get us there
 -Maybe it does, and we're just not active? idk; fix the buttons, and fix everything
 
-
-
-
-
-Add a Platform property to RenderTargetFriendlyGame via "_services.AddService(typeof(GamePlatform),Platform);" in the base constructor
-
-
-
-
-
-Add IDs to SpriteRenderer.
-
 Asset Todo
 ----------
 Assets with dependences make their own builds of the dependency
@@ -70,10 +58,3 @@ Assets with dependences make their own builds of the dependency
 -WriteSharedResource might solve the problem?
 
 There's an object version of Read; maybe this is where the existing instance comes into play?
-
-SpriteRenderer
--Should have pipeline options for what render settings to assign (we do not serialize them ourselves)
--Readers are out of the pipeline, so we can access GameID, which means we can get our game from just an ID to boot up
--We can pass a game runtime parameter to Content.Load by sending out a file name + a number
---We can also ensure we can make many with the same GameID and also reuse by providing a name + ID
----This will also allow us to create SpriteRenderers through the Content.Load system rather than directly, which lets us grab them from anywhere
