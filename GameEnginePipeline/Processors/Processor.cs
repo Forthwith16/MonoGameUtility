@@ -9,6 +9,9 @@ namespace GameEnginePipeline.Processors
 	/// <typeparam name="TInput">The content type to process.</typeparam>
 	/// <typeparam name="TOutput">The type to output. Usually this should be the same as <typeparamref name="TInput"/>.</typeparam>
 	/// <typeparam name="TAsset">The asset type.</typeparam>
+	/// <remarks>
+	/// To add content builder parameters, currently see: <a href="https://docs.monogame.net/articles/getting_to_know/whatis/content_pipeline/CP_CustomParamProcs.html">What are Parameterized Processors?</a>.
+	/// </remarks>
 	public abstract class Processor<TInput,TOutput,TAsset> : ContentProcessor<TInput,TOutput> where TInput : ContentItem where TOutput : ContentItem<TAsset> where TAsset : IAsset
 	{
 		/// <summary>
