@@ -43,7 +43,3 @@ Figure out a good way to serialize ShadeGameObjects
 Assets should only serialize in the sense of telling us where to load them from, not their data
 -They can have serializers for us to serialize them, but we generally want to load them instead via Content.Load so that we reuse their data
 --This implies that assets are immutable
-
-Asset Todo
-----------
-There's an object version of Read; maybe this is where the existing instance comes into play?

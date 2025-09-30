@@ -9,7 +9,7 @@ namespace GameEnginePipeline.Importers.Sprites
 	/// <summary>
 	/// Loads an asset into memory in content form.
 	/// </summary>
-	[ContentImporter(".renderer",DisplayName = "Sprite Renderer Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteRendererProcessor))]
+	[ContentImporter(".ren",DisplayName = "Sprite Renderer Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteRendererProcessor))]
 	public sealed class SpriteRendererImporter : Importer<TInput,TOutput>
 	{
 		protected override TInput? Deserialize(string filename)
