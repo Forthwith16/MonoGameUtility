@@ -23,12 +23,6 @@ namespace GameEngine.Input
 			Records = new Dictionary<string,DynamicInputRecord>();
 			Bindings = new List<string>();
 
-			// In case this are different from the default constructor's values
-			GamepadOne = GamePadState.Default;
-			GamepadTwo = GamePadState.Default;
-			GamepadThree = GamePadState.Default;
-			GamepadFour = GamePadState.Default;
-			
 			// Assign the default fetch functions
 			KeyboardFetch = Keyboard.GetState;
 			MouseFetch = Mouse.GetState;
@@ -39,6 +33,38 @@ namespace GameEngine.Input
 			TouchPanelFetch = () => TouchPanel.GetState();
 			
 			CurrentTime = 0.0f;
+			return;
+		}
+
+		public override void Initialize()
+		{
+			if(Initialized)
+				return;
+
+			// We need to do an initial assignment of every state
+			// If we don't do this, then the first input will jump wildly from all default values to whatever the boot input state is, instead of starting from the boot input state
+			// Update the keyboard state
+			Keys = KeyboardFetch();
+			
+			// Update the mouse state
+			PreviousMouse = CurrentMouse;
+			CurrentMouse = MouseFetch();
+			
+			// Update the gamepad states
+			GamepadOne = GamePadOneFetch();
+			GamepadTwo = GamePadTwoFetch();
+			GamepadThree = GamePadThreeFetch();
+			GamepadFour = GamePadFourFetch();
+			
+			// Update the touch state
+			PreviousTouch = CurrentTouch;
+			CurrentTouch = TouchPanelFetch();
+
+			// Now we can run the initialize method on each binding to reference these states
+			foreach(DynamicInputRecord record in Records.Values)
+				record.Initialize();
+
+			base.Initialize();
 			return;
 		}
 
@@ -65,8 +91,8 @@ namespace GameEngine.Input
 			CurrentTime += (float)delta.ElapsedGameTime.TotalSeconds;
 
 			// Update our record of input satisfaction states
-			foreach(string name in Bindings)
-				Records[name].Update();
+			foreach(DynamicInputRecord record in Records.Values)
+				record.Update();
 			
 			return;
 		}
@@ -102,9 +128,15 @@ namespace GameEngine.Input
 		/// <returns>Returns true if the binding was added and false otherwise, such as if there was already a binding named <paramref name="name"/>.</returns>
 		public bool AddBinding(string name, InputBinding binding)
 		{
-			if(Records.TryAdd(name,new DynamicInputRecord(this,binding)))
+			DynamicInputRecord record = new DynamicInputRecord(this,binding);
+
+			if(Records.TryAdd(name,record))
 			{
 				Bindings.Add(name);
+				
+				if(Initialized)
+					record.Initialize(); // We need to initialize the binding so that we don't boot 
+
 				return true;
 			}
 
@@ -121,7 +153,12 @@ namespace GameEngine.Input
 		public void PutBinding(string name, InputBinding binding)
 		{
 			if(Records.TryGetValue(name,out DynamicInputRecord? record))
+			{
 				record.Binding = binding;
+				
+				if(Initialized)
+					record.Initialize();
+			}
 			else
 				AddBinding(name,binding);
 
@@ -175,7 +212,7 @@ namespace GameEngine.Input
 		/// The input binding records.
 		/// </summary>
 		protected Dictionary<string,DynamicInputRecord> Records
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The order in which extant bindings were added.
@@ -183,7 +220,7 @@ namespace GameEngine.Input
 		/// </summary>
 		/// <remarks>We don't expect to be adding/remove bindings very often, so this data structure is perfect for traversal while retaining order.</remarks>
 		protected List<string> Bindings
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The number of bindings in this input manager.
@@ -346,6 +383,12 @@ namespace GameEngine.Input
 		/// <param name="record">The record to convert.</param>
 		public static implicit operator InputRecord(DynamicInputRecord record)
 		{return new InputRecord(record);}
+
+		/// <summary>
+		/// Initializes this binding to match the input state at initialization time.
+		/// This is superior to a jarring change from all defaults to initial state at binding time.
+		/// </summary>
+		public void Initialize() => Update();
 
 		/// <summary>
 		/// Updates this record.

@@ -44,8 +44,8 @@ namespace ExampleGUI
 		protected override void LoadContent()
 		{
 			// To get a service out of Services, you just call GetService with the type you want out
-			GUICore menu = Services.GetService<GUICore>();
-			menu.Renderer = Renderer = new SpriteRenderer(GraphicsDevice);
+			Menu = Services.GetService<GUICore>();
+			Menu.Renderer = Renderer = new SpriteRenderer(GraphicsDevice);
 
 			// Let's add four buttons
 			Button tl = CreateButton("Top Left",new Vector2(100.0f,100.0f),"TL");
@@ -54,25 +54,25 @@ namespace ExampleGUI
 			Button br = CreateButton("Bottom Right",new Vector2(300.0f,300.0f),"BR");
 
 			// See the CreateButton documentation for how exactly this works
-			menu.Add(tl);
-			menu.Add(tr);
-			menu.Add(bl);
-			menu.Add(br);
+			Menu.Add(tl);
+			Menu.Add(tr);
+			Menu.Add(bl);
+			Menu.Add(br);
 
 			// We can navigate through GUI menus digitally if we permit it
 			// By default, you can use the arrow keys to do this (and the enter key 'clicks' on the button)
 			// You can change the bindings in GameEngine's Framework.GlobalConstants class
-			menu.EnableDigital = true; // This value defaults to true, but you can set it to false to disable digital navigation
+			Menu.EnableDigital = true; // This value defaults to true, but you can set it to false to disable digital navigation
 
-			menu.ConnectComponents(tl,tr,GUIMapDirection.RIGHT,true); // The last optional parameter set to true will mirror the connection in the opposite direction
-			menu.ConnectComponents(bl,br,GUIMapDirection.RIGHT,true);
-			menu.ConnectComponents(tl,bl,GUIMapDirection.DOWN,true);
-			menu.ConnectComponents(tr,br,GUIMapDirection.DOWN,true);
+			Menu.ConnectComponents(tl,tr,GUIMapDirection.RIGHT,true); // The last optional parameter set to true will mirror the connection in the opposite direction
+			Menu.ConnectComponents(bl,br,GUIMapDirection.RIGHT,true);
+			Menu.ConnectComponents(tl,bl,GUIMapDirection.DOWN,true);
+			Menu.ConnectComponents(tr,br,GUIMapDirection.DOWN,true);
 
 			// We also want some way to navigation from no previous focused component
 			// While the mouse could temporarily focus a component and then digital navigation could pick up from there, we want a way to navigate entirely digitally
 			// Thus we define the entry point for digital navigation in any (or perhaps all) of the cardinal directions
-			menu.ConnectComponents(null,tl,GUIMapDirection.DOWN); // A null component to another component allows us to navigate from no previous GUI element to this one via the down key
+			Menu.ConnectComponents(null,tl,GUIMapDirection.DOWN); // A null component to another component allows us to navigate from no previous GUI element to this one via the down key
 
 			return;
 		}
@@ -138,5 +138,6 @@ namespace ExampleGUI
 
 		protected SpriteRenderer? Renderer;
 		protected InputManager? Input;
+		protected GUICore? Menu;
 	}
 }

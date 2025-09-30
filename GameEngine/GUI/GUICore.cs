@@ -36,8 +36,7 @@ namespace GameEngine.GUI
 		/// <param name="render_resource">The resource file to load for this group's internal SpriteRenderer. If null, this will use the default set of values.</param>
 		public GUICore(SpriteRenderer? renderer, bool enable_digital = true, string? render_resource = null) : base(null,null)
 		{
-			Input = new InputManager(); // Does not need to be initialized
-			Renderer = renderer;
+			Input = new InputManager();
 			
 			// Mouse inputs
 			Input.AddReferenceInput(MouseClick,() => GlobalConstants.GUIMouseLeftClickDefault);
@@ -52,6 +51,9 @@ namespace GameEngine.GUI
 			Input.AddReferenceInput(DigitalDown,() => GlobalConstants.GUIDigitalDown);
 			Input.AddReferenceInput(DigitalLeft,() => GlobalConstants.GUIDigitalLeft);
 			Input.AddReferenceInput(DigitalRight,() => GlobalConstants.GUIDigitalRight);
+
+			// Set the renderer
+			Renderer = renderer;
 
 			// Initialize state variables
 			TopComponents = new Dictionary<string,DummyGUI>();
@@ -99,6 +101,8 @@ namespace GameEngine.GUI
 
 		protected override void LoadContent()
 		{
+			Input.Initialize();
+
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
 			RenderTarget = new RenderTarget2D(Game!.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
 			LocalRenderer = LocalRenderPath is null ? new SpriteRenderer(Game.GraphicsDevice) : Game.Content.Load<SpriteRenderer>(LocalRenderPath);

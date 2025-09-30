@@ -48,8 +48,7 @@ Assets should only serialize in the sense of telling us where to load them from,
 
 
 
-Jump to component doesn't trigger the on entry thing but it does get us there
--Maybe it does, and we're just not active? idk; fix the buttons, and fix everything
+Add a way to disable mouse input in the GUICore
 
 Asset Todo
 ----------
