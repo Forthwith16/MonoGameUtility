@@ -14,10 +14,10 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Animations/test.animation
+#begin Animations/test.a2d
 /importer:AnimationImporter
 /processor:Animation2DProcessor
-/build:Animations/test.animation
+/build:Animations/test.a2d
 
 #begin Images/FRKT.png
 /importer:TextureImporter
@@ -31,8 +31,8 @@
 /processorParam:TextureFormat=Color
 /build:Images/FRKT.png
 
-#begin Sprite Sheets/test.spritesheet
-/importer:SpriteSheetImporter
-/processor:SpriteSheetProcessor
-/build:Sprite Sheets/test.spritesheet
+#begin Sprite Sheets/test.ss
+/importer:
+/processor:
+/build:Sprite Sheets/test.ss
 

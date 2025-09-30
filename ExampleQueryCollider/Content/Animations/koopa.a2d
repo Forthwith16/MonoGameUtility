@@ -1,0 +1,17 @@
+﻿{
+  "Type" : "Animation2D",
+  "Source" : "../Spritesheets/koopa.ss",
+  "Frames" : [
+    {
+	 "Sprite" : 0,
+	 "Duration" : 0.23
+    },
+    {
+	 "Sprite" : 1,
+	 "Duration" : 0.23
+    }
+  ],
+  "Loops" : true,
+  "LoopFrameStart" : 0,
+  "LoopFrameEnd" : 1
+}

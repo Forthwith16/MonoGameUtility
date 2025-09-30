@@ -14,10 +14,10 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Animations/koopa.animation
+#begin Animations/koopa.a2d
 /importer:AnimationImporter
 /processor:Animation2DProcessor
-/build:Animations/koopa.animation
+/build:Animations/koopa.a2d
 
 #begin background.png
 /importer:TextureImporter
@@ -49,8 +49,8 @@
 /processorParam:Quality=Best
 /build:overworld.mp3
 
-#begin Spritesheets/koopa.spritesheet
+#begin Spritesheets/koopa.ss
 /importer:SpriteSheetImporter
 /processor:SpriteSheetProcessor
-/build:Spritesheets/koopa.spritesheet
+/build:Spritesheets/koopa.ss
 

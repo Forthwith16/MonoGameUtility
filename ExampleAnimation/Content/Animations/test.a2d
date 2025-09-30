@@ -1,0 +1,41 @@
+{
+  "Type": "Animation2D",
+  "Source": "../Sprite Sheets/test.ss",
+  "Frames": [
+    {
+      "Sprite": 0,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 1,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 2,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 3,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 4,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 3,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 2,
+      "Duration": 0.085
+    },
+    {
+      "Sprite": 1,
+      "Duration": 0.085
+    }
+  ],
+  "Loops": true,
+  "LoopFrameStart": 0,
+  "LoopFrameEnd": 7
+}
