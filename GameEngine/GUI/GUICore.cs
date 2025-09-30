@@ -32,9 +32,10 @@ namespace GameEngine.GUI
 		/// Creates a new GUI core with all default bindings.
 		/// </summary>
 		/// <param name="renderer">The renderer for the GUI core. This can be changed later.</param>
-		/// <param name="enable_digital">If true, we will allow digital inputs to control this GUI core. If false, only muose inputs can.</param>
+		/// <param name="enable_digital">Iff true, we will allow digital inputs to control this GUI core.</param>
+		/// <param name="enable_mouse">Iff true, we allow mouse inputs to control this GUI core.</param>
 		/// <param name="render_resource">The resource file to load for this group's internal SpriteRenderer. If null, this will use the default set of values.</param>
-		public GUICore(SpriteRenderer? renderer, bool enable_digital = true, string? render_resource = null) : base(null,null)
+		public GUICore(SpriteRenderer? renderer, bool enable_digital = true, bool enable_mouse = true, string? render_resource = null) : base(null,null)
 		{
 			Input = new InputManager();
 			
@@ -62,7 +63,9 @@ namespace GameEngine.GUI
 
 			UsingMouse = false;
 			UsingDigital = false;
+
 			EnableDigital = enable_digital;
+			EnableMouse = enable_mouse;
 			
 			AttemptingClick = null;
 			TooltipHovering = false;
@@ -147,10 +150,11 @@ namespace GameEngine.GUI
 
 				// Check if the mouse did something (this takes priority over digital navigation)
 				// These bindings evaluate to true if the mouse delta is nonzero
-				if(Input[MouseXDelta].CurrentDigitalValue || Input[MouseYDelta].CurrentDigitalValue || Input[MouseClick].IsRisingEdge || Input[MouseClick].IsFallingEdge)
-					UsingMouse = true;
-				else if(Enabled && (ActiveComponent is null || !ActiveComponent.SuspendsDigitalNavigation) && (Input[DigitalUp].IsRisingEdge || Input[DigitalDown].IsRisingEdge || Input[DigitalLeft].IsRisingEdge || Input[DigitalRight].IsRisingEdge || Input[DigitalClick].IsRisingEdge))
-					UsingDigital = true;
+				if(Enabled)
+					if(EnableMouse && (ActiveComponent is null || !ActiveComponent.SuspendsMouseNavigation) && (Input[MouseXDelta].CurrentDigitalValue || Input[MouseYDelta].CurrentDigitalValue || Input[MouseClick].IsRisingEdge || Input[MouseClick].IsFallingEdge))
+						UsingMouse = true;
+					else if(EnableDigital && (ActiveComponent is null || !ActiveComponent.SuspendsDigitalNavigation) && (Input[DigitalUp].IsRisingEdge || Input[DigitalDown].IsRisingEdge || Input[DigitalLeft].IsRisingEdge || Input[DigitalRight].IsRisingEdge || Input[DigitalClick].IsRisingEdge))
+						UsingDigital = true;
 
 				// We can blindly reset the tooltips flag if we've performed any input since they all disable it
 				if(UsingInput)
@@ -163,7 +167,7 @@ namespace GameEngine.GUI
 				}
 
 				// If we're using the mouse, we need to check out what we're pointing at (if anything)
-				if(UsingMouse)
+				if(UsingMouse && (ActiveComponent is null || !ActiveComponent.SuspendsMouseNavigation))
 				{
 					// Process input
 					// We need to figure out what GUI component we're actually interacting with
@@ -1309,9 +1313,15 @@ namespace GameEngine.GUI
 		/// <summary>
 		/// If true, digital inputs are allowed.
 		/// If false, digital inputs may not control this GUICore (at least not directly).
-		/// When false, UsingMouse is always true.
 		/// </summary>
 		public bool EnableDigital
+		{get; set;}
+
+		/// <summary>
+		/// If true, mouse inputs are allowed.
+		/// If false, mouse inputs may not control this GUICore (at least not directly).
+		/// </summary>
+		public bool EnableMouse
 		{get; set;}
 
 		/// <summary>

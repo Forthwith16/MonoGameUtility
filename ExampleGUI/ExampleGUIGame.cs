@@ -63,6 +63,7 @@ namespace ExampleGUI
 			// By default, you can use the arrow keys to do this (and the enter key 'clicks' on the button)
 			// You can change the bindings in GameEngine's Framework.GlobalConstants class
 			Menu.EnableDigital = true; // This value defaults to true, but you can set it to false to disable digital navigation
+			Menu.EnableMouse = true; // This value defaults to true, but you can set it to false to disable mouse navigation
 
 			Menu.ConnectComponents(tl,tr,GUIMapDirection.RIGHT,true); // The last optional parameter set to true will mirror the connection in the opposite direction
 			Menu.ConnectComponents(bl,br,GUIMapDirection.RIGHT,true);

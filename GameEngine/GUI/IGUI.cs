@@ -147,6 +147,13 @@ namespace GameEngine.GUI
 		{get;}
 
 		/// <summary>
+		/// If true, this GUI component will suspend normal mouse navigation when it is active.
+		/// If false, this has no effect.
+		/// </summary>
+		public bool SuspendsMouseNavigation
+		{get;}
+
+		/// <summary>
 		/// A bounding box for this GUI component, including its children.
 		/// </summary>
 		public Rectangle Bounds

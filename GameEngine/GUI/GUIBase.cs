@@ -230,6 +230,7 @@ namespace GameEngine.GUI
 		}
 
 		public virtual bool SuspendsDigitalNavigation => false;
+		public virtual bool SuspendsMouseNavigation => false;
 
 		/// <summary>
 		/// The order that this should be drawn in a GUI system.
