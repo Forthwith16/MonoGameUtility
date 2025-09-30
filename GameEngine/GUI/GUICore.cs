@@ -73,7 +73,9 @@ namespace GameEngine.GUI
 			Map = new GUIMap();
 			Transform = Matrix2D.Identity;
 
-			Blend = BlendState.NonPremultiplied;
+			Camera = Matrix2D.Identity;
+			CameraInverse = Matrix.Identity;
+
 			ClearColor = Color.Transparent;
 
 			// Make sure our events have dummy handlers
@@ -109,7 +111,9 @@ namespace GameEngine.GUI
 		protected override void LoadContent()
 		{
 			// Load the render engine (children do not need to be loaded as Initialize is responsible for calling LoadContent)
-			LocalRenderer = new SpriteRenderer(Game!); // We should only get here if Game is set
+			LocalRenderer = new SpriteRenderer(Game!.GraphicsDevice); // We should only get here if Game is set
+			LocalRenderer.Blend = BlendState.NonPremultiplied;
+
 			RenderTarget = new RenderTarget2D(Game!.GraphicsDevice,Game.GraphicsDevice.Viewport.Width,Game.GraphicsDevice.Viewport.Height);
 			
 			Source = new ImageGameObject(Renderer,RenderTarget);
@@ -604,13 +608,14 @@ namespace GameEngine.GUI
 			Game.GraphicsDevice.Clear(ClearColor);
 
 			// We need to invert the camera matrix so that the camera behaves naturally (e.g. moving the camera up moves the world down)
-			LocalRenderer!.Begin(SpriteSortMode.BackToFront,Blend,Wrap,DepthRecord,Cull,Shader,InverseWorld.SwapChirality());
+			LocalRenderer!.Transform = CameraInverse;
+			LocalRenderer.Begin();
 			
 			foreach(IGUI component in DrawChildren)
 				if(component.Visible) // We don't care if a GUI component is enabled here since they can still be draw but are greyed out or whatever
 					component.Draw(delta);
 
-			LocalRenderer!.End();
+			LocalRenderer.End();
 			return;
 		}
 
@@ -897,13 +902,13 @@ namespace GameEngine.GUI
 		/// The children of this GUICore in update order.
 		/// </summary>
 		protected AVLSet<IGUI> UpdateChildren
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The children of this GUICore in draw order.
 		/// </summary>
 		protected AVLSet<IGUI> DrawChildren
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The number of top-level GUI components in this GUICore.
@@ -1101,46 +1106,148 @@ namespace GameEngine.GUI
 		/// The input manager for all GUI operations in this GUICore.
 		/// </summary>
 		public InputManager Input
-		{get; protected init;}
+		{get;}
 
 		/// <summary>
-		/// A blend mode for GUI components to be drawn with.
+		/// The blend mode to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to NonPremultiplied).
+		/// This value defaults to NonPremultiplied (null defaults to AlphaBlend).
 		/// </summary>
 		public BlendState? Blend
-		{get; set;}
+		{
+			get => LocalRenderer?.Blend;
+			
+			set
+			{
+				if(LocalRenderer is not null)
+					LocalRenderer.Blend = value;
+
+				return;
+			}
+		}
 
 		/// <summary>
-		/// A sampler wrap mode for GUI components to be drawn with.
+		/// The sampler wrap mode to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to LinearClamp).
+		/// This value defaults to LinearClamp (the null value default).
 		/// </summary>
 		public SamplerState? Wrap
-		{get; set;}
+		{
+			get => LocalRenderer?.Wrap;
+			
+			set
+			{
+				if(LocalRenderer is not null)
+					LocalRenderer.Wrap = value;
+
+				return;
+			}
+		}
 
 		/// <summary>
-		/// A shader for GUI components to be drawn with.
+		/// The shader for to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to None).
+		/// This value defaults to None (the null value default).
 		/// </summary>
-		public DepthStencilState? DepthRecord
-		{get; set;}
+		public DepthStencilState? DepthStencil
+		{
+			get => LocalRenderer?.DepthStencil;
+			
+			set
+			{
+				if(LocalRenderer is not null)
+					LocalRenderer.DepthStencil = value;
+
+				return;
+			}
+		}
 
 		/// <summary>
-		/// The cull state used when drawing GUI components.
+		/// The cull state to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn deaults to CullCounterClockwise).
+		/// This value defaults to CullCounterClockwise (the null value default).
 		/// </summary>
 		public RasterizerState? Cull
-		{get; set;}
+		{
+			get => LocalRenderer?.Cull;
+			
+			set
+			{
+				if(LocalRenderer is not null)
+					LocalRenderer.Cull = value;
+
+				return;
+			}
+		}
 
 		/// <summary>
-		/// A shader for GUI components to be drawn with.
+		/// The shader to draw with.
 		/// <para/>
-		/// This value defaults to null (which in turn defaults to the default sprite effect).
+		/// This value defaults to null (which in turn defaults to the default sprite Effect).
 		/// </summary>
 		public Effect? Shader
+		{
+			get => LocalRenderer?.Shader;
+			
+			set
+			{
+				if(LocalRenderer is not null)
+					LocalRenderer.Shader = value;
+
+				return;
+			}
+		}
+
+		/// <summary>
+		/// The camera transform.
+		/// This is distinct from the world transform.
+		/// Transform moves this GUI component around in world space.
+		/// Camera moves this GUI component's contents around in its sub-world space.
+		/// <para/>
+		/// This matrix will be inverted at draw time so that camera movement corresponds to natural movement.
+		/// i.e. moving the camera down moves the view down instead of the contents down, thus moving the contents up.
+		/// </summary>
+		public Matrix2D Camera
+		{
+			get => _c;
+
+			set
+			{
+				_c = value;
+				CameraInverseStale = true;
+			}
+		}
+		
+		private Matrix2D _c;
+
+		/// <summary>
+		/// The inverse camera matrix used for drawing in LocalRenderer.
+		/// </summary>
+		private Matrix CameraInverse
+		{
+			get
+			{
+				if(CameraInverseStale)
+					_ci = _c.Invert().SwapChirality();
+
+				return _ci;
+			}
+
+			set
+			{
+				_ci = value;
+				CameraInverseStale = false;
+
+				return;
+			}
+		}
+
+		private Matrix _ci;
+
+		/// <summary>
+		/// If true, then the camera inverse is stale.
+		/// </summary>
+		private bool CameraInverseStale
 		{get; set;}
 
 		/// <summary>

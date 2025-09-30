@@ -40,6 +40,9 @@ namespace GameEngine.GameObjects
 
 		protected override DummyGameObject ConstructT(Dictionary<string,object?> properties)
 		{
+			if(properties.Count != 2)
+				throw new JsonException();
+
 			DummyGameObject ret = new DummyGameObject();
 
 			ret.Enabled = (bool)properties["Enabled"]!;

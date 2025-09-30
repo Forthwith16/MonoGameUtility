@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 
-using TAsset = GameEnginePipeline.Assets.SpriteSheetAsset;
-using TInput = GameEnginePipeline.Contents.SpriteSheetContent;
-using TOutput = GameEnginePipeline.Contents.SpriteSheetContent;
+using TAsset = GameEnginePipeline.Assets.Sprites.SpriteSheetAsset;
+using TInput = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
+using TOutput = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
 
-namespace GameEnginePipeline.Processors
+namespace GameEnginePipeline.Processors.Sprites
 {
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare content to be written into the content pipeline.

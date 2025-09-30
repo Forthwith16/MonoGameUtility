@@ -8,29 +8,29 @@ using TRead = GameEngine.Sprites.Animation;
 namespace GameEngine.Readers
 {
 	/// <summary>
-	/// Transforms content into its game component form.
+	/// Transforms content into its game object form.
 	/// </summary>
 	public sealed class AnimationReader : ContentTypeReader<TRead>
 	{
 		/// <summary>
 		/// Reads an Animation into the game.
 		/// </summary>
-		/// <param name="input">The source of content data.</param>
+		/// <param name="cin">The source of content data.</param>
 		/// <param name="existingInstance">The existence instance of this content (if any).</param>
-		/// <returns>Returns the Animation specified by <paramref name="input"/> or <paramref name="existingInstance"/> if we've already created an instance of this source asset.</returns>
+		/// <returns>Returns the Animation specified by <paramref name="cin"/> or <paramref name="existingInstance"/> if we've already created an instance of this source asset.</returns>
 		/// <exception cref="AnimationFormatException">Thrown if the animation specification is invalid.</exception>
 		/// <exception cref="ContentLoadException">Thrown if the content pipeline did not contain the expected data.</exception>
-		protected override TRead Read(ContentReader input, TRead existingInstance)
+		protected override TRead Read(ContentReader cin, TRead? existingInstance)
 		{
 			// We insist that Animations are unique for each source (which will then be instantiated for real later)
 			if(existingInstance is not null)
 				return existingInstance;
 
 			// First determine what type of animation we're reading
-			switch((AnimationType)input.ReadInt32())
+			switch((AnimationType)cin.ReadInt32())
 			{
 			case AnimationType.Animation2D:
-				return ReadAnimation2D(input);
+				return ReadAnimation2D(cin);
 			}
 
 			throw new ContentLoadException("An unsupported animation type was provided");
@@ -60,8 +60,11 @@ namespace GameEngine.Readers
 			{
 				indices[i] = cin.ReadInt32();
 				lens[i] = cin.ReadSingle();
-				trans[i] = cin.ReadMatrix2D();
+				trans[i] = cin.ReadMatrix2DComponents();
 			}
+
+			// Grab the start time
+			float start = cin.ReadSingle();
 
 			// Now that we have all of our frame data, we just need loop data
 			bool loops = cin.ReadBoolean();
@@ -69,7 +72,7 @@ namespace GameEngine.Readers
 			float loop_end = cin.ReadSingle();
 
 			// We now have everything so we'll call it a day
-			return new TRead(source,lens,indices,trans,loops,loop_start,loop_end);
+			return new TRead(source,lens,indices,trans,start,loops,loop_start,loop_end);
 		}
 	}
 

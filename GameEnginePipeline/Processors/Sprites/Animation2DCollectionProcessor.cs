@@ -1,12 +1,11 @@
-﻿using GameEnginePipeline.Assets;
-using GameEnginePipeline.Contents;
+﻿using GameEnginePipeline.Assets.Sprites;
+using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.Collections.Generic;
-using TAsset = GameEnginePipeline.Assets.Animation2DCollectionAsset;
-using TInput = GameEnginePipeline.Contents.Animation2DCollectionContent;
-using TOutput = GameEnginePipeline.Contents.Animation2DCollectionContent;
+using TAsset = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
+using TInput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
+using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 
-namespace GameEnginePipeline.Processors
+namespace GameEnginePipeline.Processors.Sprites
 {
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare content to be written into the content pipeline.
@@ -22,7 +21,7 @@ namespace GameEnginePipeline.Processors
 			// We neeed to check if each animation name is unique, not null, and one of them is the idle animation (the latter will incidentally check if we have at least 1 animation)
 			HashSet<string> names = new HashSet<string>();
 			
-			foreach(NamedAnimation2D a in asset.Animations!)
+			foreach(NamedAnimation2D a in asset.Animations)
 				if(a.Name is null || !names.Add(a.Name))
 					return null;
 

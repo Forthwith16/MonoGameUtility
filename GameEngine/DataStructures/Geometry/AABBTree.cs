@@ -123,9 +123,6 @@ namespace GameEngine.DataStructures.Geometry
 					
 					return PickBestLeaf(root.Right,new_bounds);
 				}
-			
-			// We shouldn't be able to get here, but just in case, just go left ig and hope for the best
-			return PickBestLeaf(root.Left,new_bounds);
 		}
 
 		/// <summary>

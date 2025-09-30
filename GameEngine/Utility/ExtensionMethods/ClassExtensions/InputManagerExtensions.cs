@@ -679,8 +679,6 @@ namespace GameEngine.Utility.ExtensionMethods.ClassExtensions
 						return scale;
 					else // Positive is false
 						return 0.0f;
-
-				return 0.0f; // We shouldn't be able to get here, but just in case
 			},put);
 		}
 

@@ -26,15 +26,6 @@ namespace GameEngine.Framework
 	/// </remarks>
 	public class JsonGameObjectConverter : JsonBaseTypeConverter<GameObject>
 	{
-		/// <summary>
-		/// Initializes this converter.
-		/// </summary>
-		public JsonGameObjectConverter() : base()
-		{
-			IDConverter = null;
-			return;
-		}
-
 		public override GameObject Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
 		{
 			// If we don't have our ID converter yet, get it
@@ -122,7 +113,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// This converts GameObjectIDs to/from JSON.
 		/// </summary>
-		private JsonConverter<GameObjectID>? IDConverter;
+		private JsonConverter<GameObjectID>? IDConverter = null;
 
 		#region Static System
 		/// <summary>
@@ -224,6 +215,7 @@ namespace GameEngine.Framework
 		/// <param name="writer">The JSON writer.</param>
 		/// <param name="value">The value whose properties should be written.</param>
 		/// <param name="ops">The JSON serialization options.</param>
+		/// <remarks>This will not output <paramref name="value"/>'s Game's ID, as there is no reason to expect this to be the same.</remarks>
 		public static void WriteStandardProperties(Utf8JsonWriter writer, GameObject value, JsonSerializerOptions ops)
 		{
 			writer.WriteBoolean("Enabled",value.Enabled);

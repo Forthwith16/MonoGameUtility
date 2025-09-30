@@ -1,6 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content.Pipeline;
-using System;
-using System.Collections.Generic;
+﻿using GameEnginePipeline.Assets;
+using Microsoft.Xna.Framework.Content.Pipeline;
 
 namespace GameEnginePipeline
 {

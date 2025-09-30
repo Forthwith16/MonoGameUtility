@@ -1,12 +1,12 @@
-﻿using GameEnginePipeline.Contents;
+﻿using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
-using TAsset = GameEnginePipeline.Assets.Animation2DCollectionAsset;
+using TAsset = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
 using TRead = GameEngine.Sprites.Animation2DCollection;
 using TReader = GameEngine.Readers.Animation2DCollectionReader;
-using TWrite = GameEnginePipeline.Contents.Animation2DCollectionContent;
+using TWrite = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 
-namespace GameEnginePipeline.Writers
+namespace GameEnginePipeline.Writers.Sprites
 {
 	/// <summary>
 	/// Allows for writing assets to the pipeline.
@@ -25,7 +25,7 @@ namespace GameEnginePipeline.Writers
 			TAsset asset = value.Asset;
 
 			// First write the number of animations
-			cout.Write(asset.Animations!.Length);
+			cout.Write(asset.Animations.Length);
 
 			// Now write out each animation with name and then the external reference
 			for(int i = 0;i < asset.Animations.Length;i++)

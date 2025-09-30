@@ -1,7 +1,6 @@
-﻿using GameEnginePipeline.Assets;
-using System.IO;
+﻿using GameEnginePipeline.Assets.Sprites;
 
-namespace GameEnginePipeline.Contents
+namespace GameEnginePipeline.Contents.Sprites
 {
 	/// <summary>
 	/// Represents sprite sheet content.

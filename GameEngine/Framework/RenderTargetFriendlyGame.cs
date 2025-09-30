@@ -18,7 +18,7 @@ namespace GameEngine.Framework
 		{
 			// Grab an ID
 			ID = GameID.GetFreshID(this);
-
+			
 			// Initialize initialzation data
 			Initialized = false;
 			Initializing = false;
@@ -26,7 +26,7 @@ namespace GameEngine.Framework
 #if VerifyMidInitializationComponentAdds
 			MidInitializationAdds = new Queue<IGameComponent>();
 #endif
-
+			
 			// Create the graphics device manager
 			Graphics = new GraphicsDeviceManager(this);
 			
@@ -105,7 +105,9 @@ namespace GameEngine.Framework
 			BeforeInitialize();
 			
 			// Replace the system mouse with a custom one
-			MouseRenderer = new SpriteRenderer(this);
+			MouseRenderer = new SpriteRenderer(GraphicsDevice);
+			MouseRenderer.Blend = BlendState.NonPremultiplied;
+
 			Mouse = MouseGameObject.GenerateStandardMouse(this);
 			IsMouseVisible = false;
 			IsCustomMouseVisible = true;

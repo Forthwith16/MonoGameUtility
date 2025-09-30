@@ -8,27 +8,27 @@ using TRead = GameEngine.Sprites.SpriteSheet;
 namespace GameEngine.Readers
 {
 	/// <summary>
-	/// Transforms content into its game component form.
+	/// Transforms content into its game object form.
 	/// </summary>
 	public sealed class SpriteSheetReader : ContentTypeReader<TRead>
 	{
 		/// <summary>
 		/// Reads a sprite sheet into the game.
 		/// </summary>
-		/// <param name="input">The source of content data.</param>
+		/// <param name="cin">The source of content data.</param>
 		/// <param name="existingInstance">The existence instance of this content (if any).</param>
-		/// <returns>Returns the sprite sheet specified by <paramref name="input"/> or <paramref name="existingInstance"/> if we've already created an instance of this source asset.</returns>
-		protected override TRead Read(ContentReader input, TRead existingInstance)
+		/// <returns>Returns the sprite sheet specified by <paramref name="cin"/> or <paramref name="existingInstance"/> if we've already created an instance of this source asset.</returns>
+		protected override TRead Read(ContentReader cin, TRead? existingInstance)
 		{
 			// We insist that sprite sheets are unique for each source
 			if(existingInstance is not null)
 				return existingInstance;
 
 			// First get the source texture
-			Texture2D source = input.ReadExternalReference<Texture2D>();
+			Texture2D source = cin.ReadExternalReference<Texture2D>();
 
 			// Now check if we're tiling or not
-			bool tile = input.ReadBoolean();
+			bool tile = cin.ReadBoolean();
 
 			// We'll need this either way
 			List<Rectangle> sprites = new List<Rectangle>();
@@ -36,12 +36,12 @@ namespace GameEngine.Readers
 			if(tile)
 			{
 				// Read in the tiling data first
-				bool row_first = input.ReadBoolean();
-				int vcount = input.ReadInt32();
-				int hcount = input.ReadInt32();
-				int count = input.ReadInt32();
-				int width = input.ReadInt32();
-				int height = input.ReadInt32();
+				bool row_first = cin.ReadBoolean();
+				int vcount = cin.ReadInt32();
+				int hcount = cin.ReadInt32();
+				int count = cin.ReadInt32();
+				int width = cin.ReadInt32();
+				int height = cin.ReadInt32();
 
 				if(row_first)
 					for(int y = 0,c = 0;c < count;y++)
@@ -55,11 +55,11 @@ namespace GameEngine.Readers
 			else
 			{
 				// Read how many rectangles we have
-				int num = input.ReadInt32();
+				int num = cin.ReadInt32();
 
 				// Now read in each rectangle
 				for(int i = 0;i < num; i++)
-					sprites.Add(input.ReadRectangle());
+					sprites.Add(cin.ReadRectangle());
 			}
 
 			return new TRead(source,sprites);

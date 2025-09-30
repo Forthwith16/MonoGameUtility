@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework.Content.Pipeline;
-using System.IO;
+﻿using GameEnginePipeline.Assets;
+using Microsoft.Xna.Framework.Content.Pipeline;
 
-namespace GameEnginePipeline
+namespace GameEnginePipeline.Importers
 {
 	/// <summary>
 	/// Loads an asset into memory in content form.

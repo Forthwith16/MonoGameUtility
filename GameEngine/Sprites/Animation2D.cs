@@ -48,10 +48,14 @@ namespace GameEngine.Sprites
 				start += lens.Current;
 			}
 
+			// Load the start time
+			StartTime = a.Start;
+
 			// Set up the clock
 			// The most important part about this construction process is that each animation instance gets its own clock
 			Clock = new TimePartition(Frames.Skip(1).Select((value,index) => value.StartTime)); // We skip the first start time since 0 is always a start time
 			Clock.SetMaximumTime(true,Frames[Count - 1].EndTime);
+			Clock.Seek(StartTime);
 			
 			// We set up the loop seperately so that we can ensure all three values are set without resorting to something gimmicky
 			Clock.Loop(a.Loops);
@@ -64,16 +68,15 @@ namespace GameEngine.Sprites
 		/// Creates a sufficiently deep copy of <paramref name="a"/> for this to operate independently while sharing resources.
 		/// </summary>
 		/// <param name="a">The animation to clone.</param>
-		/// <exception cref="ArgumentNullException">Thrown if <paramref name="a"/> is null.</exception>
 		public Animation2D(Animation2D a) : base(a)
 		{
-			if(a is null)
-				throw new ArgumentNullException("The provided Animation was null");
-
 			Source = a.Source; // Sprite sheets are immutable
 			Frames = a.Frames; // Frames are immutable and so are arrays, so this is fine
-			Clock = new TimePartition(a.Clock); // This will create a deep enough copy to get the job done
+			StartTime = a.StartTime;
 			
+			Clock = new TimePartition(a.Clock); // This will create a deep enough copy to get the job done
+			Clock.Seek(StartTime);
+
 			return;
 		}
 
@@ -181,6 +184,12 @@ namespace GameEngine.Sprites
 		{get => Clock.EndOfTime;}
 
 		/// <summary>
+		/// The initial start time of the animation.
+		/// </summary>
+		protected float StartTime
+		{get;}
+
+		/// <summary>
 		/// This is the current time within the animation's timeline.
 		/// </summary>
 		/// <exception cref="ArgumentException">
@@ -236,7 +245,7 @@ namespace GameEngine.Sprites
 		/// </summary>
 		public bool Stopped
 		{
-			get => !Playing && CurrentTime == 0.0f; // This floating point assignment is exact when we are truly stopped, so this is fine
+			get => !Playing && CurrentTime == StartTime; // This floating point assignment is exact when we are truly stopped, so this is fine
 			set => Clock.Stop();
 		}
 

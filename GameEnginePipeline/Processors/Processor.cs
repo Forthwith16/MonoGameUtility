@@ -1,6 +1,7 @@
-﻿using Microsoft.Xna.Framework.Content.Pipeline;
+﻿using GameEnginePipeline.Assets;
+using Microsoft.Xna.Framework.Content.Pipeline;
 
-namespace GameEnginePipeline
+namespace GameEnginePipeline.Processors
 {
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare it to be written into the content pipeline.

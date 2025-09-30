@@ -1,12 +1,11 @@
-﻿using GameEnginePipeline.Contents;
+﻿using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.Linq;
 
-using TAsset = GameEnginePipeline.Assets.AnimationAssets.Animation2DAsset;
-using TInput = GameEnginePipeline.Contents.Animation2DContent;
-using TOutput = GameEnginePipeline.Contents.Animation2DContent;
+using TAsset = GameEnginePipeline.Assets.Sprites.Animation2DAsset;
+using TInput = GameEnginePipeline.Contents.Sprites.Animation2DContent;
+using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DContent;
 
-namespace GameEnginePipeline.Processors
+namespace GameEnginePipeline.Processors.Sprites
 {
 	/// <summary>
 	/// Validates content and performs any additional logic necessary to prepare content to be written into the content pipeline.
@@ -38,12 +37,19 @@ namespace GameEnginePipeline.Processors
 					return null;
 			}
 
-			// If we have the wrong loop data, we'll have to fix that
-			float loop_start = asset.LoopStart is null ? (asset.LoopFrameStart is null ? 0.0f : segs[asset.LoopFrameStart.Value]) : asset.LoopStart.Value;
-			float loop_end = asset.LoopEnd is null ? (asset.LoopFrameEnd is null ? segs[asset.Frames.Length] : segs[asset.LoopFrameEnd.Value + 1]) : asset.LoopEnd.Value;
+			// Assign the start time if we don't have it
+			if(asset.StartTime is null)
+				if(asset.StartFrame is null)
+					asset.StartTime = 0.0f; // If we have neither start time, then we default to 0
+				else
+					asset.StartTime = segs[asset.StartFrame.Value];
 
-			// All that we have left to do is check that the loop data makes sense (and assign anything that we're missing)
-			if(loop_end <= loop_start || loop_start < 0.0f || loop_end > segs[asset.Frames.Length])
+			// If we have the wrong loop data, we'll have to fix that
+			float loop_start = asset.LoopStart is null ? asset.LoopFrameStart is null ? 0.0f : segs[asset.LoopFrameStart.Value] : asset.LoopStart.Value;
+			float loop_end = asset.LoopEnd is null ? asset.LoopFrameEnd is null ? segs[asset.Frames.Length] : segs[asset.LoopFrameEnd.Value + 1] : asset.LoopEnd.Value;
+
+			// All that we have left to do is check that the start time and loop data makes sense
+			if(asset.StartTime < 0.0f || asset.StartTime > segs[asset.Frames.Length] || loop_end <= loop_start || loop_start < 0.0f || loop_end > segs[asset.Frames.Length])
 				return null;
 
 			// Now that everything is validated, we'll commit any changes we need to make

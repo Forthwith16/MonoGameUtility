@@ -2,12 +2,12 @@
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
-using TAsset = GameEnginePipeline.Assets.SpriteSheetAsset;
+using TAsset = GameEnginePipeline.Assets.Sprites.SpriteSheetAsset;
 using TRead = GameEngine.Sprites.SpriteSheet;
 using TReader = GameEngine.Readers.SpriteSheetReader;
-using TWrite = GameEnginePipeline.Contents.SpriteSheetContent;
+using TWrite = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
 
-namespace GameEnginePipeline.Writers
+namespace GameEnginePipeline.Writers.Sprites
 {
 	/// <summary>
 	/// Allows for writing assets to the pipeline.

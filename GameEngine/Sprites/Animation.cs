@@ -6,9 +6,6 @@ namespace GameEngine.Sprites
 {
 	/// <summary>
 	/// Encapsulates an animation.
-	/// <para/>
-	/// Although this class <i>can</i> be added to a Game, it is generally best for an object utilitizing it to manage it manually.
-	/// This will include calling its Initialize, Update, and Dispose functions.
 	/// </summary>
 	public class Animation
 	{
@@ -19,11 +16,12 @@ namespace GameEngine.Sprites
 		/// <param name="frame_lens">The durations (in seconds) of each frame.</param>
 		/// <param name="tex_index">The indices into <paramref name="src"/> for each frame's texture information.</param>
 		/// <param name="transformations">The (affine) transformations of each frame.</param>
+		/// <param name="start">The start time of the animation.</param>
 		/// <param name="loop">If true, this animation will loop. If false, it will not.</param>
 		/// <param name="loop_start">This is the start of the loop. Even if <paramref name="loop"/> is false, this must be less than <paramref name="loop_end"/>.</param>
 		/// <param name="loop_end">This is the end of the loop. Even if <paramref name="loop"/> is false, this must be greater than <paramref name="loop_start"/>.</param>
 		/// <exception cref="AnimationFormatException">Thrown if the provided information does not fully define an Animation2D.</exception>
-		public Animation(SpriteSheet src, IEnumerable<float> frame_lens, IEnumerable<int> tex_index, IEnumerable<Matrix2D> transformations, bool loop = false, float loop_start = 0.0f, float loop_end = float.MaxValue)
+		public Animation(SpriteSheet src, IEnumerable<float> frame_lens, IEnumerable<int> tex_index, IEnumerable<Matrix2D> transformations, float start = 0.0f, bool loop = false, float loop_start = 0.0f, float loop_end = float.MaxValue)
 		{
 			// We don't want someone to be able to stealth change this animation on us, so we create our own enumerables
 			List<float> f = new List<float>(frame_lens);
@@ -50,7 +48,10 @@ namespace GameEngine.Sprites
 					throw new AnimationFormatException("The animation specified a frame of nonpositive duration");
 			}
 
-			// Check that the loop values are sane
+			// Check that the start and loop values are sane
+			if(start < 0.0f || start > end)
+				throw new AnimationFormatException("Animations cannot start before 0 or after their end");
+
 			if(loop_end <= loop_start || loop_start < 0.0f || loop_end > end)
 				throw new AnimationFormatException("Loops must end after they start and must fall within the time domain");
 
@@ -60,6 +61,8 @@ namespace GameEngine.Sprites
 			FrameIndices = t;
 			FrameTransformations = m;
 			FrameCount = f.Count;
+
+			Start = start;
 
 			Loops = loop;
 			LoopStart = loop_start;
@@ -73,7 +76,7 @@ namespace GameEngine.Sprites
 		/// If true, this Animation represents an Animation2D and is fully valid.
 		/// </summary>
 		public bool IsAnimation2D
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The sprite sheet we use for the animation frames.
@@ -81,7 +84,7 @@ namespace GameEngine.Sprites
 		/// This is only defined when this represents an Animation2D.
 		/// </summary>
 		public SpriteSheet? Source
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The duration (in seconds) of each animation frame.
@@ -89,7 +92,7 @@ namespace GameEngine.Sprites
 		/// This is only defined when this represents an Animation2D.
 		/// </summary>
 		public IEnumerable<float>? FrameTimes
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The indices of the frames' source texture data within Source.
@@ -97,7 +100,7 @@ namespace GameEngine.Sprites
 		/// This is only defined when this represents an Animation2D.
 		/// </summary>
 		public IEnumerable<int>? FrameIndices
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The (affine) transformations for each of the frames.
@@ -105,20 +108,26 @@ namespace GameEngine.Sprites
 		/// This is only define when this represents an Animation2D.
 		/// </summary>
 		public IEnumerable<Matrix2D>? FrameTransformations
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The number of frames.
 		/// </summary>
 		public int FrameCount
-		{get; init;}
+		{get;}
+
+		/// <summary>
+		/// The animation start time.
+		/// </summary>
+		public float Start
+		{get;}
 
 		/// <summary>
 		/// If true, this animation loops.
 		/// If false, this animation plays only once.
 		/// </summary>
 		public bool Loops
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The time when the loop starts.
@@ -126,7 +135,7 @@ namespace GameEngine.Sprites
 		/// This value has meaning even if Loops is false as it permits a default loop start if looping is enabled.
 		/// </summary>
 		public float LoopStart
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The time when the loop ends.
@@ -134,6 +143,6 @@ namespace GameEngine.Sprites
 		/// This value has meaning even if Loops is false as it permits a default loop end if looping is enabled.
 		/// </summary>
 		public float LoopEnd
-		{get; init;}
+		{get;}
 	}
 }

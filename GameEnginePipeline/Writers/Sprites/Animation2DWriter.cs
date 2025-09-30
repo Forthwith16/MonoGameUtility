@@ -1,18 +1,18 @@
-﻿using GameEnginePipeline.Assets.AnimationAssets;
-using GameEnginePipeline.Contents;
+﻿using GameEnginePipeline.Assets.Sprites;
+using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
 using TRead = GameEngine.Sprites.Animation;
 using TReader = GameEngine.Readers.AnimationReader;
-using TWrite = GameEnginePipeline.Contents.Animation2DContent;
+using TWrite = GameEnginePipeline.Contents.Sprites.Animation2DContent;
 
-namespace GameEnginePipeline.Writers
+namespace GameEnginePipeline.Writers.Sprites
 {
 	/// <summary>
 	/// Allows for writing assets to the pipeline.
 	/// </summary>
 	[ContentTypeWriter]
-	public sealed class AnimationWriter : Writer<TWrite,TReader,TRead>
+	public sealed class Animation2DWriter : Writer<TWrite,TReader,TRead>
 	{
 		/// <summary>
 		/// Writes the content <paramref name="value"/> to <paramref name="output"/>.
@@ -38,9 +38,12 @@ namespace GameEnginePipeline.Writers
 			{
 				cout.Write(frame.Sprite);
 				cout.Write(frame.Duration);
-				cout.Write(frame.Translation,frame.Scale,frame.Rotation);
+				cout.Write(frame.Translation,frame.Rotation,frame.Scale,frame.Origin);
 			}
 			
+			// Write the start time
+			cout.Write(asset.StartTime!.Value);
+
 			// Lastly, write out our loop information
 			cout.Write(asset.Loops);
 			cout.Write(asset.LoopStart!.Value);

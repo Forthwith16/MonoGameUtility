@@ -1,7 +1,7 @@
 ﻿using GameEngine.Readers;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 
-namespace GameEnginePipeline.Assets
+namespace GameEnginePipeline.Assets.Sprites
 {
 	/// <summary>
 	/// Contains the base raw asset data of an animation.
@@ -12,18 +12,13 @@ namespace GameEnginePipeline.Assets
 		/// Serializes an asset to <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The desired path to the asset.</param>
-		public void Serialize(string path)
-		{
-			this.SerializeXml(path);
-			return;
-		}
+		public abstract void Serialize(string path);
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static TSelf? Deserialize(string path)
-		{return path.DeserializeXmlFile<TSelf>();}
+		public static TSelf? Deserialize(string path) => path.DeserializeJsonFile<TSelf>();
 
 		/// <summary>
 		/// Initializes the base animaiton data.
@@ -39,10 +34,7 @@ namespace GameEnginePipeline.Assets
 		/// The animation type.
 		/// </summary>
 		public AnimationType Type
-		{get; init;}
-
-		public bool ShouldSerializeType()
-		{return true;}
+		{get;}
 	}
 
 	/// <summary>
@@ -50,7 +42,6 @@ namespace GameEnginePipeline.Assets
 	/// </summary>
 	public enum AnimationAssetType
 	{
-		None,
 		Animation2DAsset
 	}
 }

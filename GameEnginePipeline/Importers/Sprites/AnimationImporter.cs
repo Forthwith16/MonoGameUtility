@@ -1,17 +1,16 @@
-﻿using GameEnginePipeline.Processors;
+﻿using GameEnginePipeline.Processors.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.IO;
 
-using TInput = GameEnginePipeline.Assets.SpriteSheetAsset;
-using TOutput = GameEnginePipeline.Contents.SpriteSheetContent;
+using TInput = GameEnginePipeline.Assets.Sprites.Animation2DAsset;
+using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DContent;
 
-namespace GameEnginePipeline.Importers
+namespace GameEnginePipeline.Importers.Sprites
 {
 	/// <summary>
 	/// Loads an asset into memory in content form.
 	/// </summary>
-	[ContentImporter(".spritesheet",DisplayName = "Sprite Sheet Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteSheetProcessor))]
-	public sealed class SpriteSheetImporter : Importer<TInput,TOutput>
+	[ContentImporter(".a2d",DisplayName = "Animation2D Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(Animation2DProcessor))]
+	public sealed class AnimationImporter : Importer<TInput,TOutput>
 	{
 		protected override TInput? Deserialize(string filename)
 		{return TInput.Deserialize(filename);}

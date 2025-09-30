@@ -1,8 +1,8 @@
 ﻿using GameEngine.Readers;
-using GameEnginePipeline.Assets.AnimationAssets;
+using GameEnginePipeline.Assets.Sprites;
 using System.IO;
 
-namespace GameEnginePipeline.Contents
+namespace GameEnginePipeline.Contents.Sprites
 {
 	/// <summary>
 	/// Represents 2D animation content.

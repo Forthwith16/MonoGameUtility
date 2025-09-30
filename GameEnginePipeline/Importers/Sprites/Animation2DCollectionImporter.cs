@@ -1,12 +1,10 @@
-﻿using GameEnginePipeline.Processors;
+﻿using GameEnginePipeline.Processors.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.IO;
-using System.Linq;
 
-using TInput = GameEnginePipeline.Assets.Animation2DCollectionAsset;
-using TOutput = GameEnginePipeline.Contents.Animation2DCollectionContent;
+using TInput = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
+using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 
-namespace GameEnginePipeline.Importers
+namespace GameEnginePipeline.Importers.Sprites
 {
 	/// <summary>
 	/// Loads an asset into memory in content form.
@@ -19,9 +17,6 @@ namespace GameEnginePipeline.Importers
 
 		protected override bool AddDependencies(string filename, ContentImporterContext context, TInput asset)
 		{
-			if(asset.Animations is null)
-				return false;
-
 			foreach(string? path in asset.Animations.Select(na => na.Source))
 				if(path is null)
 					return false;

@@ -114,7 +114,7 @@ namespace GameEngine.GameObjects
 			{
 				if(value is null)
 					return;
-
+				
 				_s = value;
 				return;
 			}
@@ -178,7 +178,7 @@ namespace GameEngine.GameObjects
 			throw new JsonException();
 
 
-
+			
 
 
 			ImageGameObject ret = new ImageGameObject(null,(string)properties["Source"]!);
@@ -194,7 +194,7 @@ namespace GameEngine.GameObjects
 			throw new JsonException();
 
 
-
+			
 
 
 			JsonGameObjectConverter.WriteStandardProperties(writer,value,ops);
