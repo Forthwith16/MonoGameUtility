@@ -42,11 +42,7 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <para/>
 		/// If Sprites is defined, this value is ignored.
 		/// </summary>
-		public bool TileFillColumnFirst
-		{
-			get => !TileFillRowFirst;
-			set => TileFillRowFirst = !value;
-		}
+		public bool TileFillColumnFirst => !TileFillRowFirst;
 
 		/// <summary>
 		/// The the number of sprites per row if specified via a tile system.

@@ -27,20 +27,17 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <summary>
 		/// The animations of this collection.
 		/// </summary>
-		public NamedAnimation2D[] Animations
-		{get; set;} = [];
+		public NamedAnimation2D[] Animations = [];
 
 		/// <summary>
 		/// The name of the idle animation.
 		/// </summary>
-		public string? IdleAnimation
-		{get; set;}
+		public string? IdleAnimation;
 
 		/// <summary>
 		/// If true, then the collection resets the active animation after swapping in a new one.
 		/// </summary>
-		public bool ResetOnSwap
-		{get; set;} = true; // This defaults to true, so let's be consistent
+		public bool ResetOnSwap = true; // This defaults to true, so let's be consistent
 	}
 
 	/// <summary>
@@ -51,14 +48,12 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <summary>
 		/// The animation name.
 		/// </summary>
-		public string? Name
-		{get; set;}
+		public string? Name;
 
 		/// <summary>
 		/// The source animation file.
 		/// </summary>
-		public string? Source
-		{get; set;}
+		public string? Source;
 	}
 
 	/// <summary>

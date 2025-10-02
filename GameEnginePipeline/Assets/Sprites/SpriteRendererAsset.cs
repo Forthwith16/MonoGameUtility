@@ -32,48 +32,42 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <para/>
 		/// This value defaults to BackToFront.
 		/// </summary>
-		public SpriteSortMode Order
-		{get; set;} = SpriteSortMode.BackToFront;
+		public SpriteSortMode Order = SpriteSortMode.BackToFront;
 
 		/// <summary>
 		/// A blend mode to draw with.
 		/// <para/>
 		/// This value defaults to AlphaBlend.
 		/// </summary>
-		public BasicBlendState Blend
-		{get; set;} = BasicBlendState.AlphaBlend;
+		public BasicBlendState Blend = BasicBlendState.AlphaBlend;
 
 		/// <summary>
 		/// A sampler wrap mode to draw with.
 		/// <para/>
 		/// This value defaults to LinearClamp.
 		/// </summary>
-		public BasicSamplerState Wrap
-		{get; set;} = BasicSamplerState.LinearClamp;
+		public BasicSamplerState Wrap = BasicSamplerState.LinearClamp;
 
 		/// <summary>
 		/// The manner of depth stencil to draw with.
 		/// <para/>
 		/// This value defaults to None.
 		/// </summary>
-		public BasicDepthStencilState DepthStencil
-		{get; set;} = BasicDepthStencilState.None;
+		public BasicDepthStencilState DepthStencil = BasicDepthStencilState.None;
 
 		/// <summary>
 		/// The cull state used when drawing.
 		/// <para/>
 		/// This value defaults to CullCounterClockwise.
 		/// </summary>
-		public BasicRasterizerState Cull
-		{get; set;} = BasicRasterizerState.CullCounterClockwise;
+		public BasicRasterizerState Cull = BasicRasterizerState.CullCounterClockwise;
 
 		/// <summary>
 		/// A shader to draw with.
 		/// <para/>
 		/// This value defaults to null (which in turn defaults to the default sprite Effect).
 		/// </summary>
-		public string? ShaderSource
-		{get; set;} = null;
+		public string? ShaderSource = null;
 	}
 
 	/// <summary>
