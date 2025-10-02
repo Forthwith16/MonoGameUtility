@@ -1,5 +1,12 @@
 ﻿Programming Todo
 ----------------
+GameObjects and such, like Animations and such, should not be serializable, but there should be a way to pass them off to an asset constructor to turn them into something we can serialize conveniently
+-Instantiate should still be a thing though
+
+
+
+
+
 Try to support instantiation all the way in the base project.
 -Some base game objects require instantiation to make copy constructors
 --MouseGameObject
@@ -43,3 +50,10 @@ Figure out a good way to serialize ShadeGameObjects
 Assets should only serialize in the sense of telling us where to load them from, not their data
 -They can have serializers for us to serialize them, but we generally want to load them instead via Content.Load so that we reuse their data
 --This implies that assets are immutable
+
+
+
+
+
+IPrefab can provide a PostBuild method, and you should only serialize things that are IPrefab
+-It can provide a Serialize method as well, and perhaps a Deserialize if we can work it
