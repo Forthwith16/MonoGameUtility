@@ -1,5 +1,4 @@
 ﻿using GameEngine.Framework;
-using GameEngine.GameObjects;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
@@ -95,7 +94,7 @@ namespace GameEngine.DataStructures.Sets
 		/// <remarks>This method requires that we can search for <typeparamref name="T"/> types by their ID by creating a DummyGameObject with ID <paramref name="id"/>.</remarks>
 		public bool TryGet(GameObjectID id, [MaybeNullWhen(false)] out T output)
 		{
-			if(Storage.Get(new DummyGameObject(id),out GameObject? obj))
+			if(Storage.Get(id,out GameObject? obj))
 			{
 				output = obj as T;
 				return output is not null;
