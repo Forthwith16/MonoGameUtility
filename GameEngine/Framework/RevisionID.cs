@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-
 // This is the backing type for revision values
 // Change this if you need more or fewer revision values
 using RevisionType = uint;

@@ -91,7 +91,7 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// The null ID never used by games.
 		/// </summary>
-		public static readonly GameID NULL = new GameID();
+		public static readonly GameID NULL = new GameID(NullValue);
 
 		/// <summary>
 		/// The null ID value.
