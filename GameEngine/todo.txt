@@ -8,6 +8,12 @@ GameObjects and such, like Animations and such, should not be serializable, but 
 
 
 
+Add a ScriptComponent which takes a class with a public default constructor and has some nice base class or interface
+
+
+
+
+
 Try to support instantiation all the way in the base project.
 -Some base game objects require instantiation to make copy constructors
 --MouseGameObject
