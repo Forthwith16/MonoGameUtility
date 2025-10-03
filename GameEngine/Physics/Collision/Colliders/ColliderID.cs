@@ -91,7 +91,7 @@ namespace GameEngine.Physics.Collision.Colliders
 		/// <summary>
 		/// The null ID never used by colliders.
 		/// </summary>
-		public static readonly ColliderID<T> NULL = new ColliderID<T>(NullValue);
+		public static readonly ColliderID<T> NULL = new ColliderID<T>();
 
 		/// <summary>
 		/// The null ID value.
