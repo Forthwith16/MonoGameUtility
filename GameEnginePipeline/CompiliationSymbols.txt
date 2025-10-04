@@ -1,0 +1,2 @@
+﻿The following compiliation symbols can be used to alter how the GameEnginePipeline project is built.
+Compiliation symbols should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).

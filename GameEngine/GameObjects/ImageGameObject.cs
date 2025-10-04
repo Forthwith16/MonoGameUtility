@@ -1,17 +1,13 @@
 ﻿using GameEngine.Framework;
 using GameEngine.Sprites;
-using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace GameEngine.GameObjects
 {
 	/// <summary>
 	/// A game object that draws an image.
 	/// </summary>
-	[JsonConverter(typeof(ImageGameObjectConverter))]
 	public class ImageGameObject : DrawableAffineObject
 	{
 		/// <summary>
@@ -152,53 +148,5 @@ namespace GameEngine.GameObjects
 		/// This is the resource name of this game object's texture if we need to load one.
 		/// </summary>
 		protected string? Resource;
-	}
-
-	/// <summary>
-	/// Converts ImageGameObjects to/from JSON.
-	/// </summary>
-	file class ImageGameObjectConverter : JsonBaseConverter<ImageGameObject>
-	{
-		protected override object? ReadProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops)
-		{
-			throw new JsonException();
-
-
-
-
-
-			if(JsonGameObjectConverter.ReadStandardGameObjectProperty(ref reader,property,ops,out object? p))
-				return p;
-
-			throw new JsonException();
-		}
-
-		protected override ImageGameObject ConstructT(Dictionary<string,object?> properties)
-		{
-			throw new JsonException();
-
-
-			
-
-
-			ImageGameObject ret = new ImageGameObject(null,(string)properties["Source"]!);
-
-			ret.Enabled = (bool)properties["Enabled"]!;
-			ret.UpdateOrder = (int)properties["UpdateOrder"]!;
-
-			return ret;
-		}
-
-		protected override void WriteProperties(Utf8JsonWriter writer, ImageGameObject value, JsonSerializerOptions ops)
-		{
-			throw new JsonException();
-
-
-			
-
-
-			JsonGameObjectConverter.WriteStandardProperties(writer,value,ops);
-			return;
-		}
 	}
 }

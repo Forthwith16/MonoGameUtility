@@ -3,6 +3,17 @@
 GameObjects and such, like Animations and such, should not be serializable, but there should be a way to pass them off to an asset constructor to turn them into something we can serialize conveniently
 -Instantiate should still be a thing though
 -This also makes it clear how level editors work, since we can just modify pure asset data with public get/set power
+-This may actually be the way for prefabbing; have game objects keep a reference to their raw initial data (loaded into a static dic like usual) and have that generate a new instance
+--If we do this, get rid of copy constructors perhaps, or at least make them all protected
+
+
+
+
+Give the Sprite assets an asset ID?
+-Unclear if this is needed, since we load external assets just fine, and we don't generate spritesheets inside of game objects, for exmaple, so we don't need handles to them beyond the source file
+--It would be good to slap it in the interface, however, and be done with it
+---It wouldn't hurt to just nab a fresh ID without bothering to store it
+-DON'T FORGET TO DEAL WITH DISPOSAL AND FINALIZERS
 
 
 
