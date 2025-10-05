@@ -3,7 +3,7 @@ using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
 using TRead = GameEngine.Sprites.Animation;
-using TReader = GameEngine.Readers.AnimationReader;
+using TReader = GameEnginePipeline.Readers.Sprites.AnimationReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.Animation2DContent;
 
 namespace GameEnginePipeline.Writers.Sprites

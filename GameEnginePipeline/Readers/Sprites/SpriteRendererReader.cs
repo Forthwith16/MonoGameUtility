@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using TRead = GameEngine.Sprites.SpriteRenderer;
 
-namespace GameEngine.Readers
+namespace GameEnginePipeline.Readers.Sprites
 {
 	/// <summary>
 	/// Transforms content into its game component form.

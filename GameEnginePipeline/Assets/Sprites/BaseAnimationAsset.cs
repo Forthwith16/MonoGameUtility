@@ -1,5 +1,5 @@
-﻿using GameEngine.Readers;
-using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
+﻿using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
+using GameEnginePipeline.Readers.Sprites;
 
 namespace GameEnginePipeline.Assets.Sprites
 {

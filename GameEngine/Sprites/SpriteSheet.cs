@@ -15,7 +15,7 @@ namespace GameEngine.Sprites
 		/// </summary>
 		/// <param name="source">The sprite sheet's source texture.</param>
 		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>.</param>
-		protected internal SpriteSheet(Texture2D source, IEnumerable<Rectangle> sprites)
+		public SpriteSheet(Texture2D source, IEnumerable<Rectangle> sprites)
 		{
 			Source = source;
 			_sprites = new List<Rectangle>(sprites);

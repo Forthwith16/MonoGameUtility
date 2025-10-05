@@ -27,7 +27,7 @@ namespace GameEnginePipeline.Assets.Framework
 		{
 			Enabled = true;
 			UpdateOrder = 0;
-			ID = AssetID.GetFreshID(this);
+			ID = AssetID.NULL;
 
 			return;
 		}

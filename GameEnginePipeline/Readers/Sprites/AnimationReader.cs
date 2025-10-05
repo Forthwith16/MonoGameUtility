@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Content;
 
 using TRead = GameEngine.Sprites.Animation;
 
-namespace GameEngine.Readers
+namespace GameEnginePipeline.Readers.Sprites
 {
 	/// <summary>
 	/// Transforms content into its game object form.

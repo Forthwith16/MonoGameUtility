@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
 using TAsset = GameEnginePipeline.Assets.Sprites.SpriteRendererAsset;
 using TRead = GameEngine.Sprites.SpriteRenderer;
-using TReader = GameEngine.Readers.SpriteRendererReader;
+using TReader = GameEnginePipeline.Readers.Sprites.SpriteRendererReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.SpriteRendererContent;
 
 namespace GameEnginePipeline.Writers.Sprites

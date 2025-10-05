@@ -1,8 +1,8 @@
-﻿using GameEngine.Readers;
-using GameEngine.Utility.ExtensionMethods.ClassExtensions;
+﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
+using GameEnginePipeline.Readers.Sprites;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;

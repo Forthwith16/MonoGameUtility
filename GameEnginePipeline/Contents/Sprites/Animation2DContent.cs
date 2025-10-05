@@ -1,6 +1,5 @@
-﻿using GameEngine.Readers;
-using GameEnginePipeline.Assets.Sprites;
-using System.IO;
+﻿using GameEnginePipeline.Assets.Sprites;
+using GameEnginePipeline.Readers.Sprites;
 
 namespace GameEnginePipeline.Contents.Sprites
 {

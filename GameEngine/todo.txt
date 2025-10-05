@@ -17,6 +17,20 @@ Give the Sprite assets an asset ID?
 
 
 
+Add ~ home support to paths
+-Create a path resolver class or something so we don't have to think about this much
+
+
+
+
+Make FullSource the absolute path with no shenanigans
+
+
+
+
+Each game object should be its own asset file?
+
+
 
 
 Add a ScriptComponent which takes a class with a public default constructor and has some nice base class or interface
