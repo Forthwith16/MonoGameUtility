@@ -1,6 +1,5 @@
 ﻿The following compiliation symbols and usings can be used to alter how the GameEngine project is built.
 Compiliation symbols should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).
-Usings must be changed at a file level.
 
 /////////////////////////////////////////////////////////////////////////////////
 #define Debug
