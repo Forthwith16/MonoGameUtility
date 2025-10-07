@@ -1,2 +1,11 @@
 ﻿The following compiliation symbols can be used to alter how the GameEnginePipeline project is built.
 Compiliation symbols should be defined for all source code files at the compiler level using DefineConstants (i.e. Project -> Properties -> Build -> add your symbols).
+
+/////////////////////////////////////////////////////////////////////////////////
+#define VERBOSE
+/////////////////////////////////////////////////////////////////////////////////
+If this symbol is defined, then the build process will be verbose in its status messages during the build process.
+It will document what it is doing at every step of the process.
+
+If this is not defined, then the build process will proceed silently.
+///////////////////////////////////////////////////////////
