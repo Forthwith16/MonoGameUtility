@@ -9,6 +9,11 @@ GameObjects and such, like Animations and such, should not be serializable, but 
 
 
 
+Add an attribute for not serializing public stuff
+
+
+
+
 Give the Sprite assets an asset ID?
 -Unclear if this is needed, since we load external assets just fine, and we don't generate spritesheets inside of game objects, for exmaple, so we don't need handles to them beyond the source file
 --It would be good to slap it in the interface, however, and be done with it
@@ -17,13 +22,8 @@ Give the Sprite assets an asset ID?
 
 
 
-Add ~ home support to paths
--Create a path resolver class or something so we don't have to think about this much
 
-
-
-
-Make FullSource the absolute path with no shenanigans
+Move Animation to pipeline?
 
 
 
