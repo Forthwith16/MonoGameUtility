@@ -30,7 +30,7 @@ namespace GameEnginePipeline.Processors
 
 			if(ret is null)
 				throw new InvalidContentException("The asset " + input.Identity.SourceFilename + " was invalid and could not be processed");
-
+			
 #if VERBOSE
 			context.Logger.LogMessage("Creating dependencies for asset: " + input.Identity.SourceFilename);
 			context.Logger.Indent();
