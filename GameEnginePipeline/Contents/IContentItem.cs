@@ -12,9 +12,9 @@ namespace GameEnginePipeline
 		/// </summary>
 		/// <typeparam name="TContent">The type of asset data being referenced by this content.</typeparam>
 		/// <param name="context">The current content processing context.</param>
-		/// <param name="filename">
-		/// The path to the asset file being referenced.
-		/// This is always converted to the absolute path to the file to support proper caching.
+		/// <param name="path">
+		/// The path to the asset file being referenced including the filename itself.
+		/// This is always converted to the simplest absolute path to the file to support proper caching.
 		/// If you want to play cache agmes, the best parameter to do so with is <paramref name="asset_name"/>.
 		/// </param>
 		/// <param name="processor_name">
@@ -39,15 +39,18 @@ namespace GameEnginePipeline
 		/// This value is used for external reference caching and serves as an identifier rather than any functional purpose.
 		/// This must match a previous value exactly for caching to work on an asset.
 		/// </param>
-		public void AddExternalReference<TContent>(ContentProcessorContext context, string filename, string? processor_name = null, OpaqueDataDictionary? parameters = null, string? importer_name = null, string? asset_name = null) where TContent : notnull;
+		public void AddExternalReference<TContent>(ContentProcessorContext context, string path, string? processor_name = null, OpaqueDataDictionary? parameters = null, string? importer_name = null, string? asset_name = null) where TContent : notnull;
 
 		/// <summary>
 		/// Retrieves a previously referenced external asset from this content.
 		/// </summary>
 		/// <typeparam name="TContent">The type of externally referenced asset data.</typeparam>
-		/// <param name="filename">The path to the externally referenced asset file.</param>
-		/// <returns>A <see cref="ExternalReference{TContent}"/> instance for the referenced asset build from data found at <c>filename</c>.</returns>
-		/// <exception cref="ArgumentException"><c>filename</c> does not point to an asset that was previously built by and added as a reference to this content.</exception>
-		public ExternalReference<TContent> GetExternalReference<TContent>(string filename) where TContent : notnull;
+		/// <param name="path">
+		/// The path to the externally referenced asset file including the filename itself.
+		/// This is always converted to the simplest absolute path to the file to support proper caching.
+		/// </param>
+		/// <returns>A <see cref="ExternalReference{TContent}"/> instance for the referenced asset build from data found at <paramref name="path"/>.</returns>
+		/// <exception cref="ArgumentException">Thrown if <paramref name="path"/> does not point to an asset that was previously built by and added as a reference to this content.</exception>
+		public ExternalReference<TContent> GetExternalReference<TContent>(string path) where TContent : notnull;
 	}
 }

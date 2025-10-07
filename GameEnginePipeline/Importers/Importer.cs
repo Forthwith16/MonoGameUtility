@@ -23,9 +23,12 @@ namespace GameEnginePipeline.Importers
 			// Check to see if the asset even exists
 			if(!File.Exists(filename))
 				throw new PipelineException("The asset " + filename + " does not exist");
-			
+
 			// Load the asset from memory
+#if VERBOSE
 			context.Logger.LogMessage("Importing asset: " + filename);
+#endif
+			
 			TInput? asset = Deserialize(filename);
 
 			// If we failed to load our asset, it's invalid
@@ -33,13 +36,18 @@ namespace GameEnginePipeline.Importers
 				throw new InvalidContentException("The asset " + filename + " was invalid and could not be imported");
 			
 			// We now need to add any dependences we have
+#if VERBOSE
 			context.Logger.LogMessage("Adding dependencies for asset: " + filename);
-			
+#endif
+
 			if(!AddDependencies(filename,context,asset))
 				throw new InvalidContentException("The asset " + filename + " was invalid and could not be imported");
 
 			// And we're done
+#if VERBOSE
 			context.Logger.LogMessage("Finished importing asset: " + filename);
+#endif
+
 			return ToContent(asset,filename);
 		}
 

@@ -22,16 +22,27 @@ namespace GameEnginePipeline.Processors
 		/// <returns>Returns the generated game content.</returns>
 		public override TOutput Process(TInput input, ContentProcessorContext context)
 		{
+#if VERBOSE
 			context.Logger.LogMessage("Processing asset: " + input.Identity.SourceFilename);
+#endif
+
 			TOutput? ret = ValidateContent(input,context);
 
 			if(ret is null)
 				throw new InvalidContentException("The asset " + input.Identity.SourceFilename + " was invalid and could not be processed");
 
+#if VERBOSE
 			context.Logger.LogMessage("Creating dependencies for asset: " + input.Identity.SourceFilename);
+			context.Logger.Indent();
+#endif
+
 			CreateExternalDependencies(ret,context);
 			
+#if VERBOSE
+			context.Logger.Unindent();
 			context.Logger.LogMessage("Finished processing asset: " + input.Identity.SourceFilename);
+#endif
+
 			return ret;
 		}
 
