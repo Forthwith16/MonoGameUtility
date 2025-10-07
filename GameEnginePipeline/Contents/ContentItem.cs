@@ -64,7 +64,7 @@ namespace GameEnginePipeline
 		/// <summary>
 		/// The absolute path to the directory in which the asset file is located.
 		/// </summary>
-		public string AbsoluteDirectory => Path.GetDirectoryName(AbsolutePath) ?? AbsolutePath; // AbsolutePath should never not be a file, so the null case should never fire, but just in case
+		public string AbsoluteDirectory => Path.GetDirectoryName(AbsolutePath) ?? ""; // AbsolutePath should never not be a file, so the null case should never fire, but just in case
 
 		/// <summary>
 		/// The external references that we need to load later.
