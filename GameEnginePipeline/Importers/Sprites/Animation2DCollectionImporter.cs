@@ -12,17 +12,19 @@ namespace GameEnginePipeline.Importers.Sprites
 	[ContentImporter(".animations",DisplayName = "Animation2D Collection Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(Animation2DCollectionProcessor))]
 	public class Animation2DCollectionImporter : Importer<TInput,TOutput>
 	{
-		protected override TInput? Deserialize(string filename)
-		{return TInput.Deserialize(filename);}
+		protected override TInput? Deserialize(string path)
+		{return TInput.Deserialize(path);}
 
-		protected override bool AddDependencies(string filename, ContentImporterContext context, TInput asset)
+		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{
-			foreach(string? path in asset.Animations.Select(na => na.Source))
-				if(path is null)
+			path = Path.GetDirectoryName(path) ?? "";
+
+			foreach(string? animation_path in asset.Animations.Select(na => na.Source))
+				if(animation_path is null)
 					return false;
 				else
-					context.AddDependency(Path.Combine(Path.GetDirectoryName(filename) ?? "",path));
-
+					context.AddDependency(Path.Combine(path,animation_path));
+			
 			return true;
 		}
 

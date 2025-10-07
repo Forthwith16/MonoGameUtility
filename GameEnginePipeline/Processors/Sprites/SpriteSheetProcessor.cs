@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
+
 using TAsset = GameEnginePipeline.Assets.Sprites.SpriteSheetAsset;
 using TInput = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
 using TOutput = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
@@ -53,7 +54,7 @@ namespace GameEnginePipeline.Processors.Sprites
 
 		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
-			output.AddExternalReference<Texture2DContent>(context,output.SourceFullName);
+			output.AddExternalReference<Texture2DContent>(context,output.SourceFullPath);
 			return;
 		}
 	}

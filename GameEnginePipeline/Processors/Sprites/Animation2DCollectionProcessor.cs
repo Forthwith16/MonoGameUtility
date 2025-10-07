@@ -33,7 +33,7 @@ namespace GameEnginePipeline.Processors.Sprites
 
 		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
-			foreach(string path in output.SourceFullNames)
+			foreach(string path in output.AnimationFullNames)
 				output.AddExternalReference<Animation2DContent>(context,path);
 
 			return;

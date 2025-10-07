@@ -11,22 +11,21 @@ namespace GameEnginePipeline.Contents.Sprites
 		/// Transforms an asset into content.
 		/// </summary>
 		/// <param name="asset">The asset associated with this content.</param>
-		/// <param name="filename">The filename of the asset.</param>
-		public Animation2DCollectionContent(Animation2DCollectionAsset asset, string filename) : base(asset,filename)
+		/// <param name="path">The absolute path to the asset file. This includes the filename itself.</param>
+		public Animation2DCollectionContent(Animation2DCollectionAsset asset, string path) : base(asset,path)
 		{
-			SourceFullNames = new string[asset.Animations is null ? 0 : asset.Animations!.Length];
+			AnimationFullNames = new string[asset.Animations.Length];
 
-			for(int i = 0;i < SourceFullNames.Length;i++)
-				SourceFullNames[i] = Path.Combine(Path.GetDirectoryName(filename) ?? "",asset.Animations![i].Source ?? "");
+			for(int i = 0;i < AnimationFullNames.Length;i++)
+				AnimationFullNames[i] = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.Animations[i].Source ?? ""));
 
 			return;
 		}
 
 		/// <summary>
-		/// The full name of the source texture for the sprite sheet.
-		/// This allows for the use of paths relative to the asset rather than to the content root.
+		/// The full paths of the source animation files for the animations.
 		/// </summary>
-		public string[] SourceFullNames
+		public string[] AnimationFullNames
 		{get;}
 	}
 }

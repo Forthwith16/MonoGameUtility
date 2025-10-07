@@ -11,18 +11,17 @@ namespace GameEnginePipeline.Contents.Sprites
 		/// Transforms an asset into content.
 		/// </summary>
 		/// <param name="asset">The asset associated with this content.</param>
-		/// <param name="filename">The filename of the asset.</param>
-		public SpriteSheetContent(SpriteSheetAsset asset, string filename) : base(asset,filename)
+		/// <param name="path">The absolute path to the asset file. This includes the filename itself.</param>
+		public SpriteSheetContent(SpriteSheetAsset asset, string path) : base(asset,path)
 		{
-			SourceFullName = Path.Combine(Path.GetDirectoryName(filename) ?? "",asset.Source!);
+			SourceFullPath = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.Source!)); // If Source is null, we should seg fault to interrupt the build
 			return;
 		}
 
 		/// <summary>
-		/// The full name of the source texture for the sprite sheet.
-		/// This allows for the use of paths relative to the asset rather than to the content root.
+		/// The full path of the source texture for the sprite sheet.
 		/// </summary>
-		public string SourceFullName
+		public string SourceFullPath
 		{get;}
 	}
 }

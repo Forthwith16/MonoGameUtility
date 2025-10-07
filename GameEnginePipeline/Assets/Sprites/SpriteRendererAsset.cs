@@ -64,6 +64,7 @@ namespace GameEnginePipeline.Assets.Sprites
 
 		/// <summary>
 		/// A shader to draw with.
+		/// This path must be relative to the renderer source file.
 		/// <para/>
 		/// This value defaults to null (which in turn defaults to the default sprite Effect).
 		/// </summary>

@@ -17,8 +17,8 @@ namespace GameEnginePipeline.Processors.Sprites
 
 		protected override void CreateExternalDependencies(TOutput output, ContentProcessorContext context)
 		{
-			if(output.SourceFullName is not null)
-				output.AddExternalReference<EffectContent>(context,output.SourceFullName);
+			if(output.ShaderSourceFullPath is not null)
+				output.AddExternalReference<EffectContent>(context,output.ShaderSourceFullPath);
 
 			return;
 		}

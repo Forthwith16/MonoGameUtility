@@ -29,6 +29,7 @@ namespace GameEnginePipeline.Assets.Sprites
 
 		/// <summary>
 		/// The source sprite sheet for the animation.
+		/// This path must be relative to the animation source file.
 		/// </summary>
 		public string? Source;
 

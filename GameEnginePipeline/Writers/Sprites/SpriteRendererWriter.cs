@@ -25,10 +25,10 @@ namespace GameEnginePipeline.Writers.Sprites
 			TAsset asset = value.Asset;
 
 			// First list the effect source if we have one (and send a flag with it)
-			cout.Write(value.SourceFullName is not null);
+			cout.Write(value.ShaderSourceFullPath is not null);
 
-			if(value.SourceFullName is not null)
-				cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.SourceFullName));
+			if(value.ShaderSourceFullPath is not null)
+				cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.ShaderSourceFullPath));
 			
 			// We need to write out every enum
 			cout.Write(asset.Order);

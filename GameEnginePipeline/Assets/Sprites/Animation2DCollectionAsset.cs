@@ -52,6 +52,7 @@ namespace GameEnginePipeline.Assets.Sprites
 
 		/// <summary>
 		/// The source animation file.
+		/// This path must be relative to the animation collection source file.
 		/// </summary>
 		public string? Source;
 	}

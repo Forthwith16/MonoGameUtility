@@ -12,19 +12,19 @@ namespace GameEnginePipeline.Importers.Sprites
 	[ContentImporter(".ren",DisplayName = "Sprite Renderer Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteRendererProcessor))]
 	public sealed class SpriteRendererImporter : Importer<TInput,TOutput>
 	{
-		protected override TInput? Deserialize(string filename)
-		{return TInput.Deserialize(filename);}
+		protected override TInput? Deserialize(string path)
+		{return TInput.Deserialize(path);}
 
-		protected override bool AddDependencies(string filename, ContentImporterContext context, TInput asset)
+		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{
 			if(asset.ShaderSource is null)
 				return true;
 			
-			context.AddDependency(Path.Combine(Path.GetDirectoryName(filename) ?? "",asset.ShaderSource));
+			context.AddDependency(Path.Combine(Path.GetDirectoryName(path) ?? "",asset.ShaderSource));
 			return true;
 		}
 
-		protected override TOutput ToContent(TInput asset, string filename)
-		{return new TOutput(asset,filename);}
+		protected override TOutput ToContent(TInput asset, string path)
+		{return new TOutput(asset,path);}
 	}
 }

@@ -27,6 +27,7 @@ namespace GameEnginePipeline.Assets.Sprites
 		
 		/// <summary>
 		/// The source texture of the sprites.
+		/// This path must be relative to the sprite sheet file.
 		/// </summary>
 		public string? Source;
 		

@@ -11,22 +11,21 @@ namespace GameEnginePipeline.Contents.Sprites
 		/// Transforms an asset into content.
 		/// </summary>
 		/// <param name="asset">The asset associated with this content.</param>
-		/// <param name="filename">The filename of the asset.</param>
-		public SpriteRendererContent(SpriteRendererAsset asset, string filename) : base(asset,filename)
+		/// <param name="path">The absolute path to the asset file. This includes the filename itself.</param>
+		public SpriteRendererContent(SpriteRendererAsset asset, string path) : base(asset,path)
 		{
 			if(asset.ShaderSource is null)
-				SourceFullName = null;
+				ShaderSourceFullPath = null;
 			else
-				SourceFullName = Path.Combine(Path.GetDirectoryName(filename) ?? "",asset.ShaderSource);
+				ShaderSourceFullPath = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.ShaderSource));
 
 			return;
 		}
 
 		/// <summary>
-		/// The full name of the shader (if any; null otherwise).
-		/// This allows for the use of paths relative to the asset rather than to the content root.
+		/// The full path to the shader source (if any; null otherwise).
 		/// </summary>
-		public string? SourceFullName
+		public string? ShaderSourceFullPath
 		{get;}
 	}
 }
