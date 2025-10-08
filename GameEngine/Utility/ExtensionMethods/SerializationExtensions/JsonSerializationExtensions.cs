@@ -29,7 +29,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// This will take precedence over the default <typeparamref name="T"/> type converter but will lose precedence to a property with a custom JsonConverter attribute.
 		/// </param>
 		/// <remarks>The strength of this method is that it allows for multiple truly independent conversions of a type to occur simultaneously, allowing for converters to contain member state information exclusive to the object being converted.</remarks>
-		public static void ToJsonString<T>(this T value, Stream stream, JsonConverter<T> converter)
+		public static void SerializeJson<T>(this T value, Stream stream, JsonConverter<T> converter)
 		{
 			JsonSerializerOptions ops = new JsonSerializerOptions(SufficientReadWrite);
 			ops.Converters.Add(converter);
@@ -50,7 +50,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// This will take precedence over the default <typeparamref name="T"/> type converter but will lose precedence to a property with a custom JsonConverter attribute.
 		/// </param>
 		/// <remarks>The strength of this method is that it allows for multiple truly independent conversions of a type to occur simultaneously, allowing for converters to contain member state information exclusive to the object being converted.</remarks>
-		public static void ToJsonString<T>(this T value, Stream stream, JsonConverterFactory converter_factory)
+		public static void SerializeJson<T>(this T value, Stream stream, JsonConverterFactory converter_factory)
 		{
 			JsonSerializerOptions ops = new JsonSerializerOptions(SufficientReadWrite);
 			ops.Converters.Add(converter_factory);
@@ -90,7 +90,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// This will take precedence over the default <typeparamref name="T"/> type converter but will lose precedence to a property with a custom JsonConverter attribute.
 		/// </param>
 		/// <remarks>The strength of this method is that it allows for multiple truly independent conversions of a type to occur simultaneously, allowing for converters to contain member state information exclusive to the object being converted.</remarks>
-		public static void ToJsonString<T>(this T value, string path, JsonConverter<T> converter)
+		public static void SerializeJson<T>(this T value, string path, JsonConverter<T> converter)
 		{
 			JsonSerializerOptions ops = new JsonSerializerOptions(SufficientReadWrite);
 			ops.Converters.Add(converter);
@@ -111,7 +111,7 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// This will take precedence over the default <typeparamref name="T"/> type converter but will lose precedence to a property with a custom JsonConverter attribute.
 		/// </param>
 		/// <remarks>The strength of this method is that it allows for multiple truly independent conversions of a type to occur simultaneously, allowing for converters to contain member state information exclusive to the object being converted.</remarks>
-		public static void ToJsonString<T>(this T value, string path, JsonConverterFactory converter_factory)
+		public static void SerializeJson<T>(this T value, string path, JsonConverterFactory converter_factory)
 		{
 			JsonSerializerOptions ops = new JsonSerializerOptions(SufficientReadWrite);
 			ops.Converters.Add(converter_factory);
