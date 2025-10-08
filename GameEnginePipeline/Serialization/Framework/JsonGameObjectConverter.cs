@@ -1,11 +1,12 @@
-﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+﻿using GameEngine.Framework;
+using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.Serialization;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEngine.Framework
+namespace GameEnginePipeline.Serialization.Framework
 {
 	/// <summary>
 	/// Converts game objects to/from JSON.
