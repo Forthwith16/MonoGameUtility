@@ -23,12 +23,9 @@ Give the Sprite assets an asset ID?
 
 
 
-Move Animation to pipeline?
-
-
-
 
 Each game object should be its own asset file?
+
 
 
 
