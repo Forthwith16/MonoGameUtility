@@ -106,7 +106,11 @@ namespace GameEnginePipeline.Assets
 		/// <summary>
 		/// Links all unbound asset references within this asset.
 		/// </summary>
-		public void Link()
+		/// <param name="args">
+		/// A list of supporting arguments to enable the linkage to proceed.
+		/// What values appear here, if any, are entirely implementation dependent.
+		/// </param>
+		public void Link(params object?[] args)
 		{
 			if(Linked)
 				return;
@@ -121,7 +125,11 @@ namespace GameEnginePipeline.Assets
 		/// Links all unbound asset references within this asset.
 		/// This method does the actual linkage work, whereas <see cref="Link"/> instead initialize the linkage process (if it has not already occurred).
 		/// </summary>
-		protected virtual void LinkAssets()
+		/// <param name="args">
+		/// A list of supporting arguments to enable the linkage to proceed.
+		/// What values appear here, if any, are entirely implementation dependent.
+		/// </param>
+		protected virtual void LinkAssets(params object?[] args)
 		{return;}
 
 		/// <summary>
