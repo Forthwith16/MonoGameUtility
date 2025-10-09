@@ -13,7 +13,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// The details of a SpriteRenderer laid bare.
 	/// </summary>
 	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
-	public class SpriteRendererAsset : IAsset
+	public class SpriteRendererAsset : AssetBase
 	{
 		/// <summary>
 		/// Serializes an asset to <paramref name="path"/>.

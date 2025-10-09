@@ -7,7 +7,7 @@ namespace GameEnginePipeline
 	/// Common functionality to content item classes.
 	/// </summary>
 	/// <typeparam name="T">The type of asset data.</typeparam>
-	public abstract class ContentItem<T> : ContentItem, IContentItem where T : notnull, IAsset
+	public abstract class ContentItem<T> : ContentItem, IContentItem where T : notnull, AssetBase
 	{
 		/// <summary>
 		/// Transforms an asset into content.

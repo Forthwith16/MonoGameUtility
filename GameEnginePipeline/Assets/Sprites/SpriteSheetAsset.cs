@@ -11,7 +11,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// Contains the raw asset data of an sprite sheet.
 	/// </summary>
 	[JsonConverter(typeof(JsonSpriteSheetAssetConverter))]
-	public class SpriteSheetAsset : IAsset
+	public class SpriteSheetAsset : AssetBase
 	{
 		/// <summary>
 		/// Serializes an asset to <paramref name="path"/>.

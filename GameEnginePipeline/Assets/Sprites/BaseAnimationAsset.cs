@@ -6,7 +6,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// <summary>
 	/// Contains the base raw asset data of an animation.
 	/// </summary>
-	public abstract class BaseAnimationAsset<TSelf> : IAsset where TSelf : BaseAnimationAsset<TSelf>
+	public abstract class BaseAnimationAsset<TSelf> : AssetBase where TSelf : BaseAnimationAsset<TSelf>
 	{
 		/// <summary>
 		/// Serializes an asset to <paramref name="path"/>.
@@ -24,7 +24,7 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// Initializes the base animaiton data.
 		/// </summary>
 		/// <param name="type">The type of the animation.</param>
-		protected BaseAnimationAsset(AnimationType type)
+		protected BaseAnimationAsset(AnimationType type) : base()
 		{
 			Type = type;
 			return;

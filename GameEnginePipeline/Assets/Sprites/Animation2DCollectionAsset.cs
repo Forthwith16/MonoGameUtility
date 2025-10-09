@@ -10,7 +10,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// Contains the raw asset data of an animation collection.
 	/// </summary>
 	[JsonConverter(typeof(JsonAnimation2DCollectionAssetConverter))]
-	public class Animation2DCollectionAsset : IAsset
+	public class Animation2DCollectionAsset : AssetBase
 	{
 		/// <summary>
 		/// Serializes an asset to <paramref name="path"/>.

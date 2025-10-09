@@ -7,7 +7,19 @@ using AssetIDType = BackingType;
 GameEnginePipeline.Assets.AssetID
 ///////////////////////////////////////////////////////////
 This is the backing type for ID types for IAssets.
-This value can be changed if more or fewer IDs are desired for components.
+This value can be changed if more or fewer IDs are desired for assets.
+
+Changing this requires also changing the JSON converter's read in the same file.
+///////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////
+using InternalAssetIDType = BackingType;
+/////////////////////////////////////////////////////////////////////////////////
+GameEnginePipeline.Serialization.InternalAssetID
+///////////////////////////////////////////////////////////
+This is the backing type for ID types for IAssets.
+Unliked AssetIDs, these are used internal to a single read/write of an asset.
+This value can be changed if more or fewer IDs are desired.
 
 Changing this requires also changing the JSON converter's read in the same file.
 ///////////////////////////////////////////////////////////

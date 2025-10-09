@@ -8,7 +8,7 @@ namespace GameEnginePipeline.Importers
 	/// </summary>
 	/// <typeparam name="TInput">The type of asset to import.</typeparam>
 	/// <typeparam name="TOutput">The type of content to turn the asset into.</typeparam>
-	public abstract class Importer<TInput,TOutput> : ContentImporter<TOutput> where TInput : IAsset where TOutput : ContentItem<TInput>
+	public abstract class Importer<TInput,TOutput> : ContentImporter<TOutput> where TInput : AssetBase where TOutput : ContentItem<TInput>
 	{
 		/// <summary>
 		/// Imports an asset from a file.

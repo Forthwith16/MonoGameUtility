@@ -12,7 +12,7 @@ namespace GameEnginePipeline.Processors
 	/// <remarks>
 	/// To add content builder parameters, currently see: <a href="https://docs.monogame.net/articles/getting_to_know/whatis/content_pipeline/CP_CustomParamProcs.html">What are Parameterized Processors?</a>.
 	/// </remarks>
-	public abstract class Processor<TInput,TOutput,TAsset> : ContentProcessor<TInput,TOutput> where TInput : ContentItem where TOutput : ContentItem<TAsset> where TAsset : IAsset
+	public abstract class Processor<TInput,TOutput,TAsset> : ContentProcessor<TInput,TOutput> where TInput : ContentItem where TOutput : ContentItem<TAsset> where TAsset : AssetBase
 	{
 		/// <summary>
 		/// Transforms content into its final form one step removed from a game component.
