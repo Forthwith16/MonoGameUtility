@@ -19,6 +19,9 @@ namespace GameEnginePipeline.Assets
 			ContentID = AssetID.GetFreshID(this);
 			InternalID = InternalAssetID.NULL;
 
+			Linked = false;
+			Disposed = false;
+
 			return;
 		}
 
@@ -31,6 +34,9 @@ namespace GameEnginePipeline.Assets
 			ContentID = AssetID.GetFreshID(this);
 			InternalID = internal_id;
 			
+			Linked = false;
+			Disposed = false;
+
 			return;
 		}
 
@@ -58,16 +64,28 @@ namespace GameEnginePipeline.Assets
 		///	If true, we are disposing of this via <see cref="Dispose()"/>.
 		///	If false, then this dispose call is from the finalizer.
 		/// </param>
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if(Disposed)
 				return;
 
+			DisposeAsset();
 			ContentID.Dispose();
 			
 			Disposed = true;
 			return;
 		}
+
+		/// <summary>
+		/// Performs disposal logic for the asset (if any).
+		/// </summary>
+		/// <param name="disposing">
+		///	If true, we are disposing of this via <see cref="Dispose()"/>.
+		///	If false, then this dispose call is from the finalizer.
+		/// </param>
+		/// <remarks>This is called before the ContentID is disposed.</remarks>
+		protected virtual void DisposeAsset()
+		{return;}
 
 		public static bool operator ==(AssetBase a, AssetBase b) => a.ContentID == b.ContentID;
 		public static bool operator !=(AssetBase a, AssetBase b) => a.ContentID != b.ContentID;
@@ -86,6 +104,27 @@ namespace GameEnginePipeline.Assets
 		public override string ToString() => ContentID.ToString();
 
 		/// <summary>
+		/// Links all unbound asset references within this asset.
+		/// </summary>
+		public void Link()
+		{
+			if(Linked)
+				return;
+
+			LinkAssets();
+
+			Linked = true;
+			return;
+		}
+
+		/// <summary>
+		/// Links all unbound asset references within this asset.
+		/// This method does the actual linkage work, whereas <see cref="Link"/> instead initialize the linkage process (if it has not already occurred).
+		/// </summary>
+		protected virtual void LinkAssets()
+		{return;}
+
+		/// <summary>
 		/// The ID assigned to the asset upon creation.
 		/// These values are unique to an asset and may be looked up so long as the asset remains in memory.
 		/// </summary>
@@ -102,6 +141,13 @@ namespace GameEnginePipeline.Assets
 		/// </summary>
 		public InternalAssetID InternalID
 		{get; set;}
+
+		/// <summary>
+		/// If true, then this asset's links to other assets have been forged.
+		/// If false, then this has yet to occur yet.
+		/// </summary>
+		public bool Linked
+		{get; private set;}
 
 		/// <summary>
 		/// If true, then this asset has been disposed.
