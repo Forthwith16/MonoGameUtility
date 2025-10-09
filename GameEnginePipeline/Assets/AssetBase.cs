@@ -115,7 +115,7 @@ namespace GameEnginePipeline.Assets
 			if(Linked)
 				return;
 
-			LinkAssets();
+			LinkAssets(args);
 
 			Linked = true;
 			return;
