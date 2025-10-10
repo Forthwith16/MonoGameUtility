@@ -30,7 +30,36 @@ Each game object should be its own asset file?
 
 
 
+We need an attribute system that allows us to get from a generic AffineObject child to its asset class so that we can do asset creation more easily
+-The attributes go on the asset class
+-If there is no attribute for the type that we are trying to turn into an asset, then we ignore it
+-We can create an Attribute class that has a static dictionary of Type -> Constructor that maps a game object type T to its asset version's constructor that takes just the game object of type T as a parameter
+--If this constructor doesn't exist, we also ignore it
+
+Add to BaseAsset the Instantiate method
+
+
+
+
+
+Add support for absolute paths (relative to the content root)
+Set Name in ContentItems with its absolute path
+Add Name to concrete assets
+
+
+
+
+
+
+AffineObject serialization should have a flag to skip the transform, since we will often provide it in other forms down the line
+-AffineObjects have two child arrays; the proper one has other assets available, is always defined, but may be unpopulated; the other array is a set of internal asset IDs that is only defined on read and is used during LinkAssets to pull other assets into the proper array
+
+
+
+
+
 Add a ScriptComponent which takes a class with a public default constructor and has some nice base class or interface
+-The default serializer just spits out all of the public variables that can be got and set
 
 
 
