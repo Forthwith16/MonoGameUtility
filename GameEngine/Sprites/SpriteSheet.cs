@@ -14,12 +14,28 @@ namespace GameEngine.Sprites
 		/// Creates a new sprite sheet with <paramref name="source"/> as the source texture and <paramref name="sprites"/> specifying the source rectangle for each sprite in the sprite sheet.
 		/// </summary>
 		/// <param name="source">The sprite sheet's source texture.</param>
-		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>.</param>
+		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>. The contents of this will be copied and this variable discarded.</param>
 		public SpriteSheet(Texture2D source, IEnumerable<Rectangle> sprites)
 		{
 			Source = source;
-			_sprites = new List<Rectangle>(sprites);
+			SourceSource = null;
 
+			_sprites = new List<Rectangle>(sprites);
+			return;
+		}
+
+		/// <summary>
+		/// Creates a new sprite sheet with <paramref name="source"/> as the source texture and <paramref name="sprites"/> specifying the source rectangle for each sprite in the sprite sheet.
+		/// </summary>
+		/// <param name="source">The sprite sheet's source texture.</param>
+		/// <param name="source_path">The path to the source image that produced <paramref name="source"/>. If no such source exists, use the constructor without this instead.</param>
+		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>. The contents of this will be copied and this variable discarded.</param>
+		public SpriteSheet(Texture2D source, string source_path, IEnumerable<Rectangle> sprites)
+		{
+			Source = source;
+			SourceSource = source_path;
+
+			_sprites = new List<Rectangle>(sprites);
 			return;
 		}
 
@@ -27,7 +43,14 @@ namespace GameEngine.Sprites
 		/// The source texture of the sprites.
 		/// </summary>
 		public Texture2D Source
-		{get; init;}
+		{get;}
+
+		/// <summary>
+		/// The source for <see cref="Source"/>.
+		/// If null, then <see cref="Source"/> has no source file.
+		/// </summary>
+		public string? SourceSource
+		{get;}
 
 		/// <summary>
 		/// Obtains the source rectangle of Source for the <paramref name="index"/>th sprite.

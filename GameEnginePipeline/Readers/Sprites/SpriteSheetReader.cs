@@ -24,7 +24,10 @@ namespace GameEnginePipeline.Readers.Sprites
 			if(existingInstance is not null)
 				return existingInstance;
 
-			// First get the source texture
+			// First get the source texture's source
+			string source_path = cin.ReadString();
+
+			// Then get the source texture itself
 			Texture2D source = cin.ReadExternalReference<Texture2D>();
 
 			// Now check if we're tiling or not
@@ -45,11 +48,11 @@ namespace GameEnginePipeline.Readers.Sprites
 
 				if(row_first)
 					for(int y = 0,c = 0;c < count;y++)
-						for(int x = 0;x < hcount;x++,c++)
+						for(int x = 0;x < hcount && c < count;x++,c++)
 							sprites.Add(new Rectangle(x * width,y * height,width,height));
 				else
 					for(int x = 0,c = 0;c < count;x++)
-						for(int y = 0;y < vcount;y++,c++)
+						for(int y = 0;y < vcount && c < count;y++,c++)
 							sprites.Add(new Rectangle(x * width,y * height,width,height));
 			}
 			else
@@ -62,7 +65,7 @@ namespace GameEnginePipeline.Readers.Sprites
 					sprites.Add(cin.ReadRectangle());
 			}
 
-			return new TRead(source,sprites);
+			return new TRead(source,source_path,sprites);
 		}
 	}
 }

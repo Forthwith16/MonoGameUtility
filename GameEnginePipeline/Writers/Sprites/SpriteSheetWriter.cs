@@ -25,7 +25,10 @@ namespace GameEnginePipeline.Writers.Sprites
 			// Grab the asset for convenience
 			TAsset asset = value.Asset;
 
-			// First list the source texture
+			// First list the source texture's source for our records
+			cout.Write(value.Asset.Source!); // If we somehow get here with Source null, we have a big problem
+
+			// Next output the source texture itself
 			cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.SourceFullPath));
 			
 			// Next write out if we're specifying sprites manually (false) or if we're specifying a tile system (true)
