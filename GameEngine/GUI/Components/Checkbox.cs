@@ -1,8 +1,8 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
-using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 

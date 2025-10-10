@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
 using TAsset = GameEnginePipeline.Assets.Sprites.SpriteSheetAsset;
-using TRead = GameEngine.Sprites.SpriteSheet;
+using TRead = GameEngine.Assets.Sprites.SpriteSheet;
 using TReader = GameEnginePipeline.Readers.Sprites.SpriteSheetReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
 
@@ -25,11 +25,14 @@ namespace GameEnginePipeline.Writers.Sprites
 			// Grab the asset for convenience
 			TAsset asset = value.Asset;
 
-			// First list the source texture's source for our records
-			cout.Write(value.Asset.Source!); // If we somehow get here with Source null, we have a big problem
+			// First output the sprite sheet's name
+			cout.Write(value.Name);
 
 			// Next output the source texture itself
 			cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.SourceFullPath));
+
+			// We append the file extension to make the name more complete
+			cout.Write(Path.GetExtension(value.SourceFullPath));
 			
 			// Next write out if we're specifying sprites manually (false) or if we're specifying a tile system (true)
 			bool tile = asset.Sprites is null || asset.Sprites.Length == 0;

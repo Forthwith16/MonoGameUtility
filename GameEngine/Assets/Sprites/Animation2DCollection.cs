@@ -4,7 +4,7 @@ using GameEngine.Exceptions;
 using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 
-namespace GameEngine.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// An Animation2DCollection groups a fixed set of animations together, each under a unique name (although the animations underneath each name may be identical).

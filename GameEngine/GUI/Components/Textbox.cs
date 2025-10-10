@@ -1,11 +1,11 @@
 ﻿#pragma warning disable IDE0090 // Not a big fan of omitting types in new declarations
 
+using GameEngine.Assets.Sprites;
 using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameObjects;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
-using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;

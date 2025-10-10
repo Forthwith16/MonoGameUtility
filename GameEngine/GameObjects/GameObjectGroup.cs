@@ -1,6 +1,6 @@
-﻿using GameEngine.DataStructures.Absorbing;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.DataStructures.Absorbing;
 using GameEngine.Framework;
-using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;

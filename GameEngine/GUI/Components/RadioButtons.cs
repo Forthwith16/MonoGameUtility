@@ -1,9 +1,9 @@
-﻿using GameEngine.DataStructures.Grid;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.DataStructures.Grid;
 using GameEngine.Events;
 using GameEngine.GameObjects;
 using GameEngine.GUI.Map;
 using GameEngine.Maths;
-using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using Microsoft.Xna.Framework;
 

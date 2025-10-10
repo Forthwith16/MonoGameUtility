@@ -2,7 +2,7 @@
 using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;
 
-namespace GameEngine.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// Encapsulates an animation.

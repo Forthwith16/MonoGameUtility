@@ -1,6 +1,6 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Framework;
 using GameEngine.Maths;
-using GameEngine.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

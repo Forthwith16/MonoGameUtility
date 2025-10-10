@@ -1,4 +1,5 @@
-﻿using GameEngine.DataStructures.Sets;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.DataStructures.Sets;
 using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameObjects;
@@ -7,7 +8,6 @@ using GameEngine.GUI.Map;
 using GameEngine.Input;
 using GameEngine.Input.Bindings.MouseBindings;
 using GameEngine.Maths;
-using GameEngine.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.EnumExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;

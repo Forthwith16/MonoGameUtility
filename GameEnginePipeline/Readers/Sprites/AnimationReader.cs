@@ -1,9 +1,9 @@
-﻿using GameEngine.Maths;
-using GameEngine.Sprites;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Maths;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework.Content;
 
-using TRead = GameEngine.Sprites.Animation;
+using TRead = GameEngine.Assets.Sprites.Animation;
 
 namespace GameEnginePipeline.Readers.Sprites
 {

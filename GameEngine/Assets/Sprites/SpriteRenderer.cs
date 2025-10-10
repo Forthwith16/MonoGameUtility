@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// An extended version of a sprite
@@ -38,7 +38,7 @@ namespace GameEngine.Sprites
 			Cull = other.Cull;
 			Shader = other.Shader;
 			Transform = other.Transform;
-
+			
 			return;
 		}
 

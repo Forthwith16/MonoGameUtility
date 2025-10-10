@@ -6,7 +6,7 @@ using GameEngine.Time;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// Encapsulates sprite-based animation.

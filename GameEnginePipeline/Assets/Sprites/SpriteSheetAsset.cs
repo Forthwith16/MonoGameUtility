@@ -1,4 +1,4 @@
-﻿using GameEngine.Sprites;
+﻿using GameEngine.Assets.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
@@ -39,13 +39,19 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// Creates a sprite sheet asset from <paramref name="ss"/>.
 		/// </summary>
 		/// <param name="ss">The sprite sheet to turn into its asset form.</param>
+		/// <exception cref="ArgumentException">Thrown if <paramref name="ss"/> does not have a source image for its texture.</exception>
 		/// <remarks>
 		/// This will attemtp to determine if the source sprites are a tiling rather than custom sprite locations.
 		/// To do so, it checks that each sprite is the same size and that they are in row or column major order with each tightly packed.
 		/// </remarks>
 		public SpriteSheetAsset(SpriteSheet ss) : base()
 		{
-			Source = ss.SourceSource;
+			// We have to have a source texture to make an asset out of a sprite sheet
+			if(ss.Source.Name == "")
+				throw new ArgumentException();
+
+			// Record the relative path to the source texture
+			Source = Path.GetRelativePath(Path.GetDirectoryName(ss.Name) ?? "",ss.Source.Name);
 
 			// We need to check if the source sprites are a tiling rather than custom locations
 			// This is relatively straightforward but tedious
@@ -112,7 +118,7 @@ namespace GameEnginePipeline.Assets.Sprites
 				for(int i = tiling_length;i < Sprites.Length;i++)
 					if(Sprites[i - tiling_length].TopRight() != Sprites[i].TopLeft()) // We know every sprite has the same size, so it suffices to check that the sprites are lining up with the one directly left of them
 						return;
-
+				
 				TileFillRowFirst = false;
 				TileVCount = tiling_length;
 				TileCount = Sprites.Length;

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-using TRead = GameEngine.Sprites.SpriteSheet;
+using TRead = GameEngine.Assets.Sprites.SpriteSheet;
 
 namespace GameEnginePipeline.Readers.Sprites
 {
@@ -24,11 +24,17 @@ namespace GameEnginePipeline.Readers.Sprites
 			if(existingInstance is not null)
 				return existingInstance;
 
-			// First get the source texture's source
-			string source_path = cin.ReadString();
+			// First read the sprite sheet's name
+			string name = cin.ReadString();
 
-			// Then get the source texture itself
+			// Next get the source texture
 			Texture2D source = cin.ReadExternalReference<Texture2D>();
+
+			// We append the source's extension if it doesn't already have it from a Load elsewhere
+			string extension = cin.ReadString();
+			
+			if(!Path.HasExtension(source.Name))
+				source.Name += extension;
 
 			// Now check if we're tiling or not
 			bool tile = cin.ReadBoolean();
@@ -65,7 +71,7 @@ namespace GameEnginePipeline.Readers.Sprites
 					sprites.Add(cin.ReadRectangle());
 			}
 
-			return new TRead(source,source_path,sprites);
+			return new TRead(name,source,sprites);
 		}
 	}
 }

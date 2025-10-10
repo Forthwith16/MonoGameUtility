@@ -1,5 +1,5 @@
-﻿using GameEngine.Framework;
-using GameEngine.Sprites;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

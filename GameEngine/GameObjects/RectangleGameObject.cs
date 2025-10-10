@@ -1,4 +1,4 @@
-﻿using GameEngine.Sprites;
+﻿using GameEngine.Assets.Sprites;
 using GameEngine.Texture;
 using Microsoft.Xna.Framework;
 
