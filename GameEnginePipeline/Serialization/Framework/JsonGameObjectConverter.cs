@@ -1,8 +1,7 @@
-﻿using GameEngine.Framework;
-using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.Serialization;
-using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
+using GameEnginePipeline.Assets;
+using GameEnginePipeline.Assets.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,6 +17,12 @@ namespace GameEnginePipeline.Serialization.Framework
 	/// These deserialized game objects may, of course, then be retrieved via their new ID.
 	/// </summary>
 	/// <remarks>
+	/// For this converter to work correctly, it must serialize/deserialize a single game object.
+	/// It can be reset with the Clean method if desired, but it is probably usually better to just construct a new instance instead.
+	/// 
+	/// 
+	/// 
+	/// 
 	/// For a GameObject to serialize/deserialize properly, it must be entirely self-contained.
 	/// For example, suppose you have GameObjects A and B.
 	/// A has a reference to B.
@@ -25,13 +30,24 @@ namespace GameEnginePipeline.Serialization.Framework
 	/// To achieve this, simply make every top-level game object the child of some variety of dummy GameObject class.
 	/// Then serialize/deserialize the dummy, which can be discarded afterward.
 	/// </remarks>
-	public class JsonGameObjectConverter : JsonBaseTypeConverter<GameObject>
+	public class JsonGameObjectConverter : JsonBaseTypeConverter<GameObjectAsset>
 	{
-		public override GameObject Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
+		/// <summary>
+		/// Creates a new game object converter.
+		/// </summary>
+		public JsonGameObjectConverter()
+		{
+			// We need an internal map from internal asset IDs to asset IDs on read
+			// On write, we can more directly map objects to internal asset IDs, I think
+
+			return;
+		}
+
+		public override GameObjectAsset Read(ref Utf8JsonReader reader, Type type_to_convert, JsonSerializerOptions ops)
 		{
 			// If we don't have our ID converter yet, get it
 			if(IDConverter is null)
-				IDConverter = (JsonConverter<GameObjectID>)ops.GetConverter(typeof(GameObjectID));
+				IDConverter = (JsonConverter<AssetID>)ops.GetConverter(typeof(AssetID));
 
 			// We start with the object opening
 			if(!reader.HasNextObjectStart())
@@ -43,8 +59,8 @@ namespace GameEnginePipeline.Serialization.Framework
 			HashSet<string> processed = new HashSet<string>();
 
 			// We need a place to store the values we read
-			GameObjectID old_id = GameObjectID.NULL;
-			GameObject? ret = null;
+			AssetID old_id = AssetID.NULL;
+			GameObjectAsset? ret = null;
 			
 			// Loop until we reach the end of the object
 			while(!reader.HasNextObjectEnd())
@@ -65,7 +81,7 @@ namespace GameEnginePipeline.Serialization.Framework
 				switch(property_name)
 				{
 				case "ID":
-					old_id = IDConverter.Read(ref reader,typeof(GameObjectID),ops);
+					old_id = IDConverter.Read(ref reader,typeof(AssetID),ops);
 					break;
 				case "Object":
 					ret = base.Read(ref reader,type_to_convert,ops);
@@ -83,17 +99,16 @@ namespace GameEnginePipeline.Serialization.Framework
 			if(processed.Count != 2)
 				throw new JsonException();
 
-			// Now that we're sure we have the correct return values, log them and be done
-			OldIDToNewID[old_id] = ret!.ID;
 
-			return ret;
+
+			return ret!;
 		}
 
-		public override void Write(Utf8JsonWriter writer, GameObject value, JsonSerializerOptions ops)
+		public override void Write(Utf8JsonWriter writer, GameObjectAsset value, JsonSerializerOptions ops)
 		{
 			// If we don't have our ID converter yet, get it
 			if(IDConverter is null)
-				IDConverter = (JsonConverter<GameObjectID>)ops.GetConverter(typeof(GameObjectID));
+				IDConverter = (JsonConverter<AssetID>)ops.GetConverter(typeof(AssetID));
 
 			// Now we need to write out our old ID in a way that we can always get to it
 			// We don't require that derived classes write out their own ID, and they probably won't since we do it for them
@@ -101,7 +116,7 @@ namespace GameEnginePipeline.Serialization.Framework
 			writer.WriteStartObject();
 
 			writer.WritePropertyName("ID");
-			IDConverter.Write(writer,value.ID,ops);
+			IDConverter.Write(writer,value.ContentID,ops);
 
 			writer.WritePropertyName("Object");
 			base.Write(writer,value,ops);
@@ -112,118 +127,18 @@ namespace GameEnginePipeline.Serialization.Framework
 		}
 
 		/// <summary>
-		/// This converts GameObjectIDs to/from JSON.
+		/// Prepares this converter to convert a new game object, starting from scratch.
 		/// </summary>
-		private JsonConverter<GameObjectID>? IDConverter = null;
-
-		#region Static System
-		/// <summary>
-		/// Obtains the new ID of <paramref name="old_id"/> after deserialization.
-		/// </summary>
-		/// <param name="old_id">The old ID prior to deserialization.</param>
-		/// <param name="new_id">The new ID for <paramref name="old_id"/> when this returns true. When this returns false, this is the null ID.</param>
-		/// <returns>Returns true if there is a deserialized game object whose old ID was <paramref name="old_id"/>.</returns>
-		/// <remarks>
-		/// It is entirely possible to deserialize several game objects with the same old ID.
-		/// To combat this, one should generally keep their asset IDs unique upon deserialization.
-		/// At the very least, no two game objects in a single deserialization (attained via parent/child paired deserialization) should have the same old ID.
-		/// <para/>
-		/// However, it is not always possible to have all old IDs be unique.
-		/// In this case, know that the lifespan of a mapping from old ID to new ID is limited.
-		/// Use it quickly, and use it safely.
-		/// </remarks>
-		public static bool GetNewID(GameObjectID old_id, out GameObjectID new_id)
+		public void Clean()
 		{
-			if(OldIDToNewID.TryGetValue(old_id,out new_id))
-				return true;
 
-			new_id = GameObjectID.NULL;
-			return false;
-		}
-
-		/// <summary>
-		/// Obtains the deserialized object whose old ID was <paramref name="old_id"/>.
-		/// </summary>
-		/// <param name="old_id">The old ID of the object prior to deserialization.</param>
-		/// <param name="output">The object whose old ID was <paramref name="old_id"/> when this returns true or null when this returns false.</param>
-		/// <returns>Returns true if there is a deserialized object whose ID was <paramref name="old_id"/> and false otherwise.</returns>
-		/// <remarks>
-		/// It is entirely possible to deserialize several game objects with the same old ID.
-		/// To combat this, one should generally keep their asset IDs unique upon deserialization.
-		/// At the very least, no two game objects in a single deserialization (attained via parent/child paired deserialization) should have the same old ID.
-		/// <para/>
-		/// However, it is not always possible to have all old IDs be unique.
-		/// In this case, know that the lifespan of a mapping from old ID to new ID is limited.
-		/// Use it quickly, and use it safely.
-		/// </remarks>
-		public static bool GetObject(GameObjectID old_id, [MaybeNullWhen(false)] out GameObject output)
-		{
-			if(GetNewID(old_id,out GameObjectID new_id))
-			{
-				output = new_id;
-				return true;
-			}
-
-			output = null;
-			return false;
-		}
-
-		private static ConcurrentDictionary<GameObjectID,GameObjectID> OldIDToNewID = new ConcurrentDictionary<GameObjectID,GameObjectID>();
-		#endregion
-
-		#region Static Helper Methods
-		/// <summary>
-		/// Reads a standard property from a game object.
-		/// </summary>
-		/// <param name="reader">The JSON reader.</param>
-		/// <param name="property">
-		/// The property to read.
-		/// Valid options are:
-		/// <list type="bullet">
-		///	<item>Enabled</item>
-		///	<item>UpdateOrder</item>
-		/// </list>
-		/// </param>
-		/// <param name="ops">The JSON deserialization options.</param>
-		/// <param name="output">The property read if this returns true or null if this returns false.</param>
-		/// <returns>Returns true if a standard property was read or false otherwise.</returns>
-		/// <exception cref="JsonException">Thrown if a standard property was formatted incorrectly.</exception>
-		public static bool ReadStandardGameObjectProperty(ref Utf8JsonReader reader, string property, JsonSerializerOptions ops, out object? output)
-		{
-			switch(property)
-			{
-			case "Enabled":
-				if(!reader.HasNextBool())
-					throw new JsonException();
-
-				output = reader.GetBoolean();
-				return true;
-			case "UpdateOrder":
-				if(!reader.HasNextNumber())
-					throw new JsonException();
-
-				output = reader.GetInt32();
-				return true;
-			default:
-				output = null;
-				return false;
-			}
-		}
-
-		/// <summary>
-		/// Writes all standard GameObject properties to <paramref name="writer"/>.
-		/// </summary>
-		/// <param name="writer">The JSON writer.</param>
-		/// <param name="value">The value whose properties should be written.</param>
-		/// <param name="ops">The JSON serialization options.</param>
-		/// <remarks>This will not output <paramref name="value"/>'s Game's ID, as there is no reason to expect this to be the same.</remarks>
-		public static void WriteStandardProperties(Utf8JsonWriter writer, GameObject value, JsonSerializerOptions ops)
-		{
-			writer.WriteBoolean("Enabled",value.Enabled);
-			writer.WriteNumber("UpdateOrder",value.UpdateOrder);
 
 			return;
 		}
-		#endregion
+
+		/// <summary>
+		/// This converts GameObjectIDs to/from JSON.
+		/// </summary>
+		private JsonConverter<AssetID>? IDConverter = null;
 	}
 }
