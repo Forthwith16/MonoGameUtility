@@ -633,6 +633,7 @@ namespace GameEngine.Time
 		
 		/// <summary>
 		/// If time loops, this is when the time loop starts.
+		/// This value is inclusive.
 		/// </summary>
 		public float LoopStart
 		{get; protected set;}
