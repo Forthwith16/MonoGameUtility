@@ -4,7 +4,7 @@ GameObjects and such, like Animations and such, should not be serializable, but 
 -Instantiate should still be a thing though
 -This also makes it clear how level editors work, since we can just modify pure asset data with public get/set power
 -This may actually be the way for prefabbing; have game objects keep a reference to their raw initial data (loaded into a static dic like usual) and have that generate a new instance
---If we do this, get rid of copy constructors perhaps, or at least make them all protected
+--If we do this, GET RID OF THE COPY CONSTRUCTORS perhaps, or at least make them all protected
 
 
 
@@ -44,8 +44,44 @@ Add to BaseAsset the Instantiate method
 
 Add support for absolute paths (relative to the content root)
 Set Name in ContentItems with its absolute path
-Add Name to concrete assets
+Add AssetName to concrete assets
 
+Add AssetName to AssetBase
+-Need to preserve the default constructor though, so we should assign the name in the content pipeline when we do so in its content class; the concrete -> asset constructor can just copy/paste the name
+-ACTUALLY, maybe we shouldn't do this; maybe it's appropriate for assets not obtained from the content builder to not have names so we can't screw something up
+--But then relative paths break, so maybe not...
+
+
+
+FromDisc should be set to false at construction time and the Processor or Serializer should set it to true
+
+
+
+
+Move draw calls over to using SpriteRenderer's Matrix2D-based Draw call
+-But not when they have position/rot/etc freely available already, which is probably none, b/c parents, but maybe some do
+
+
+
+
+Consider getting rid of Animation entirely and just using Animation2D directly
+-This is probably better b/c Animation2D's share resources via their copy constructors
+-That said, it does make sense to distinguish between the two so that we can sync animations by using the same one over and over if we want, though this is dangerous b/c duplicate Update calls will likely happen
+-Even if we don't get rid of Animation, we should swap to having Animation reuse its frame data, which is immutable, if it's not already
+--But no reuse arrays, b/c someone could take advantage of that, which may be a reason to keep Animation
+
+
+
+
+
+We CAN put Instantiate on resources and game objects if we want, which just converts them into asset form and then creates them again, though this is not ideal b/c slow
+-It also kinda hides what's really going on
+
+
+
+
+
+Assets should retain their asset names, but they should be "" if not loaded from disc until we save them to it
 
 
 
