@@ -14,7 +14,7 @@ namespace GameEngine.Assets.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2D : GameObject, IObservable<TimeEvent>
+	public class Animation2D : GameObject, IAsset, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Instantiates a new instance of <paramref name="a"/> as an Animation2D.
@@ -26,35 +26,20 @@ namespace GameEngine.Assets.Sprites
 			if(!a.IsAnimation2D)
 				throw new AnimationFormatException("The provided Animation did not represent an Animation2D");
 
-			// The source sprite sheet should be shallow copied as it is immutable
-			Source = a.Source!;
+			// Grab the asset name
+			AssetName = a.AssetName;
 
-			// Load all of our frames
-			Frames = new Animation2DFrame[a.FrameCount];
-
-			IEnumerator<float> lens = a.FrameTimes!.GetEnumerator();
-			IEnumerator<int> indices = a.FrameIndices!.GetEnumerator();
-			IEnumerator<Matrix2D> transformations = a.FrameTransformations!.GetEnumerator();
-
-			float start = 0.0f;
-
-			for(int i = 0;i < Count;i++)
-			{
-				lens.MoveNext();
-				indices.MoveNext();
-				transformations.MoveNext();
-
-				Frames[i] = new Animation2DFrame(i,start,lens.Current,indices.Current,transformations.Current);
-				start += lens.Current;
-			}
+			// Remmber where we come from
+			SourceData = a;
+			Source = SourceData.Source!; // If this is null, then a lied to us, so don't error check
 
 			// Load the start time
 			StartTime = a.Start;
 
 			// Set up the clock
 			// The most important part about this construction process is that each animation instance gets its own clock
-			Clock = new TimePartition(Frames.Skip(1).Select((value,index) => value.StartTime)); // We skip the first start time since 0 is always a start time
-			Clock.SetMaximumTime(true,Frames[Count - 1].EndTime);
+			Clock = new TimePartition(SegmentTimes()); // We skip the first start time since 0 is always a start time
+			Clock.SetMaximumTime(true,this[Count - 1].EndTime);
 			Clock.Seek(StartTime);
 			
 			// We set up the loop seperately so that we can ensure all three values are set without resorting to something gimmicky
@@ -65,13 +50,24 @@ namespace GameEngine.Assets.Sprites
 		}
 
 		/// <summary>
+		/// Enumerates the segment start times for each frame.
+		/// </summary>
+		private IEnumerable<float> SegmentTimes()
+		{
+			for(int i = 1;i < Count;i++) // Skip the first frame's start time since it's always 0, which is always a time segment
+				yield return SourceData.Get2DFrame(i)!.StartTime;
+		}
+
+		/// <summary>
 		/// Creates a sufficiently deep copy of <paramref name="a"/> for this to operate independently while sharing resources.
 		/// </summary>
 		/// <param name="a">The animation to clone.</param>
 		public Animation2D(Animation2D a) : base(a)
 		{
-			Source = a.Source; // Sprite sheets are immutable
-			Frames = a.Frames; // Frames are immutable and so are arrays, so this is fine
+			AssetName = a.AssetName;
+			SourceData = a.SourceData;
+			Source = a.Source;
+
 			StartTime = a.StartTime;
 			
 			Clock = new TimePartition(a.Clock); // This will create a deep enough copy to get the job done
@@ -123,48 +119,45 @@ namespace GameEngine.Assets.Sprites
 		{return Clock.Subscribe(eye);}
 
 		/// <summary>
+		/// Obtains the <paramref name="index"/>th frame of this animation.
+		/// </summary>
+		/// <param name="index">The index of the frame to obtain.</param>
+		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is negative or at least Count.</exception>
+		public Animation2DFrame this[int index] => SourceData.Get2DFrame(index)!; // If this is null, then our source lied to us
+
+		/// <summary>
+		/// The source data for the animation.
+		/// </summary>
+		public Animation SourceData
+		{get;}
+
+		/// <summary>
 		/// The clock running the animation.
 		/// </summary>
 		protected TimePartition Clock
-		{get; set;}
+		{get;}
 
 		/// <summary>
 		/// The sprite sheet we use for the animation frames.
 		/// </summary>
 		public SpriteSheet Source
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// Obtains the source texture for this animation.
 		/// </summary>
-		public Texture2D SourceTexture
-		{get => Source.Source;}
+		public Texture2D SourceTexture => Source.Source;
 
 		/// <summary>
 		/// Obtains the current source rectangle for this animation.
 		/// </summary>
 		public Rectangle CurrentSource
-		{get => Source[this[CurrentFrame].Source];}
-
-		/// <summary>
-		/// The frame data of this animation.
-		/// </summary>
-		protected Animation2DFrame[] Frames
-		{get; init;}
-
-		/// <summary>
-		/// Obtains the <paramref name="index"/>th frame of this animation.
-		/// </summary>
-		/// <param name="index">The index of the frame to obtain.</param>
-		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is negative or at least Count.</exception>
-		public Animation2DFrame this[int index]
-		{get => Frames[index];}
+		{get => Source[this[CurrentFrame].SpriteIndex];}
 
 		/// <summary>
 		/// The number of frames in this animation.
 		/// </summary>
-		public int Count
-		{get => Frames.Length;}
+		public int Count => SourceData.FrameCount;
 
 		/// <summary>
 		/// This is the current frame within the animation's timeline.
@@ -258,6 +251,9 @@ namespace GameEngine.Assets.Sprites
 			get => Clock.Loops;
 			set => Clock.Loop(value);
 		}
+
+		public string AssetName
+		{get;}
 	}
 
 	/// <summary>
@@ -268,17 +264,17 @@ namespace GameEngine.Assets.Sprites
 		/// <summary>
 		/// Creates a new animation frame with the specified parameters.
 		/// </summary>
-		/// <param name="index">The index of the frame within its animation.</param>
+		/// <param name="frame">The index of the frame within its animation.</param>
 		/// <param name="start">The start time of the frame within its animation.</param>
 		/// <param name="len">The duration of the frame within its animation.</param>
-		/// <param name="source">The index into the animation's sprite sheet for this frame's source texture.</param>
+		/// <param name="sprite">The index into the animation's sprite sheet for this frame's source texture.</param>
 		/// <param name="transformation">The (affine) transformation to apply to this keyframe.</param>
-		public Animation2DFrame(int index, float start, float len, int source, Matrix2D transformation)
+		public Animation2DFrame(int frame, float start, float len, int sprite, Matrix2D transformation)
 		{
-			Index = index;
+			FrameIndex = frame;
 			StartTime = start;
 			Duration = len;
-			Source = source;
+			SpriteIndex = sprite;
 			Transformation = transformation;
 
 			return;
@@ -287,14 +283,14 @@ namespace GameEngine.Assets.Sprites
 		/// <summary>
 		/// The index of this frame within its animation.
 		/// </summary>
-		public int Index
-		{get; init;}
+		public int FrameIndex
+		{get;}
 
 		/// <summary>
 		/// The (inclusive) start time of this frame within its animation.
 		/// </summary>
 		public float StartTime
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The (exclusive) end time of this frame within its animation.
@@ -306,18 +302,18 @@ namespace GameEngine.Assets.Sprites
 		/// The duration of the frame in seconds.
 		/// </summary>
 		public float Duration
-		{get; init;}
+		{get;}
 
 		/// <summary>
 		/// The index into this frame's animation's sprite sheet for its source texture.
 		/// </summary>
-		public int Source
-		{get; init;}
+		public int SpriteIndex
+		{get;}
 
 		/// <summary>
 		/// The (affine) transformation to apply to this keyframe.
 		/// </summary>
 		public Matrix2D Transformation
-		{get; init;}
+		{get;}
 	}
 }

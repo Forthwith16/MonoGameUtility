@@ -45,9 +45,32 @@ namespace GameEnginePipeline.Processors.Sprites
 					asset.StartTime = segs[asset.StartFrame.Value];
 
 			// If we have the wrong loop data, we'll have to fix that
-			float loop_start = asset.LoopStart is null ? asset.LoopFrameStart is null ? 0.0f : segs[asset.LoopFrameStart.Value] : asset.LoopStart.Value;
-			float loop_end = asset.LoopEnd is null ? asset.LoopFrameEnd is null ? segs[asset.Frames.Length] : segs[asset.LoopFrameEnd.Value + 1] : asset.LoopEnd.Value;
+			float loop_start;
+			
+			if(asset.LoopStart is null)
+				if(asset.LoopFrameStart is null)
+					loop_start = 0.0f;
+				else
+					if(asset.LoopFrameStart < 0 || asset.LoopFrameStart >= asset.Frames.Length)
+						loop_start = -1.0f; // This is straight up not allowed, so give it a value that will cause problems
+					else
+						loop_start = segs[asset.LoopFrameStart.Value];
+			else
+				loop_start = asset.LoopStart.Value;
 
+			float loop_end;
+			
+			if(asset.LoopEnd is null)
+				if(asset.LoopFrameEnd is null)
+					loop_end = segs[asset.Frames.Length];
+				else
+					if(asset.LoopFrameEnd < 0 || asset.LoopFrameEnd >= asset.Frames.Length)
+						loop_end = -2.0f; // This is straight up not allowed, so give it a value that will cause problems
+					else
+						loop_end = segs[asset.LoopFrameEnd.Value + 1];
+			else
+				loop_end = asset.LoopEnd.Value;
+			
 			// All that we have left to do is check that the start time and loop data makes sense
 			if(asset.StartTime < 0.0f || asset.StartTime > segs[asset.Frames.Length] || loop_end <= loop_start || loop_start < 0.0f || loop_end > segs[asset.Frames.Length])
 				return null;

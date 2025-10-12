@@ -1,9 +1,12 @@
-﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Framework;
+using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
 using GameEnginePipeline.Readers.Sprites;
-using System.Numerics;
+using GameEnginePipeline.Serialization;
+using Microsoft.Xna.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,6 +15,8 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// <summary>
 	/// Contains the base raw asset data of an Animation2D.
 	/// </summary>
+	[Asset(typeof(Animation))]
+	[Asset(typeof(Animation2D))]
 	[JsonConverter(typeof(JsonAnimation2DAssetConverter))]
 	public class Animation2DAsset : BaseAnimationAsset<Animation2DAsset>
 	{
@@ -19,19 +24,95 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// Serializes an asset to <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The desired path to the asset.</param>
-		public override void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path) => this.SerializeJson(path);
 
 		/// <summary>
 		/// Creates a Animation2D with garbage values.
 		/// </summary>
 		public Animation2DAsset() : base(AnimationType.Animation2D)
+		{
+			Source = new AssetSource<SpriteSheet>();
+			return;
+		}
+
+		/// <summary>
+		/// Creates an animation asset from <paramref name="a"/>.
+		/// </summary>
+		/// <param name="a">The animation to turn into its asset form.</param>
+		/// <exception cref="ArgumentException">Thrown if <paramref name="a"/> is missing a sprite sheet source.</exception>
+		protected Animation2DAsset(Animation2D a) : this(a.SourceData)
 		{return;}
 
 		/// <summary>
-		/// The source sprite sheet for the animation.
-		/// This path must be relative to the animation source file.
+		/// Creates an animation asset from <paramref name="a"/>.
 		/// </summary>
-		public string? Source;
+		/// <param name="a">The animation to turn into its asset form.</param>
+		/// <exception cref="ArgumentException">Thrown if <paramref name="a"/> does not represent an 2D animation or is missing a sprite sheet source.</exception>
+		protected Animation2DAsset(Animation a) : base(AnimationType.Animation2D)
+		{
+			// We must be a 2D animation
+			if(!a.IsAnimation2D)
+				throw new ArgumentException("Animation2DAssets can only be created out of 2D animations.");
+
+			// We have to have a source sprite sheet to make an asset out of an animation
+			if(a.Source is null)
+				throw new ArgumentException("Animations2DAssets must have a source sprite sheet.");
+			else
+				Source = new AssetSource<SpriteSheet>(a.Source);
+
+			// Copy the frames now
+			// Note that a is only allowed to exist if there is at least one frame and everything is defined
+			Frames = new Animation2DKeyFrame[a.FrameCount];
+			float start = 0.0f;
+			
+			for(int i = 0;i < Frames.Length;i++)
+			{
+				Animation2DFrame f = a.Get2DFrame(i);
+
+				// We try to align frame info with times and, if we fail to do so, assign nonframe info in its place later
+				if(MathF.Abs(start - a.Start) < GlobalConstants.EPSILON)
+					StartFrame = i; // Start frames go by the start of a frame, and start is currently the start of the current frame
+
+				if(MathF.Abs(start - a.LoopStart) < GlobalConstants.EPSILON)
+					LoopFrameStart = i; // Start frames go by the start of a frame, and start is currently the start of the current frame
+
+				// Now we assign the ith frame data
+				Frames[i] = new Animation2DKeyFrame();
+
+				start += Frames[i].Duration = f.Duration;
+				Frames[i].Sprite = f.SpriteIndex;
+
+				// We need to decompose the matrix into something that is equivalent to what it started as
+				if(!f.Transformation.Decompose(out Vector2 t,out float r,out Vector2 s))
+					throw new ArgumentException("A frame transform could not be decomposed into its component parts.");
+
+				Frames[i].Translation = t;
+				Frames[i].Rotation = r;
+				Frames[i].Scale = s;
+				Frames[i].Origin = Vector2.Zero;
+
+				// We try to align frame info with times and, if we fail to do so, assign nonframe info in its place later
+				if(MathF.Abs(start - a.LoopEnd) < GlobalConstants.EPSILON)
+					LoopFrameEnd = i; // The loop frame end goes by the end time of the frame, not the beginning, and start is at the end now
+			}
+
+			// We now need to assign timing info that didn't get assigned in the loop
+			if(StartFrame is null)
+				StartTime = a.Start;
+
+			if(LoopFrameStart is null)
+				LoopStart = a.LoopStart;
+
+			if(LoopFrameEnd is null)
+				LoopEnd = a.LoopEnd;
+
+			return;
+		}
+
+		/// <summary>
+		/// The source sprite sheet for the animation.
+		/// </summary>
+		public AssetSource<SpriteSheet> Source;
 
 		/// <summary>
 		/// The keyframes of this animation.
@@ -186,7 +267,7 @@ namespace GameEnginePipeline.Assets.Sprites
 			Animation2DAsset ret = new Animation2DAsset();
 
 			if(properties.TryGetValue("Source",out otemp))
-				ret.Source = (string?)otemp;
+				ret.Source.AssignRelativePath((string?)otemp);
 
 			if(properties.TryGetValue("Frames",out otemp))
 				ret.Frames = (Animation2DKeyFrame[]?)otemp;
@@ -219,8 +300,8 @@ namespace GameEnginePipeline.Assets.Sprites
 		{
 			writer.WriteEnum("Type",value.Type);
 
-			if(value.Source is not null)
-				writer.WriteString("Source",value.Source);
+			if(value.Source.RelativePath is not null)
+				writer.WriteString("Source",value.Source.RelativePath);
 			
 			if(value.Frames is not null)
 			{

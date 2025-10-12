@@ -15,29 +15,33 @@ namespace GameEngine.Assets.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2DCollection : GameObject, IObservable<TimeEvent>
+	public class Animation2DCollection : GameObject, IAsset, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
 		/// </summary>
+		/// <param name="name">The asset name.</param>
 		/// <param name="animations">The animations to add to this collection.</param>
 		/// <param name="names">The names of the animations to add to this collection.</param>
 		/// <param name="idle_animation">The name of the idle animation (or the otherwise default animation).</param>
 		/// <exception cref="AnimationFormatException">Thrown if there are more animations than names or vice versa or if the animations are improperly formatted.</exception>
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="idle_animation"/> is not an animation in this collection.</exception>
-		public Animation2DCollection(IEnumerable<Animation> animations, IEnumerable<string> names, string idle_animation) : this(animations.Select(a => new Animation2D(a)),names,idle_animation)
+		public Animation2DCollection(string name, IEnumerable<Animation> animations, IEnumerable<string> names, string idle_animation) : this(name,animations.Select(a => new Animation2D(a)),names,idle_animation)
 		{return;}
 
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
 		/// </summary>
+		/// <param name="name">The asset name.</param>
 		/// <param name="animations">The animations to add to this collection.</param>
 		/// <param name="names">The names of the animations to add to this collection.</param>
 		/// <param name="idle_animation">The name of the idle animation (or the otherwise default animation).</param>
 		/// <exception cref="AnimationFormatException">Thrown if there are more animations than names or vice versa.</exception>
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="idle_animation"/> is not an animation in this collection.</exception>
-		public Animation2DCollection(IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base()
+		public Animation2DCollection(string name, IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base()
 		{
+			AssetName = name;
+
 			Animations = new AbsorbingDictionary<string,Animation2D>();
 
 			IEnumerator<Animation2D> _ia = animations.GetEnumerator();
@@ -72,6 +76,8 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="c">The animation collection to copy.</param>
 		public Animation2DCollection(Animation2DCollection c) : base(c)
 		{
+			AssetName = c.AssetName;
+
 			Animations = new AbsorbingDictionary<string,Animation2D>(c.Animations.Select(p => new KeyValuePair<string,Animation2D>(p.Key,new Animation2D(p.Value))));
 
 			_ian = c._ian;
@@ -129,6 +135,13 @@ namespace GameEngine.Assets.Sprites
 			
 			return new Unsubscriber(subscriptions);
 		}
+
+		/// <summary>
+		/// Obtains the animation named <paramref name="name"/> of this collection.
+		/// </summary>
+		/// <param name="name">The name of the animation.</param>
+		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="name"/> is not a valid animation name.</exception>
+		public Animation2D this[string name] => Animations[name];
 
 		/// <summary>
 		/// If true, then the active animation will be restarted from time 0 after being changed.
@@ -197,13 +210,6 @@ namespace GameEngine.Assets.Sprites
 		{get; protected set;}
 
 		/// <summary>
-		/// Obtains the animation named <paramref name="name"/> of this collection.
-		/// </summary>
-		/// <param name="name">The name of the animation.</param>
-		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="name"/> is not a valid animation name.</exception>
-		public Animation2D this[string name] => Animations[name];
-
-		/// <summary>
 		/// The animation names of this collection in no particular order.
 		/// </summary>
 		public IEnumerable<string> AnimationNames => Animations.Keys;
@@ -223,6 +229,9 @@ namespace GameEngine.Assets.Sprites
 		/// An event called when this collection changes its active animation.
 		/// </summary>
 		public event AnimationSwap AnimationSwapped;
+
+		public string AssetName
+		{get;}
 
 		/// <summary>
 		/// Allows subscribers to unsubscribe.

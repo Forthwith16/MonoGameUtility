@@ -23,7 +23,10 @@ namespace GameEnginePipeline.Readers.Sprites
 			if(existingInstance is not null)
 				return existingInstance;
 
-			// First read in how many animations we have
+			// First read the asset name
+			string name = cin.ReadString();
+
+			// Next read in how many animations we have
 			int n = cin.ReadInt32();
 
 			// Now read in each animation and its name
@@ -40,7 +43,7 @@ namespace GameEnginePipeline.Readers.Sprites
 			string idle = cin.ReadString();
 
 			// We can make our return value now
-			TRead ret = new TRead(animations,names,idle);
+			TRead ret = new TRead(name,animations,names,idle);
 
 			// Lastly, pick up the reset setting even though it's probably always going to be true
 			ret.ResetOnSwitch = cin.ReadBoolean();

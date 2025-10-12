@@ -1,4 +1,5 @@
 ﻿using GameEnginePipeline.Assets.Sprites;
+using Microsoft.Xna.Framework.Content.Pipeline;
 
 namespace GameEnginePipeline.Contents.Sprites
 {
@@ -17,7 +18,10 @@ namespace GameEnginePipeline.Contents.Sprites
 			AnimationFullNames = new string[asset.Animations.Length];
 
 			for(int i = 0;i < AnimationFullNames.Length;i++)
-				AnimationFullNames[i] = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.Animations[i].Source ?? ""));
+				if(asset.Animations[i].Source.GetFullPath(AbsoluteDirectory,Path.GetDirectoryName(".")!,out string? src))
+					AnimationFullNames[i] = src;
+				else
+					throw new InvalidContentException("A sprite sheet did not have a path to a texture source.\nAsset file: " + path);
 
 			return;
 		}

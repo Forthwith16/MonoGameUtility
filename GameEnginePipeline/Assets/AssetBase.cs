@@ -11,17 +11,47 @@ namespace GameEnginePipeline.Assets
 	public abstract class AssetBase : IComparable<AssetBase>, IEquatable<AssetBase>, IDisposable
 	{
 		/// <summary>
+		/// Saves an asset to <paramref name="path"/>.
+		/// </summary>
+		/// <param name="path">The desired path to the asset. This must be an absolute path relative to <paramref name="root"/>.</param>
+		/// <param name="root">The content root directory.</param>
+		public void SaveToDisc(string path, string root)
+		{
+			// We first need to adjust every filename to be relative to path
+			AdjustFilePaths(Path.GetDirectoryName(path) ?? "");
+
+			// Do the actual save logic
+			Serialize(Path.Combine(root,path));
+			
+			return;
+		}
+
+		/// <summary>
+		/// Adjusts every file in this asset to be relative to <paramref name="path"/>.
+		/// It is assumed that 
+		/// </summary>
+		/// <param name="path">The destination directory of this asset. All relative paths should be made relative to this path.</param>
+		protected virtual void AdjustFilePaths(string path)
+		{return;}
+
+		/// <summary>
+		/// Serializes an asset to <paramref name="path"/>.
+		/// </summary>
+		/// <param name="path">The desired path to the asset.</param>
+		protected abstract void Serialize(string path);
+
+		/// <summary>
 		/// The basic base asset construction.
-		/// This obtains a fresh content ID and assigns NULL to the internal ID.
+		/// This obtains a fresh content ID and assigns <paramref name="internal_id"/> to NULL.
 		/// </summary>
 		protected AssetBase()
 		{
 			ContentID = AssetID.GetFreshID(this);
 			InternalID = InternalAssetID.NULL;
-
+			
 			Linked = false;
 			Disposed = false;
-
+			
 			return;
 		}
 
@@ -29,6 +59,7 @@ namespace GameEnginePipeline.Assets
 		/// The basic base asset construction.
 		/// This obtains a fresh content ID and assigns <paramref name="internal_id"/> to the internal ID.
 		/// </summary>
+		/// <param name="internal_id">The ID to assign to the internal ID.</param>
 		protected AssetBase(InternalAssetID internal_id)
 		{
 			ContentID = AssetID.GetFreshID(this);
@@ -36,7 +67,7 @@ namespace GameEnginePipeline.Assets
 			
 			Linked = false;
 			Disposed = false;
-
+			
 			return;
 		}
 
@@ -110,7 +141,7 @@ namespace GameEnginePipeline.Assets
 		/// A list of supporting arguments to enable the linkage to proceed.
 		/// What values appear here, if any, are entirely implementation dependent.
 		/// </param>
-		public void Link(params object?[] args)
+		protected void Link(params object?[] args)
 		{
 			if(Linked)
 				return;
@@ -154,7 +185,7 @@ namespace GameEnginePipeline.Assets
 		/// If true, then this asset's links to other assets have been forged.
 		/// If false, then this has yet to occur yet.
 		/// </summary>
-		public bool Linked
+		protected bool Linked
 		{get; private set;}
 
 		/// <summary>

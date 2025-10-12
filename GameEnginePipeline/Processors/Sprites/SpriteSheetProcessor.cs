@@ -19,6 +19,7 @@ namespace GameEnginePipeline.Processors.Sprites
 			TAsset asset = input.Asset;
 
 			// We know Source is not null, so we need only check if we have at least one Sprite or valid tiling data
+			// Note that if Sprites exists but has length 0, we pretend it doesn't
 			if(asset.Sprites is not null && asset.Sprites.Length > 0)
 				return input;
 

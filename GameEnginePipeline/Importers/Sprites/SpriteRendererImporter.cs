@@ -17,10 +17,9 @@ namespace GameEnginePipeline.Importers.Sprites
 
 		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{
-			if(asset.ShaderSource is null)
-				return true;
+			if(asset.ShaderSource.GetFullPath(Path.GetDirectoryName(path)!,Path.GetDirectoryName(".")!,out string? src))
+				context.AddDependency(src);
 			
-			context.AddDependency(Path.Combine(Path.GetDirectoryName(path) ?? "",asset.ShaderSource));
 			return true;
 		}
 

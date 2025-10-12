@@ -1,4 +1,5 @@
 ﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
+using GameEnginePipeline.Assets.Sprites;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,15 +24,26 @@ namespace GameEnginePipeline.Readers.Sprites
 			if(existingInstance is not null)
 				return existingInstance;
 			
-			// Create the thing to return
-			TRead ret = new TRead(cin.GetGraphicsDevice());
+			// First read the sprite renderer's name
+			string name = cin.ReadString();
 
-			// First check if we have a shader
+			// Now create the thing to return
+			TRead ret = new TRead(name,cin.GetGraphicsDevice());
+
+			// Next check if we have a shader
 			bool has_shade = cin.ReadBoolean();
 
 			// First get the source texture
 			if(has_shade)
+			{
 				ret.Shader = cin.ReadExternalReference<Effect>();
+
+				// We append the shader's extension if it doesn't already have it from a Load elsewhere
+				string extension = cin.ReadString();
+				
+				if(!Path.HasExtension(ret.Shader.Name))
+					ret.Shader.Name += extension;
+			}
 
 			// Now read in all of the enums and assign their values
 			ret.Order = cin.ReadEnum<SpriteSortMode>();
@@ -104,51 +116,5 @@ namespace GameEnginePipeline.Readers.Sprites
 		}
 	}
 
-	/// <summary>
-	/// Represents the basic blend states that can be serialized.
-	/// </summary>
-	public enum BasicBlendState
-	{
-		Null,
-		Additive,
-		AlphaBlend,
-		NonPremultiplied,
-		Opaque
-	}
-
-	/// <summary>
-	/// Represents the basic sampler states that can be serialized.
-	/// </summary>
-	public enum BasicSamplerState
-	{
-		Null,
-		PointClamp,
-		PointWrap,
-		LinearClamp,
-		LinearWrap,
-		AnisotropicClamp,
-		AnisotropicWrap
-	}
-
-	/// <summary>
-	/// Represents the basic depth stencil states that can be serialized.
-	/// </summary>
-	public enum BasicDepthStencilState
-	{
-		Null,
-		None,
-		Default,
-		DepthRead
-	}
-
-	/// <summary>
-	/// Represents the basic rasterizer states that can be serialized.
-	/// </summary>
-	public enum BasicRasterizerState
-	{
-		Null,
-		CullNone,
-		CullClockwise,
-		CullCounterClockwise
-	}
+	
 }

@@ -17,10 +17,10 @@ namespace GameEnginePipeline.Importers.Sprites
 
 		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{
-			if(asset.Source is null)
+			if(!asset.Source.GetFullPath(Path.GetDirectoryName(path)!,Path.GetDirectoryName(".")!,out string? src))
 				return false;
 			
-			context.AddDependency(Path.Combine(Path.GetDirectoryName(path) ?? "",asset.Source));
+			context.AddDependency(src);
 			return true;
 		}
 

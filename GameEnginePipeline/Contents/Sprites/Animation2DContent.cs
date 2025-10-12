@@ -1,5 +1,6 @@
 ﻿using GameEnginePipeline.Assets.Sprites;
 using GameEnginePipeline.Readers.Sprites;
+using Microsoft.Xna.Framework.Content.Pipeline;
 
 namespace GameEnginePipeline.Contents.Sprites
 {
@@ -15,7 +16,10 @@ namespace GameEnginePipeline.Contents.Sprites
 		/// <param name="path">The absolute path to the asset file. This includes the filename itself.</param>
 		public Animation2DContent(Animation2DAsset asset, string path) : base(asset,path)
 		{
-			SourceFullName = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.Source!)); // If Source is null, we should seg fault to interrupt the build
+			if(!asset.Source.GetFullPath(AbsoluteDirectory,Path.GetDirectoryName(".")!,out string? src))
+				throw new InvalidContentException("An animation did not have a path to a sprite sheet source.\nAsset file: " + path);
+
+			SourceFullName = src;
 			return;
 		}
 

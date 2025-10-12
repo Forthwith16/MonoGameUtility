@@ -4,6 +4,7 @@ using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
 using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,7 +21,7 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// Serializes an asset to <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The desired path to the asset.</param>
-		public void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path) => this.SerializeJson(path);
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
@@ -29,11 +30,14 @@ namespace GameEnginePipeline.Assets.Sprites
 		public static SpriteSheetAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
 		
 		/// <summary>
-		/// The default constructor for a sprite sheet asset.
+		/// The default constructor.
 		/// It sets every value to its default.
 		/// </summary>
 		public SpriteSheetAsset() : base()
-		{return;} // We can just leave everything with default values; we just need this constructor to exist
+		{
+			Source = new AssetSource<Texture2D>();
+			return;
+		}
 
 		/// <summary>
 		/// Creates a sprite sheet asset from <paramref name="ss"/>.
@@ -41,17 +45,13 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <param name="ss">The sprite sheet to turn into its asset form.</param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="ss"/> does not have a source image for its texture.</exception>
 		/// <remarks>
-		/// This will attemtp to determine if the source sprites are a tiling rather than custom sprite locations.
+		/// This will attempt to determine if the source sprites are a tiling rather than custom sprite locations.
 		/// To do so, it checks that each sprite is the same size and that they are in row or column major order with each tightly packed.
 		/// </remarks>
-		public SpriteSheetAsset(SpriteSheet ss) : base()
+		protected SpriteSheetAsset(SpriteSheet ss) : base()
 		{
-			// We have to have a source texture to make an asset out of a sprite sheet
-			if(ss.Source.Name == "")
-				throw new ArgumentException();
-
-			// Record the relative path to the source texture
-			Source = Path.GetRelativePath(Path.GetDirectoryName(ss.Name) ?? "",ss.Source.Name);
+			// Create the source texture info
+			Source = new AssetSource<Texture2D>(ss.Source);
 
 			// We need to check if the source sprites are a tiling rather than custom locations
 			// This is relatively straightforward but tedious
@@ -136,9 +136,8 @@ namespace GameEnginePipeline.Assets.Sprites
 
 		/// <summary>
 		/// The source texture of the sprites.
-		/// This path must be relative to the sprite sheet file.
 		/// </summary>
-		public string? Source;
+		public AssetSource<Texture2D> Source;
 		
 		/// <summary>
 		/// Specifies that this asset fills rows before creating new columns.
@@ -203,7 +202,8 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <summary>
 		/// The sprite source rectangles.
 		/// <para/>
-		/// If these are not present, use the tile related data to calculate them.
+		/// If these are not present, use tiling data to calculate them.
+		/// These do not count as present if their length is 0.
 		/// </summary>
 		public Rectangle[]? Sprites;
 	}
@@ -251,7 +251,7 @@ namespace GameEnginePipeline.Assets.Sprites
 			SpriteSheetAsset ret = new SpriteSheetAsset();
 
 			if(properties.TryGetValue("Source",out object? otemp))
-				ret.Source = (string?)otemp;
+				ret.Source.AssignRelativePath((string?)otemp);
 
 			if(properties.TryGetValue("Sprites",out otemp))
 				ret.Sprites = (Rectangle[]?)otemp;
@@ -279,8 +279,8 @@ namespace GameEnginePipeline.Assets.Sprites
 
 		protected override void WriteProperties(Utf8JsonWriter writer, SpriteSheetAsset value, JsonSerializerOptions ops)
 		{
-			if(value.Source is not null)
-				writer.WriteString("Source",value.Source);
+			if(value.Source.RelativePath is not null)
+				writer.WriteString("Source",value.Source.RelativePath);
 
 			writer.WriteBoolean("TileFillRowFirst",value.TileFillRowFirst);
 

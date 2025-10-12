@@ -85,7 +85,7 @@ namespace GameEnginePipeline.Serialization
 			foreach(Asset asset in asset_type.GetCustomAttributes<Asset>())
 			{
 				// We accept asset_type as an asset if A has a constructor that takes just the concrete type
-				ConstructorInfo? c_info = asset_type.GetConstructor([asset.AssetConcreteType]);
+				ConstructorInfo? c_info = asset_type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,[asset.AssetConcreteType]);
 
 				if(c_info is not null)
 					raw_info[asset.AssetConcreteType] = c_info;

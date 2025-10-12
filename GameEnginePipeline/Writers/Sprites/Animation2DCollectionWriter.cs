@@ -24,7 +24,10 @@ namespace GameEnginePipeline.Writers.Sprites
 			// Grab the asset for convenience
 			TAsset asset = value.Asset;
 
-			// First write the number of animations
+			// First output the collection's name
+			cout.Write(value.Name);
+
+			// Next write the number of animations
 			cout.Write(asset.Animations.Length);
 
 			// Now write out each animation with name and then the external reference

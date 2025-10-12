@@ -1,8 +1,9 @@
-﻿using GameEngine.Utility.ExtensionMethods.ClassExtensions;
+﻿using GameEngine.Assets.Sprites;
+using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Readers.Sprites;
+using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,6 +13,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// <summary>
 	/// The details of a SpriteRenderer laid bare.
 	/// </summary>
+	[Asset(typeof(SpriteRenderer))]
 	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
 	public class SpriteRendererAsset : AssetBase
 	{
@@ -19,7 +21,7 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// Serializes an asset to <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The desired path to the asset.</param>
-		public void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path) => this.SerializeJson(path);
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
@@ -28,39 +30,120 @@ namespace GameEnginePipeline.Assets.Sprites
 		public static SpriteRendererAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteRendererAsset>();
 
 		/// <summary>
+		/// The default constructor.
+		/// It sets every value to its default.
+		/// </summary>
+		public SpriteRendererAsset() : base()
+		{
+			Order = SpriteSortMode.BackToFront;
+			Blend = BasicBlendState.AlphaBlend;
+			Wrap = BasicSamplerState.LinearClamp;
+			DepthStencil = BasicDepthStencilState.None;
+			Cull = BasicRasterizerState.CullCounterClockwise;
+			ShaderSource = new AssetSource<Effect>();
+
+			return;
+		}
+
+		/// <summary>
+		/// Creates a sprite renderer asset from <paramref name="sr"/>.
+		/// </summary>
+		/// <param name="sr">The sprite renderer to turn into its asset form.</param>
+		/// <exception cref="ArgumentException">Thrown if <paramref name="sr"/> has a custom Blend, Wrap, DepthStencil, or Cull. This cannot accommodate custom values for these types.</exception>
+		protected SpriteRendererAsset(SpriteRenderer sr) : base()
+		{
+			// We can directly copy the sort order
+			Order = sr.Order;
+
+			// We can also directly copy the shader source name if we have it
+			ShaderSource = new AssetSource<Effect>(sr.Shader);
+
+			// Now we need to do the hard parts
+			// Find out if we have a standard blend state
+			if(sr.Blend == BlendState.Additive)
+				Blend = BasicBlendState.Additive;
+			else if(sr.Blend == BlendState.AlphaBlend)
+				Blend = BasicBlendState.AlphaBlend;
+			else if(sr.Blend == BlendState.NonPremultiplied)
+				Blend = BasicBlendState.NonPremultiplied;
+			else if(sr.Blend == BlendState.Opaque)
+				Blend = BasicBlendState.Opaque;
+			else
+				throw new ArgumentException("Nonstandard blend state");
+
+			// Find out if we have a standard wrap state
+			if(sr.Wrap == SamplerState.PointClamp)
+				Wrap = BasicSamplerState.PointClamp;
+			else if(sr.Wrap == SamplerState.PointWrap)
+				Wrap = BasicSamplerState.PointWrap;
+			else if(sr.Wrap == SamplerState.LinearClamp)
+				Wrap = BasicSamplerState.LinearClamp;
+			else if(sr.Wrap == SamplerState.LinearWrap)
+				Wrap = BasicSamplerState.LinearWrap;
+			else if(sr.Wrap == SamplerState.AnisotropicClamp)
+				Wrap = BasicSamplerState.AnisotropicClamp;
+			else if(sr.Wrap == SamplerState.AnisotropicWrap)
+				Wrap = BasicSamplerState.AnisotropicWrap;
+			else
+				throw new ArgumentException("Nonstandard sampler state");
+
+			// Find out if we have a standard depth stencil
+			if(sr.DepthStencil == DepthStencilState.Default)
+				DepthStencil = BasicDepthStencilState.Default;
+			else if(sr.DepthStencil == DepthStencilState.DepthRead)
+				DepthStencil = BasicDepthStencilState.DepthRead;
+			else if(sr.DepthStencil == DepthStencilState.None)
+				DepthStencil = BasicDepthStencilState.None;
+			else
+				throw new ArgumentException("Nonstandard depth stencil state");
+			
+			// Find out if we have a standard cull
+			if(sr.Cull == RasterizerState.CullClockwise)
+				Cull = BasicRasterizerState.CullClockwise;
+			else if(sr.Cull == RasterizerState.CullCounterClockwise)
+				Cull = BasicRasterizerState.CullCounterClockwise;
+			else if(sr.Cull == RasterizerState.CullNone)
+				Cull = BasicRasterizerState.CullNone;
+			else
+				throw new ArgumentException("Nonstandard cull state");
+
+				return;
+		}
+
+		/// <summary>
 		/// The order that sprites are sorted when drawn.
 		/// <para/>
 		/// This value defaults to BackToFront.
 		/// </summary>
-		public SpriteSortMode Order = SpriteSortMode.BackToFront;
+		public SpriteSortMode Order;
 
 		/// <summary>
 		/// A blend mode to draw with.
 		/// <para/>
 		/// This value defaults to AlphaBlend.
 		/// </summary>
-		public BasicBlendState Blend = BasicBlendState.AlphaBlend;
+		public BasicBlendState Blend;
 
 		/// <summary>
 		/// A sampler wrap mode to draw with.
 		/// <para/>
 		/// This value defaults to LinearClamp.
 		/// </summary>
-		public BasicSamplerState Wrap = BasicSamplerState.LinearClamp;
+		public BasicSamplerState Wrap;
 
 		/// <summary>
 		/// The manner of depth stencil to draw with.
 		/// <para/>
 		/// This value defaults to None.
 		/// </summary>
-		public BasicDepthStencilState DepthStencil = BasicDepthStencilState.None;
+		public BasicDepthStencilState DepthStencil;
 
 		/// <summary>
 		/// The cull state used when drawing.
 		/// <para/>
 		/// This value defaults to CullCounterClockwise.
 		/// </summary>
-		public BasicRasterizerState Cull = BasicRasterizerState.CullCounterClockwise;
+		public BasicRasterizerState Cull;
 
 		/// <summary>
 		/// A shader to draw with.
@@ -68,7 +151,55 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// <para/>
 		/// This value defaults to null (which in turn defaults to the default sprite Effect).
 		/// </summary>
-		public string? ShaderSource = null;
+		public AssetSource<Effect> ShaderSource;
+	}
+
+	/// <summary>
+	/// Represents the basic blend states that can be serialized.
+	/// </summary>
+	public enum BasicBlendState
+	{
+		Null,
+		Additive,
+		AlphaBlend,
+		NonPremultiplied,
+		Opaque
+	}
+
+	/// <summary>
+	/// Represents the basic sampler states that can be serialized.
+	/// </summary>
+	public enum BasicSamplerState
+	{
+		Null,
+		PointClamp,
+		PointWrap,
+		LinearClamp,
+		LinearWrap,
+		AnisotropicClamp,
+		AnisotropicWrap
+	}
+
+	/// <summary>
+	/// Represents the basic depth stencil states that can be serialized.
+	/// </summary>
+	public enum BasicDepthStencilState
+	{
+		Null,
+		None,
+		Default,
+		DepthRead
+	}
+
+	/// <summary>
+	/// Represents the basic rasterizer states that can be serialized.
+	/// </summary>
+	public enum BasicRasterizerState
+	{
+		Null,
+		CullNone,
+		CullClockwise,
+		CullCounterClockwise
 	}
 
 	/// <summary>
@@ -138,7 +269,7 @@ namespace GameEnginePipeline.Assets.Sprites
 				ret.Cull = (BasicRasterizerState)otemp!;
 
 			if(properties.TryGetValue("ShaderSource",out otemp))
-				ret.ShaderSource = (string?)otemp;
+				ret.ShaderSource.AssignRelativePath((string?)otemp);
 
 			return ret;
 		}
@@ -151,10 +282,10 @@ namespace GameEnginePipeline.Assets.Sprites
 			writer.WriteEnum("DepthRecord",value.DepthStencil);
 			writer.WriteEnum("Cull",value.Cull);
 			
-			if(value.ShaderSource is null)
+			if(value.ShaderSource.RelativePath is null)
 				writer.WriteNull("ShaderSource");
 			else
-				writer.WriteString("ShaderSource",value.ShaderSource);
+				writer.WriteString("ShaderSource",value.ShaderSource.RelativePath);
 
 			return;
 		}

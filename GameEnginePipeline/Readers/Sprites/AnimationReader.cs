@@ -45,7 +45,10 @@ namespace GameEnginePipeline.Readers.Sprites
 		/// <exception cref="ContentLoadException">Thrown if the content pipeline did not contain the expected data.</exception>
 		private TRead ReadAnimation2D(ContentReader cin)
 		{
-			// First get the source sprite sheet
+			// First read the asset name
+			string name = cin.ReadString();
+
+			// Next get the source sprite sheet
 			SpriteSheet source = cin.ReadExternalReference<SpriteSheet>();
 
 			// Now find out how many frames we have
@@ -72,7 +75,7 @@ namespace GameEnginePipeline.Readers.Sprites
 			float loop_end = cin.ReadSingle();
 
 			// We now have everything so we'll call it a day
-			return new TRead(source,lens,indices,trans,start,loops,loop_start,loop_end);
+			return new TRead(name,source,lens,indices,trans,start,loops,loop_start,loop_end);
 		}
 	}
 

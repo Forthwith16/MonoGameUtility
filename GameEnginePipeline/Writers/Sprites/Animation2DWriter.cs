@@ -24,6 +24,9 @@ namespace GameEnginePipeline.Writers.Sprites
 			// First write out what kind of animation the reader must deal with
 			cout.Write((int)value.Type);
 
+			// Next output the animation's name
+			cout.Write(value.Name);
+
 			// Grab the asset for convenience
 			Animation2DAsset asset = value.Asset;
 

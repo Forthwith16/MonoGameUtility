@@ -24,11 +24,17 @@ namespace GameEnginePipeline.Writers.Sprites
 			// Grab the asset for convenience
 			TAsset asset = value.Asset;
 
-			// First list the effect source if we have one (and send a flag with it)
+			// First output the sprite renderer's name
+			cout.Write(value.Name);
+
+			// Next list the effect source if we have one (and send a flag with it)
 			cout.Write(value.ShaderSourceFullPath is not null);
 
 			if(value.ShaderSourceFullPath is not null)
-				cout.WriteExternalReference(value.GetExternalReference<Texture2DContent>(value.ShaderSourceFullPath));
+			{
+				cout.WriteExternalReference(value.GetExternalReference<EffectContent>(value.ShaderSourceFullPath));
+				cout.Write(Path.GetExtension(value.ShaderSourceFullPath));
+			}
 			
 			// We need to write out every enum
 			cout.Write(asset.Order);

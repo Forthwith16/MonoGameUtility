@@ -1,6 +1,5 @@
 ﻿using GameEnginePipeline.Assets;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using MonoGame.Framework.Content.Pipeline.Builder;
 
 namespace GameEnginePipeline
 {
@@ -20,7 +19,7 @@ namespace GameEnginePipeline
 			ExternalReferences = new Dictionary<string,ContentItem>();
 			Asset = asset;
 			
-			Name = PathHelper.GetRelativePath(Path.GetFullPath(".") + Path.DirectorySeparatorChar,path);
+			Name = Path.GetRelativePath(Path.GetFullPath(".") + Path.DirectorySeparatorChar,path);
 			Identity = new ContentIdentity(path);
 
 			return;

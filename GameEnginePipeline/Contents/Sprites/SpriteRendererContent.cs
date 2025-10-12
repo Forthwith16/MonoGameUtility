@@ -14,10 +14,9 @@ namespace GameEnginePipeline.Contents.Sprites
 		/// <param name="path">The absolute path to the asset file. This includes the filename itself.</param>
 		public SpriteRendererContent(SpriteRendererAsset asset, string path) : base(asset,path)
 		{
-			if(asset.ShaderSource is null)
-				ShaderSourceFullPath = null;
-			else
-				ShaderSourceFullPath = Path.GetFullPath(Path.Combine(AbsoluteDirectory,asset.ShaderSource));
+			// We assign the shader source to null if we fail, so we can just assign src directly to it in both cases
+			asset.ShaderSource.GetFullPath(AbsoluteDirectory,Path.GetDirectoryName(".")!,out string? src);
+			ShaderSourceFullPath = src;
 
 			return;
 		}

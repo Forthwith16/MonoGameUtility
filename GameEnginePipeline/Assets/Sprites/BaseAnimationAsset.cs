@@ -9,12 +9,6 @@ namespace GameEnginePipeline.Assets.Sprites
 	public abstract class BaseAnimationAsset<TSelf> : AssetBase where TSelf : BaseAnimationAsset<TSelf>
 	{
 		/// <summary>
-		/// Serializes an asset to <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The desired path to the asset.</param>
-		public abstract void Serialize(string path);
-
-		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
