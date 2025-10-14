@@ -15,7 +15,29 @@ namespace GameEnginePipeline.Assets.Sprites
 	[JsonConverter(typeof(JsonAnimation2DCollectionAssetConverter))]
 	public class Animation2DCollectionAsset : AssetBase
 	{
-		protected override void Serialize(string path, string root, bool overwrite_dependencies = false) => this.SerializeJson(path);
+		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
+		{
+			// If our source animtions don't exist where we expect them to, write them out to those locations (if we have them)
+			for(int i = 0;i < Animations.Length;i++)
+				if(StandardShouldSerializeCheck(Animations[i].Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
+					try
+					{Asset.CreateAsset<Animation2DAsset>(Animations[i].Source.ConcreteAsset!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
+					catch
+					{} // If something goes wrong, we don't want to crash horribly
+
+			// Now we can serialize our sprite sheet proper
+			this.SerializeJson(path);
+
+			return;
+		}
+
+		protected override void AdjustFilePaths(string path, string root)
+		{
+			for(int i = 0;i < Animations.Length;i++)
+				StandardAssetSourcePathAdjustment(Animations[i].Source,path,Animations[i].Source.Unnamed ? GenerateFreeFile(Path.Combine(root,path),".a2d") : "");
+
+			return;
+		}
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
