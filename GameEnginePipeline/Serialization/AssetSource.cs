@@ -235,5 +235,17 @@ namespace GameEnginePipeline.Serialization
 		/// </summary>
 		/// <remarks>This path is not guaranteed to be in its simplest form.</remarks>
 		public string? RelativeDirectory => Path.GetDirectoryName(RelativePath);
+
+		/// <summary>
+		/// If true, then this source has no useful information whatsoever.
+		/// If false, then this source has at least one piece of information that can be utilized.
+		/// </summary>
+		public bool Null => Unnamed && ConcreteAsset is null;
+
+		/// <summary>
+		/// If true, then this source has no name.
+		/// If false, then this source has a name.
+		/// </summary>
+		public bool Unnamed => RootPath is null && RelativePath is null;
 	}
 }

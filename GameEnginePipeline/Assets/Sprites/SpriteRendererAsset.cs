@@ -17,11 +17,35 @@ namespace GameEnginePipeline.Assets.Sprites
 	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
 	public class SpriteRendererAsset : AssetBase
 	{
-		/// <summary>
-		/// Serializes an asset to <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The desired path to the asset.</param>
-		protected override void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
+		{
+			// We have no way of decompiling a shader, so we have to try to copy/paste it if possible
+			if(StandardShouldSerializeCheck(ShaderSource,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst) && ShaderSource.ConcreteAsset!.Name != "") // StandardShouldSerializeCheck does the null check on ShaderSource.ConcreteAsset for us
+			{
+				string src = Path.GetFullPath(Path.Combine(root,ShaderSource.ConcreteAsset.Name));
+
+				// We have no reason to perform identity copy/pastes
+				if(src != dst)
+					try
+					{
+						Directory.CreateDirectory(Path.GetDirectoryName(dst) ?? "");
+						File.Copy(src,dst);
+					}
+					catch
+					{} // If something goes wrong, we don't want to crash horribly
+			}
+
+			// Now we can serialize our sprite sheet proper
+			this.SerializeJson(path);
+
+			return;
+		}
+
+		protected override void AdjustFilePaths(string path, string root)
+		{
+			StandardAssetSourcePathAdjustment(ShaderSource,path,ShaderSource.Unnamed ? GenerateFreeFile(Path.Combine(root,path),".fx") : "");
+			return;
+		}
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.

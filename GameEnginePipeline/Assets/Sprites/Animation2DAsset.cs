@@ -20,11 +20,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	[JsonConverter(typeof(JsonAnimation2DAssetConverter))]
 	public class Animation2DAsset : BaseAnimationAsset<Animation2DAsset>
 	{
-		/// <summary>
-		/// Serializes an asset to <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The desired path to the asset.</param>
-		protected override void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path, string root, bool overwrite_dependencies = false) => this.SerializeJson(path);
 
 		/// <summary>
 		/// Creates a Animation2D with garbage values.

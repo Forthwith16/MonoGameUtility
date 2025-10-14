@@ -8,11 +8,7 @@ namespace GameEnginePipeline.Assets.Sprites
 	/// </summary>
 	public abstract class BaseAnimationAsset<TSelf> : AssetBase where TSelf : BaseAnimationAsset<TSelf>
 	{
-		/// <summary>
-		/// Deserializes an asset from <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The path to the asset.</param>
-		public static TSelf? Deserialize(string path) => path.DeserializeJsonFile<TSelf>();
+		public static TSelf? Deserialize(string path, bool overwrite_dependencies = false) => path.DeserializeJsonFile<TSelf>();
 
 		/// <summary>
 		/// Initializes the base animaiton data.

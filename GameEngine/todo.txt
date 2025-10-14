@@ -10,15 +10,7 @@ GameObjects and such, like Animations and such, should not be serializable, but 
 
 
 Add an attribute for not serializing public stuff
-
-
-
-
-Give the Sprite assets an asset ID?
--Unclear if this is needed, since we load external assets just fine, and we don't generate spritesheets inside of game objects, for exmaple, so we don't need handles to them beyond the source file
---It would be good to slap it in the interface, however, and be done with it
----It wouldn't hurt to just nab a fresh ID without bothering to store it
--DON'T FORGET TO DEAL WITH DISPOSAL AND FINALIZERS
+-Specifically as regards ScriptComponent serialization, but can be applied elsewhere
 
 
 
@@ -30,36 +22,15 @@ Each game object should be its own asset file?
 
 
 
-We need an attribute system that allows us to get from a generic AffineObject child to its asset class so that we can do asset creation more easily
--The attributes go on the asset class
--If there is no attribute for the type that we are trying to turn into an asset, then we ignore it
--We can create an Attribute class that has a static dictionary of Type -> Constructor that maps a game object type T to its asset version's constructor that takes just the game object of type T as a parameter
---If this constructor doesn't exist, we also ignore it
-
 Add to BaseAsset the Instantiate method
 
 
 
 
 
-Add support for absolute paths (relative to the content root)
-Set Name in ContentItems with its absolute path
-Add AssetName to concrete assets
-
-Add AssetName to AssetBase
--Need to preserve the default constructor though, so we should assign the name in the content pipeline when we do so in its content class; the concrete -> asset constructor can just copy/paste the name
--ACTUALLY, maybe we shouldn't do this; maybe it's appropriate for assets not obtained from the content builder to not have names so we can't screw something up
---But then relative paths break, so maybe not...
-
-
-
-FromDisc should be set to false at construction time and the Processor or Serializer should set it to true
-
-
-
-
 Move draw calls over to using SpriteRenderer's Matrix2D-based Draw call
 -But not when they have position/rot/etc freely available already, which is probably none, b/c parents, but maybe some do
+
 
 
 
@@ -81,7 +52,8 @@ We CAN put Instantiate on resources and game objects if we want, which just conv
 
 
 
-Assets should retain their asset names, but they should be "" if not loaded from disc until we save them to it
+Add an alternative SaveToDisc which allows you to provide the .mgcb file so that we can append new content to it
+-Importantly, we do not append content that is already in the file
 
 
 

@@ -17,11 +17,31 @@ namespace GameEnginePipeline.Assets.Sprites
 	[JsonConverter(typeof(JsonSpriteSheetAssetConverter))]
 	public class SpriteSheetAsset : AssetBase
 	{
-		/// <summary>
-		/// Serializes an asset to <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The desired path to the asset.</param>
-		protected override void Serialize(string path) => this.SerializeJson(path);
+		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
+		{
+			// If our source texture doesn't exist where we expect it to, write it out to that location (if we have it)
+			if(StandardShouldSerializeCheck(Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
+				try
+				{
+					Directory.CreateDirectory(Path.GetDirectoryName(dst) ?? "");
+
+					using(FileStream fout = new FileStream(dst,FileMode.OpenOrCreate))
+						Source.ConcreteAsset!.SaveAsPng(fout,Source.ConcreteAsset.Width,Source.ConcreteAsset.Height);
+				}
+				catch
+				{} // If something goes wrong, we don't want to crash horribly
+
+			// Now we can serialize our sprite sheet proper
+			this.SerializeJson(path);
+
+			return;
+		}
+
+		protected override void AdjustFilePaths(string path, string root)
+		{
+			StandardAssetSourcePathAdjustment(Source,path,Source.Unnamed ? GenerateFreeFile(Path.Combine(root,path),".png") : "");
+			return;
+		}
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.

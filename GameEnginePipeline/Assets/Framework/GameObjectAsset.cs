@@ -13,11 +13,7 @@ namespace GameEnginePipeline.Assets.Framework
 	/// </remarks>
 	public abstract class GameObjectAsset : AssetBase
 	{
-		/// <summary>
-		/// Serializes an asset to <paramref name="path"/>.
-		/// </summary>
-		/// <param name="path">The desired path to the asset.</param>
-		protected override void Serialize(string path) => this.SerializeJson(path,new JsonGameObjectConverter()); // We will need state information, so we need a new converter every time (better than running Clean, b/c it becomes thread safe this way)
+		protected override void Serialize(string path, string root, bool overwrite_dependencies = false) => this.SerializeJson(path,new JsonGameObjectConverter()); // We will need state information, so we need a new converter every time (better than running Clean, b/c it becomes thread safe this way)
 
 		/// <summary>
 		/// Deserializes an asset from <paramref name="path"/>.
