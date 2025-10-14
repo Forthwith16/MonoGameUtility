@@ -129,6 +129,11 @@ namespace GameEngine.Utility.ExtensionMethods.SerializationExtensions
 		/// <param name="ops">The options to pass to the serializer.</param>
 		public static void SerializeJson<T>(this T value, string path, JsonSerializerOptions ops)
 		{
+			string? dir = Path.GetDirectoryName(path);
+			
+			if(dir is not null && dir != "")
+				Directory.CreateDirectory(dir);
+
 			using(FileStream fout = File.Create(path))
 				value.SerializeJson(fout,ops);
 
