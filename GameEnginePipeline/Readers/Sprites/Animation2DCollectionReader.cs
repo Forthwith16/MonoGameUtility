@@ -1,7 +1,7 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Resources.Sprites;
 using Microsoft.Xna.Framework.Content;
 
-using TRead = GameEngine.Assets.Sprites.Animation2DCollection;
+using TRead = GameEngine.Resources.Sprites.Animation2DCollection;
 
 namespace GameEnginePipeline.Readers.Sprites
 {

@@ -1,28 +1,27 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEnginePipeline.Assets.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// The details of a SpriteRenderer laid bare.
 	/// </summary>
 	[Asset(typeof(SpriteRenderer))]
-	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
-	public class SpriteRendererAsset : AssetBase
+	public partial class SpriteRendererAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
 		{
 			// We have no way of decompiling a shader, so we have to try to copy/paste it if possible
-			if(StandardShouldSerializeCheck(ShaderSource,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst) && ShaderSource.ConcreteAsset!.Name != "") // StandardShouldSerializeCheck does the null check on ShaderSource.ConcreteAsset for us
+			if(StandardShouldSerializeCheck(ShaderSource,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst) && ShaderSource.Resource!.Name != "") // StandardShouldSerializeCheck does the null check on ShaderSource.ConcreteAsset for us
 			{
-				string src = Path.GetFullPath(Path.Combine(root,ShaderSource.ConcreteAsset.Name));
+				string src = Path.GetFullPath(Path.Combine(root,ShaderSource.Resource.Name));
 
 				// We have no reason to perform identity copy/pastes
 				if(src != dst)
@@ -52,7 +51,11 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
 		public static SpriteRendererAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteRendererAsset>();
-
+	}
+	
+	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
+	public partial class SpriteRendererAsset : AssetBase
+	{
 		/// <summary>
 		/// The default constructor.
 		/// It sets every value to its default.

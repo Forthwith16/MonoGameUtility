@@ -1,24 +1,26 @@
-﻿using GameEngine.Assets;
+﻿using GameEngine.Resources;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace GameEnginePipeline.Serialization
+namespace GameEngine.Assets.Serialization
 {
 	/// <summary>
-	/// Represents the source of an asset in its myriad of forms.
+	/// Represents the source of an asset.
+	/// This can be an asset file on disc, it can be backed by a resource in memory, or both.
 	/// </summary>
-	/// <typeparam name="T">
-	/// The asset type that this is a source for.
+	/// <typeparam name="TResource">
+	/// The resource type that this is a source for.
 	/// We constrain this to be class types because, for one, they <b>should</b> be, and two, we would like to be able to assign null properly.
+	/// We do not, however, constrain this to <see cref="IResource"/> types because we have to permit MonoGame's resources to exist here as well.
 	/// </typeparam>
-	public class AssetSource<T> where T : class
+	public class AssetSource<TResource> where TResource : class
 	{
 		/// <summary>
 		/// Creates an asset source initialized to have no source.
 		/// </summary>
 		public AssetSource()
 		{
-			ConcreteAsset = null;
+			Resource = null;
 			RootPath = null;
 			RelativePath = null;
 
@@ -28,7 +30,7 @@ namespace GameEnginePipeline.Serialization
 		/// <summary>
 		/// Creates an asset source initialized to have <paramref name="asset"/> as its source material.
 		/// </summary>
-		public AssetSource(T? asset) : this()
+		public AssetSource(TResource? asset) : this()
 		{
 			SetConcretAsset(asset);
 			return;
@@ -42,7 +44,7 @@ namespace GameEnginePipeline.Serialization
 		/// <param name="relative_to">If null, this will have no effect. If not null, this will set <see cref="RelativePath"/> using this as the owning asset's directory.</param>
 		public AssetSource(string root_path, string? relative_to = null)
 		{
-			ConcreteAsset = null;
+			Resource = null;
 			RootPath = root_path;
 
 			if(relative_to is not null)
@@ -52,25 +54,25 @@ namespace GameEnginePipeline.Serialization
 		}
 
 		/// <summary>
-		/// Sets <see cref="ConcreteAsset"/> to <paramref name="asset"/>.
-		/// This will also set <see cref="RootPath"/> to the AssetName or Name of <paramref name="asset"/> if it is an IAsset or GraphicsResource respectively, prioritizing the former.
+		/// Sets <see cref="Resource"/> to <paramref name="resource"/>.
+		/// This will also set <see cref="RootPath"/> to the AssetName or Name of <paramref name="resource"/> if it is an IAsset or GraphicsResource respectively, prioritizing the former.
 		/// If this would assign the empty string to it (which denotes a missing path in concrete assets), then null is assigned instead.
 		/// In the process, this will invalidate <see cref="RelativePath"/> and set it to null.
 		/// </summary>
-		/// <param name="asset">The concrete asset to set to this. If null, this will invalidate both paths.</param>
-		public void SetConcretAsset(T? asset)
+		/// <param name="resource">The resource backing this asset source. If null, this will invalidate both paths.</param>
+		public void SetConcretAsset(TResource? resource)
 		{
-			ConcreteAsset = asset;
+			Resource = resource;
 
-			if(ConcreteAsset is null)
+			if(Resource is null)
 				RootPath = null;
 			else
 			{
-				if(ConcreteAsset is IAsset iasset)
-					RootPath = iasset.AssetName;
-				else if(ConcreteAsset is GraphicsResource gr)
+				if(Resource is IResource iasset)
+					RootPath = iasset.ResourceName;
+				else if(Resource is GraphicsResource gr)
 					RootPath = gr.Name; // We deprioritize this since Name may be inaccurate in some GraphicsResource assets (such as SpriteRenderer, unless something else has loaded it as a dependency and reassigned its Name)
-			
+				
 				// We denote missing paths in concrete assets with the empty string and so special case the assignment here
 				if(RootPath == "")
 					RootPath = null;
@@ -191,24 +193,24 @@ namespace GameEnginePipeline.Serialization
 				return RootPath;
 			else if(RelativePath is not null)
 				return RelativePath;
-			else if(ConcreteAsset is not null)
-				if(ConcreteAsset is IAsset asset)
-					return asset.AssetName;
-				else if(ConcreteAsset is GraphicsResource gr)
+			else if(Resource is not null)
+				if(Resource is IResource asset)
+					return asset.ResourceName;
+				else if(Resource is GraphicsResource gr)
 					return gr.Name;
 
 			return "";
 		}
 
 		/// <summary>
-		/// This is the concrete asset when present and null otherwise.
+		/// This is the resource backing this asset source when present and null otherwise.
 		/// </summary>
-		public T? ConcreteAsset
+		public TResource? Resource
 		{get; protected set;}
 
 		/// <summary>
 		/// This is the path from the content root to the asset (including the file name).
-		/// This is null when there is no known asset on the disc that this represents.
+		/// This is null when there is no known nor intended asset on the disc that this represents.
 		/// </summary>
 		/// <remarks>This path is not guaranteed to be in its simplest form.</remarks>
 		public string? RootPath
@@ -223,7 +225,7 @@ namespace GameEnginePipeline.Serialization
 
 		/// <summary>
 		/// This is the relative path to the asset (including the file name) source from whatever asset owns this.
-		/// This is null when there is no known relative path on the disc that this represents.
+		/// This is null when there is no known nor intended relative path on the disc that this represents.
 		/// </summary>
 		/// <remarks>This path is not guaranteed to be in its simplest form.</remarks>
 		public string? RelativePath
@@ -240,7 +242,7 @@ namespace GameEnginePipeline.Serialization
 		/// If true, then this source has no useful information whatsoever.
 		/// If false, then this source has at least one piece of information that can be utilized.
 		/// </summary>
-		public bool Null => Unnamed && ConcreteAsset is null;
+		public bool Null => Unnamed && Resource is null;
 
 		/// <summary>
 		/// If true, then this source has no name.

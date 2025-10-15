@@ -1,19 +1,18 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEnginePipeline.Assets.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// Contains the raw asset data of an animation collection.
 	/// </summary>
 	[Asset(typeof(Animation2DCollection))]
-	[JsonConverter(typeof(JsonAnimation2DCollectionAssetConverter))]
-	public class Animation2DCollectionAsset : AssetBase
+	public partial class Animation2DCollectionAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
 		{
@@ -21,7 +20,7 @@ namespace GameEnginePipeline.Assets.Sprites
 			for(int i = 0;i < Animations.Length;i++)
 				if(StandardShouldSerializeCheck(Animations[i].Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
 					try
-					{Asset.CreateAsset<Animation2DAsset>(Animations[i].Source.ConcreteAsset!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
+					{Asset.CreateAsset<Animation2DAsset>(Animations[i].Source.Resource!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
 					catch
 					{} // If something goes wrong, we don't want to crash horribly
 
@@ -44,7 +43,11 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
 		public static Animation2DCollectionAsset? Deserialize(string path) => path.DeserializeJsonFile<Animation2DCollectionAsset>();
-
+	}
+	
+	[JsonConverter(typeof(JsonAnimation2DCollectionAssetConverter))]
+	public partial class Animation2DCollectionAsset : AssetBase
+	{
 		/// <summary>
 		/// The default constructor.
 		/// It sets every value to its default.

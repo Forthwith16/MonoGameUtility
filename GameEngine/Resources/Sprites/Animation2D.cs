@@ -6,7 +6,7 @@ using GameEngine.Time;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Assets.Sprites
+namespace GameEngine.Resources.Sprites
 {
 	/// <summary>
 	/// Encapsulates sprite-based animation.
@@ -14,7 +14,7 @@ namespace GameEngine.Assets.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2D : GameObject, IAsset, IObservable<TimeEvent>
+	public class Animation2D : GameObject, IResource, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Instantiates a new instance of <paramref name="a"/> as an Animation2D.
@@ -27,7 +27,7 @@ namespace GameEngine.Assets.Sprites
 				throw new AnimationFormatException("The provided Animation did not represent an Animation2D");
 
 			// Grab the asset name
-			AssetName = a.AssetName;
+			ResourceName = a.ResourceName;
 
 			// Remmber where we come from
 			SourceData = a;
@@ -64,7 +64,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="a">The animation to clone.</param>
 		public Animation2D(Animation2D a) : base(a)
 		{
-			AssetName = a.AssetName;
+			ResourceName = a.ResourceName;
 			SourceData = a.SourceData;
 			Source = a.Source;
 
@@ -252,7 +252,7 @@ namespace GameEngine.Assets.Sprites
 			set => Clock.Loop(value);
 		}
 
-		public string AssetName
+		public string ResourceName
 		{get;}
 	}
 

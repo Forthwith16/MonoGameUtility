@@ -1,11 +1,10 @@
-﻿using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
+﻿using GameEngine.Assets.Framework;
+using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Assets;
-using GameEnginePipeline.Assets.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEnginePipeline.Serialization.Framework
+namespace GameEngine.Assets.Serialization.Framework
 {
 	/// <summary>
 	/// Converts game objects to/from JSON.
@@ -122,16 +121,6 @@ namespace GameEnginePipeline.Serialization.Framework
 			base.Write(writer,value,ops);
 
 			writer.WriteEndObject();
-
-			return;
-		}
-
-		/// <summary>
-		/// Prepares this converter to convert a new game object, starting from scratch.
-		/// </summary>
-		public void Clean()
-		{
-
 
 			return;
 		}

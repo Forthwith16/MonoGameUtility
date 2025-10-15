@@ -1,8 +1,8 @@
 ﻿using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
-using TAsset = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
-using TRead = GameEngine.Assets.Sprites.Animation2DCollection;
+using TAsset = GameEngine.Assets.Sprites.Animation2DCollectionAsset;
+using TRead = GameEngine.Resources.Sprites.Animation2DCollection;
 using TReader = GameEnginePipeline.Readers.Sprites.Animation2DCollectionReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 

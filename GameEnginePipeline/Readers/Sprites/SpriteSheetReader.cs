@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-using TRead = GameEngine.Assets.Sprites.SpriteSheet;
+using TRead = GameEngine.Resources.Sprites.SpriteSheet;
 
 namespace GameEnginePipeline.Readers.Sprites
 {

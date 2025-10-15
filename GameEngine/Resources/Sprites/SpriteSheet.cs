@@ -1,14 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Assets.Sprites
+namespace GameEngine.Resources.Sprites
 {
 	/// <summary>
 	/// Encapsulates a sprite sheet drawn from a single texture.
 	/// <para/>
 	/// This class should be created via a ContentManager.
 	/// </summary>
-	public class SpriteSheet : IAsset
+	public class SpriteSheet : IResource
 	{
 		/// <summary>
 		/// Creates a new sprite sheet with <paramref name="source"/> as the source texture and <paramref name="sprites"/> specifying the source rectangle for each sprite in the sprite sheet.
@@ -18,7 +18,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>. The contents of this will be copied and this variable discarded.</param>
 		public SpriteSheet(string name, Texture2D source, IEnumerable<Rectangle> sprites)
 		{
-			AssetName = name;
+			ResourceName = name;
 			Source = source;
 			
 			_sprites = new List<Rectangle>(sprites);
@@ -47,7 +47,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		public int Count => _sprites.Count;
 
-		public string AssetName
+		public string ResourceName
 		{get;}
 	}
 }

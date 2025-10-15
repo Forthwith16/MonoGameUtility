@@ -1,7 +1,7 @@
-﻿using GameEnginePipeline.Assets.Sprites;
+﻿using GameEngine.Assets.Sprites;
 using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using TAsset = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
+using TAsset = GameEngine.Assets.Sprites.Animation2DCollectionAsset;
 using TInput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 

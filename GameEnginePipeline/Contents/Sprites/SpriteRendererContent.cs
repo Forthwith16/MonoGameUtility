@@ -1,4 +1,4 @@
-﻿using GameEnginePipeline.Assets.Sprites;
+﻿using GameEngine.Assets.Sprites;
 
 namespace GameEnginePipeline.Contents.Sprites
 {

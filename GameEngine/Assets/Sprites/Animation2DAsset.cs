@@ -1,31 +1,29 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Assets.Serialization;
 using GameEngine.Framework;
+using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Readers.Sprites;
-using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEnginePipeline.Assets.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// Contains the base raw asset data of an Animation2D.
 	/// </summary>
 	[Asset(typeof(Animation))]
 	[Asset(typeof(Animation2D))]
-	[JsonConverter(typeof(JsonAnimation2DAssetConverter))]
-	public class Animation2DAsset : BaseAnimationAsset<Animation2DAsset>
+	public partial class Animation2DAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
 		{
 			// If our source sprite sheet doesn't exist where we expect it to, write it out to that location (if we have it)
 			if(StandardShouldSerializeCheck(Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
 				try
-				{Asset.CreateAsset<SpriteSheetAsset>(Source.ConcreteAsset!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
+				{Asset.CreateAsset<SpriteSheetAsset>(Source.Resource!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
 				catch
 				{} // If something goes wrong, we don't want to crash horribly
 
@@ -40,7 +38,11 @@ namespace GameEnginePipeline.Assets.Sprites
 			StandardAssetSourcePathAdjustment(Source,path,Source.Unnamed ? GenerateFreeFile(Path.Combine(root,path),".ss") : "");
 			return;
 		}
-
+	}
+	
+	[JsonConverter(typeof(JsonAnimation2DAssetConverter))]
+	public partial class Animation2DAsset : BaseAnimationAsset<Animation2DAsset>
+	{
 		/// <summary>
 		/// Creates a Animation2D with garbage values.
 		/// </summary>

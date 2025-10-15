@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 
-using TAsset = GameEnginePipeline.Assets.Sprites.SpriteRendererAsset;
+using TAsset = GameEngine.Assets.Sprites.SpriteRendererAsset;
 using TInput = GameEnginePipeline.Contents.Sprites.SpriteRendererContent;
 using TOutput = GameEnginePipeline.Contents.Sprites.SpriteRendererContent;
 

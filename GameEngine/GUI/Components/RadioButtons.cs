@@ -1,4 +1,4 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Resources.Sprites;
 using GameEngine.DataStructures.Grid;
 using GameEngine.Events;
 using GameEngine.GameObjects;

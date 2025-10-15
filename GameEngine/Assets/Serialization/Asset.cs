@@ -1,8 +1,7 @@
-﻿using GameEnginePipeline.Assets;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace GameEnginePipeline.Serialization
+namespace GameEngine.Assets.Serialization
 {
 	/// <summary>
 	/// The asset attribute tag.
@@ -17,8 +16,7 @@ namespace GameEnginePipeline.Serialization
 	/// This will allow for serialization from type <c>T</c> to type <c>A</c> without knowledge of either type.
 	/// If this constructor is not present, this will fail to generate an entry in this class for such construction.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Class,AllowMultiple = true,Inherited = false)]
-	public class Asset : Attribute
+	public partial class Asset
 	{
 		/// <summary>
 		/// Constructs the asset double dictionary.
@@ -53,6 +51,27 @@ namespace GameEnginePipeline.Serialization
 			catch
 			{return null;}
 		}
+
+
+
+
+
+
+		// We need a CreateAsset that will let us take in a concrete type and figure out what its output asset type should be
+		// To do this, we need an attribute on concrete objects that provides a fully qualified type as a string, which we can then turn into an asset type at runtime to fetch the output type
+		// Then we can just provide a raw object and have it spit out an AssetBase (or some generic output type) ig in CreateAsset<A>
+		// This would mean we no longer have to provide the Asset attribute on this side on asset classes, since the concrete classes will specify that going forward
+		//// That said, it could still be useful to specify on this side, however, since we'll eventually want to go from assets back to concrete objects, and we could repurpose this system to tell us how to go back (or rather the ways in which we are allowed to go back)
+		
+		// Then again, maybe it would be better to just move the Assets folder (and put the Serialization folder in it) to GameEngine
+		//// We could give Asset an enum flag (of only 2 distinct values) for if it's a concrete asset or an asset
+		//// This is probably better overall and avoids us having to wrangle magic strings
+
+
+
+
+
+
 
 		/// <summary>
 		/// Determines if a concrete object of type <paramref name="concrete_type"/> can be converted into an asset of type <paramref name="asset_type"/>.
@@ -111,10 +130,13 @@ namespace GameEnginePipeline.Serialization
 		/// The value, then, is the constructor that makes an asset from the raw type.
 		/// </summary>
 		private static Dictionary<Type,Dictionary<Type,ConstructorInfo>> AssetInfo;
+	}
 
-		#region Nonstatic Definition
+	[AttributeUsage(AttributeTargets.Class,AllowMultiple = true,Inherited = false)]
+	public partial class Asset : Attribute
+	{
 		/// <summary>
-		/// Denote a type as an asset which can be used to construct a concrete game type.
+		/// Denotes a type as an asset which can be used to construct a concrete game type.
 		/// </summary>
 		/// <param name="concrete_type">The concrete game type this asset can be turned into.</param>
 		public Asset(Type concrete_type)
@@ -128,6 +150,5 @@ namespace GameEnginePipeline.Serialization
 		/// </summary>
 		public Type AssetConcreteType
 		{get;}
-		#endregion
 	}
 }

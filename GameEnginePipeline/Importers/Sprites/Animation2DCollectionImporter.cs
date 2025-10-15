@@ -1,9 +1,9 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources.Sprites;
 using GameEnginePipeline.Processors.Sprites;
-using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework.Content.Pipeline;
 
-using TInput = GameEnginePipeline.Assets.Sprites.Animation2DCollectionAsset;
+using TInput = GameEngine.Assets.Sprites.Animation2DCollectionAsset;
 using TOutput = GameEnginePipeline.Contents.Sprites.Animation2DCollectionContent;
 
 namespace GameEnginePipeline.Importers.Sprites

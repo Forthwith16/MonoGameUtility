@@ -28,7 +28,4 @@
   <ItemGroup>
     <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\GameObjects\" />
-  </ItemGroup>
 </Project>

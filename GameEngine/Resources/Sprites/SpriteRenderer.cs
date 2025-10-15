@@ -2,12 +2,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Assets.Sprites
+namespace GameEngine.Resources.Sprites
 {
 	/// <summary>
 	/// An extended version of a sprite
 	/// </summary>
-	public class SpriteRenderer : SpriteBatch, IAsset
+	public class SpriteRenderer : SpriteBatch, IResource
 	{
 		/// <summary>
 		/// Creates a sprite renderer with no name.
@@ -15,7 +15,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="g">The graphics device used to draw with.</param>
 		public SpriteRenderer(GraphicsDevice g) : base(g)
 		{
-			AssetName = "";
+			ResourceName = "";
 
 			Order = SpriteSortMode.BackToFront;
 			Blend = BlendState.NonPremultiplied;
@@ -34,7 +34,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="g">The graphics device used to draw with.</param>
 		public SpriteRenderer(string name, GraphicsDevice g) : base(g)
 		{
-			AssetName = name;
+			ResourceName = name;
 
 			Order = SpriteSortMode.BackToFront;
 			Blend = BlendState.NonPremultiplied;
@@ -53,7 +53,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="other">The SpriteRenderer to copy.</param>
 		public SpriteRenderer(SpriteRenderer other) : base(other.GraphicsDevice)
 		{
-			AssetName = other.AssetName;
+			ResourceName = other.ResourceName;
 
 			Order = other.Order;
 			Blend = other.Blend;
@@ -193,7 +193,7 @@ namespace GameEngine.Assets.Sprites
 		public Matrix? Transform
 		{get; set;}
 
-		public string AssetName
+		public string ResourceName
 		{get;}
 	}
 }

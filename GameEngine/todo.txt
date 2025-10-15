@@ -1,5 +1,13 @@
 ﻿Programming Todo
 ----------------
+Move the Deserialize methods to Asset as a LoadAssetFromDisc method (or something to that effect) and have the content classes go through Asset.
+-Centralization is the best
+-Each one is also identical, differing only in what type we stuff into the generic parameter
+--We can do some reflection to disallow incorrect classes
+
+
+
+
 GameObjects and such, like Animations and such, should not be serializable, but there should be a way to pass them off to an asset constructor to turn them into something we can serialize conveniently
 -Instantiate should still be a thing though
 -This also makes it clear how level editors work, since we can just modify pure asset data with public get/set power

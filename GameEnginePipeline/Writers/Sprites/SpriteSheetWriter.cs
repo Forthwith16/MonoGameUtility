@@ -2,8 +2,8 @@
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
-using TAsset = GameEnginePipeline.Assets.Sprites.SpriteSheetAsset;
-using TRead = GameEngine.Assets.Sprites.SpriteSheet;
+using TAsset = GameEngine.Assets.Sprites.SpriteSheetAsset;
+using TRead = GameEngine.Resources.Sprites.SpriteSheet;
 using TReader = GameEnginePipeline.Readers.Sprites.SpriteSheetReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.SpriteSheetContent;
 

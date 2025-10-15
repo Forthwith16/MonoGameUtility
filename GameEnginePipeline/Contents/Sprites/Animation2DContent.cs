@@ -1,4 +1,4 @@
-﻿using GameEnginePipeline.Assets.Sprites;
+﻿using GameEngine.Assets.Sprites;
 using GameEnginePipeline.Readers.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
 

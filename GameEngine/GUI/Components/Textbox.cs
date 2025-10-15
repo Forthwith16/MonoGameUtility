@@ -1,6 +1,6 @@
 ﻿#pragma warning disable IDE0090 // Not a big fan of omitting types in new declarations
 
-using GameEngine.Assets.Sprites;
+using GameEngine.Resources.Sprites;
 using GameEngine.Events;
 using GameEngine.Framework;
 using GameEngine.GameObjects;

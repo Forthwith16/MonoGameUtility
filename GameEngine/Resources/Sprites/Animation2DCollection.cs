@@ -4,7 +4,7 @@ using GameEngine.Exceptions;
 using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 
-namespace GameEngine.Assets.Sprites
+namespace GameEngine.Resources.Sprites
 {
 	/// <summary>
 	/// An Animation2DCollection groups a fixed set of animations together, each under a unique name (although the animations underneath each name may be identical).
@@ -15,7 +15,7 @@ namespace GameEngine.Assets.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2DCollection : GameObject, IAsset, IObservable<TimeEvent>
+	public class Animation2DCollection : GameObject, IResource, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
@@ -40,7 +40,7 @@ namespace GameEngine.Assets.Sprites
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="idle_animation"/> is not an animation in this collection.</exception>
 		public Animation2DCollection(string name, IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base()
 		{
-			AssetName = name;
+			ResourceName = name;
 
 			Animations = new AbsorbingDictionary<string,Animation2D>();
 
@@ -76,7 +76,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="c">The animation collection to copy.</param>
 		public Animation2DCollection(Animation2DCollection c) : base(c)
 		{
-			AssetName = c.AssetName;
+			ResourceName = c.ResourceName;
 
 			Animations = new AbsorbingDictionary<string,Animation2D>(c.Animations.Select(p => new KeyValuePair<string,Animation2D>(p.Key,new Animation2D(p.Value))));
 
@@ -230,7 +230,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		public event AnimationSwap AnimationSwapped;
 
-		public string AssetName
+		public string ResourceName
 		{get;}
 
 		/// <summary>

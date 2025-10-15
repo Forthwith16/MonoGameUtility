@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 // Be sure to change the JSON converter's read type below as well
 using AssetIDType = uint;
 
-namespace GameEnginePipeline.Assets
+namespace GameEngine.Assets
 {
 	/// <summary>
 	/// A struct wrapper for asset IDs.

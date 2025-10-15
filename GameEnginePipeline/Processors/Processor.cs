@@ -1,4 +1,4 @@
-﻿using GameEnginePipeline.Assets;
+﻿using GameEngine.Assets;
 using Microsoft.Xna.Framework.Content.Pipeline;
 
 namespace GameEnginePipeline.Processors

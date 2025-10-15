@@ -1,4 +1,4 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Resources.Sprites;
 using GameEngine.DataStructures.Absorbing;
 using GameEngine.Framework;
 using GameEngine.Utility.ExtensionMethods.InterfaceFunctions;

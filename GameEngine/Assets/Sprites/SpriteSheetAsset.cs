@@ -1,21 +1,20 @@
-﻿using GameEngine.Assets.Sprites;
+﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using GameEnginePipeline.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GameEnginePipeline.Assets.Sprites
+namespace GameEngine.Assets.Sprites
 {
 	/// <summary>
 	/// Contains the raw asset data of an sprite sheet.
 	/// </summary>
 	[Asset(typeof(SpriteSheet))]
-	[JsonConverter(typeof(JsonSpriteSheetAssetConverter))]
-	public class SpriteSheetAsset : AssetBase
+	public partial class SpriteSheetAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
 		{
@@ -26,7 +25,7 @@ namespace GameEnginePipeline.Assets.Sprites
 					Directory.CreateDirectory(Path.GetDirectoryName(dst) ?? "");
 
 					using(FileStream fout = new FileStream(dst,FileMode.OpenOrCreate))
-						Source.ConcreteAsset!.SaveAsPng(fout,Source.ConcreteAsset.Width,Source.ConcreteAsset.Height);
+						Source.Resource!.SaveAsPng(fout,Source.Resource.Width,Source.Resource.Height);
 				}
 				catch
 				{} // If something goes wrong, we don't want to crash horribly
@@ -48,7 +47,11 @@ namespace GameEnginePipeline.Assets.Sprites
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
 		public static SpriteSheetAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
-		
+	}
+
+	[JsonConverter(typeof(JsonSpriteSheetAssetConverter))]
+	public partial class SpriteSheetAsset : AssetBase
+	{
 		/// <summary>
 		/// The default constructor.
 		/// It sets every value to its default.

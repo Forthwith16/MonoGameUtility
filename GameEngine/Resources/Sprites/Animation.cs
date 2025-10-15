@@ -2,12 +2,12 @@
 using GameEngine.Maths;
 using System.Collections;
 
-namespace GameEngine.Assets.Sprites
+namespace GameEngine.Resources.Sprites
 {
 	/// <summary>
 	/// Encapsulates an animation.
 	/// </summary>
-	public class Animation : IAsset
+	public class Animation : IResource
 	{
 		/// <summary>
 		/// Creates an Animation that represents an Animation2D.
@@ -24,7 +24,7 @@ namespace GameEngine.Assets.Sprites
 		/// <exception cref="AnimationFormatException">Thrown if the provided information does not fully define an Animation2D.</exception>
 		public Animation(string name, SpriteSheet src, IEnumerable<float> frame_lens, IEnumerable<int> tex_index, IEnumerable<Matrix2D> transformations, float start = 0.0f, bool loop = false, float loop_start = 0.0f, float loop_end = float.MaxValue)
 		{
-			AssetName = name;
+			ResourceName = name;
 			Source = src;
 			IsAnimation2D = true;
 
@@ -187,7 +187,7 @@ namespace GameEngine.Assets.Sprites
 		{get;}
 		#endregion
 
-		public string AssetName
+		public string ResourceName
 		{get;}
 	}
 }

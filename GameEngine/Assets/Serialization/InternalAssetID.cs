@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 // Be sure to change the JSON converter's read type below as well
 using InternalAssetIDType = uint;
 
-namespace GameEnginePipeline.Serialization
+namespace GameEngine.Assets.Serialization
 {
 	/// <summary>
 	/// A struct wrapper for (internal use only) asset IDs.
@@ -31,7 +31,7 @@ namespace GameEnginePipeline.Serialization
 		/// </summary>
 		/// <param name="id">The raw ID value.</param>
 		/// <remarks>
-		///	The intended way to obtain new IDs is to call <see cref="GetFreshID(IAsset)"/>.
+		///	The intended way to obtain new IDs is to call <see cref="GetFreshID(IResource)"/>.
 		///	This is used for creating dummy IDs to search for things or store information.
 		/// </remarks>
 		public InternalAssetID(InternalAssetIDType id)

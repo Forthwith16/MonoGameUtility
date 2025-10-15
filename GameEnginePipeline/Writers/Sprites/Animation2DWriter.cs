@@ -1,8 +1,8 @@
-﻿using GameEnginePipeline.Assets.Sprites;
+﻿using GameEngine.Assets.Sprites;
 using GameEnginePipeline.Contents.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 
-using TRead = GameEngine.Assets.Sprites.Animation;
+using TRead = GameEngine.Resources.Sprites.Animation;
 using TReader = GameEnginePipeline.Readers.Sprites.AnimationReader;
 using TWrite = GameEnginePipeline.Contents.Sprites.Animation2DContent;
 
@@ -22,7 +22,7 @@ namespace GameEnginePipeline.Writers.Sprites
 		protected override void Write(ContentWriter cout, TWrite value)
 		{
 			// First write out what kind of animation the reader must deal with
-			cout.Write((int)value.Type);
+			cout.Write(value.Type);
 
 			// Next output the animation's name
 			cout.Write(value.Name);

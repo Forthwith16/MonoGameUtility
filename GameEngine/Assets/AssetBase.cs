@@ -1,7 +1,7 @@
-﻿using GameEnginePipeline.Serialization;
+﻿using GameEngine.Assets.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
-namespace GameEnginePipeline.Assets
+namespace GameEngine.Assets
 {
 	/// <summary>
 	/// This is the base class for assets.
@@ -200,7 +200,7 @@ namespace GameEnginePipeline.Assets
 		/// <summary>
 		/// Generates a path to a file (including the filename) that does not exist.
 		/// </summary>
-		/// <param name="destination">The path to the directory to generate a file in. This can be any valid path, but generally, this should be relative to the content root.</param>
+		/// <param name="destination">The path to the directory to generate a file in. This may be absolute or relative to the working directory.</param>
 		/// <param name="extension">The extension to give the file.</param>
 		/// <returns>Returns the filename (and only the filename without <paramref name="destination"/> prepended) generated.</returns>
 		protected string GenerateFreeFile(string destination, string extension)
@@ -239,7 +239,7 @@ namespace GameEnginePipeline.Assets
 		/// <returns>Returns true if <paramref name="source"/> should be serialized and false otherwise.</returns>
 		public bool StandardShouldSerializeCheck<T>(AssetSource<T> source, string path, bool overwrite_dependencies, [MaybeNullWhen(false)] out string dst) where T : class
 		{
-			if(source.ConcreteAsset is null || !source.GetFullPathFromAssetDirectory(path,out string? source_path) || !overwrite_dependencies && File.Exists(source_path))
+			if(source.Resource is null || !source.GetFullPathFromAssetDirectory(path,out string? source_path) || !overwrite_dependencies && File.Exists(source_path))
 			{
 				dst = null;
 				return false;
@@ -273,6 +273,10 @@ namespace GameEnginePipeline.Assets
 		/// A list of supporting arguments to enable the linkage to proceed.
 		/// What values appear here, if any, are entirely implementation dependent.
 		/// </param>
+		/// <exception cref="LinkException">
+		/// Thrown if something goes wrong in the link process.
+		/// Generally speaking, it is better to fail spectacularly during linking rather than to fail silently.
+		/// </exception>
 		protected void Link(params object?[] args)
 		{
 			if(Linked)
@@ -292,6 +296,10 @@ namespace GameEnginePipeline.Assets
 		/// A list of supporting arguments to enable the linkage to proceed.
 		/// What values appear here, if any, are entirely implementation dependent.
 		/// </param>
+		/// <exception cref="LinkException">
+		/// Thrown if something goes wrong in the link process.
+		/// Generally speaking, it is better to fail spectacularly during linking rather than to fail silently.
+		/// </exception>
 		protected virtual void LinkAssets(params object?[] args)
 		{return;}
 

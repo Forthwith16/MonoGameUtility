@@ -1,9 +1,9 @@
 ﻿using GameEngine.Assets.Sprites;
 using GameEngine.Maths;
+using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using Microsoft.Xna.Framework.Content;
-
-using TRead = GameEngine.Assets.Sprites.Animation;
+using TRead = GameEngine.Resources.Sprites.Animation;
 
 namespace GameEnginePipeline.Readers.Sprites
 {
@@ -25,9 +25,9 @@ namespace GameEnginePipeline.Readers.Sprites
 			// We insist that Animations are unique for each source (which will then be instantiated for real later)
 			if(existingInstance is not null)
 				return existingInstance;
-
+			
 			// First determine what type of animation we're reading
-			switch((AnimationType)cin.ReadInt32())
+			switch(cin.ReadEnum<AnimationType>())
 			{
 			case AnimationType.Animation2D:
 				return ReadAnimation2D(cin);
@@ -77,13 +77,5 @@ namespace GameEnginePipeline.Readers.Sprites
 			// We now have everything so we'll call it a day
 			return new TRead(name,source,lens,indices,trans,start,loops,loop_start,loop_end);
 		}
-	}
-
-	/// <summary>
-	/// The types of animation that we can load.
-	/// </summary>
-	public enum AnimationType
-	{
-		Animation2D
 	}
 }
