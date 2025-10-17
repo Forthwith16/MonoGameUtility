@@ -1,154 +1,65 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using GameEngine.Resources;
 
 namespace GameEngine.Assets.Serialization
 {
-	/// <summary>
-	/// The asset attribute tag.
-	/// This denote that a class is an asset version of a more proper object for a game.
-	/// <para/>
-	/// This attribute takes a single Type parameter (call this type <c>T</c>) specifying what the proper object version of the asset class is.
-	/// It will use type <c>T</c> to construct assets from proper objects.
-	/// <para/>
-	/// This attribute can only be applied to assets.
-	/// It will silently enforce that the class it's attached to (call this type <c>A</c>) derives from AssetBase.
-	/// It will also silently enforce that <c>A</c> has a constructor available requiring only a single parameter of type <c>T</c> at runtime.
-	/// This will allow for serialization from type <c>T</c> to type <c>A</c> without knowledge of either type.
-	/// If this constructor is not present, this will fail to generate an entry in this class for such construction.
-	/// </summary>
-	public partial class Asset
-	{
-		/// <summary>
-		/// Constructs the asset double dictionary.
-		/// </summary>
-		static Asset()
-		{
-			AssetInfo = new Dictionary<Type,Dictionary<Type,ConstructorInfo>>();
-			return;
-		}
-
-		/// <summary>
-		/// Creates an asset from a raw game type.
-		/// </summary>
-		/// <typeparam name="A">The asset type to produce.</typeparam>
-		/// <param name="raw">The raw game object to turn into an asset.</param>
-		/// <returns>Returns the asset created or null if no asset could be produced from <paramref name="raw"/>.</returns>
-		public static A? CreateAsset<A>(object raw) where A : AssetBase
-		{
-			Type a = typeof(A);
-
-			// The first thing to do is check if type A is a type we know about
-			if(!AssetInfo.TryGetValue(a,out Dictionary<Type,ConstructorInfo>? raw_info))
-				if(!LoadType(a,out raw_info))
-					return null;
-
-			// At this point, we know at least something about A, but it remains to show if we know something useful about A
-			if(!raw_info.TryGetValue(raw.GetType(),out ConstructorInfo? a_info))
-				return null; // We know nothing about turning raw into an A asset
-
-			try
-			{return (A)a_info.Invoke([raw]);}
-			catch
-			{return null;}
-		}
-
-
-
-
-
-
-		// We need a CreateAsset that will let us take in a concrete type and figure out what its output asset type should be
-		// To do this, we need an attribute on concrete objects that provides a fully qualified type as a string, which we can then turn into an asset type at runtime to fetch the output type
-		// Then we can just provide a raw object and have it spit out an AssetBase (or some generic output type) ig in CreateAsset<A>
-		// This would mean we no longer have to provide the Asset attribute on this side on asset classes, since the concrete classes will specify that going forward
-		//// That said, it could still be useful to specify on this side, however, since we'll eventually want to go from assets back to concrete objects, and we could repurpose this system to tell us how to go back (or rather the ways in which we are allowed to go back)
-		
-		// Then again, maybe it would be better to just move the Assets folder (and put the Serialization folder in it) to GameEngine
-		//// We could give Asset an enum flag (of only 2 distinct values) for if it's a concrete asset or an asset
-		//// This is probably better overall and avoids us having to wrangle magic strings
-
-
-
-
-
-
-
-		/// <summary>
-		/// Determines if a concrete object of type <paramref name="concrete_type"/> can be converted into an asset of type <paramref name="asset_type"/>.
-		/// </summary>
-		/// <param name="concrete_type">The concrete type to turn into an asset type.</param>
-		/// <param name="asset_type">The asset type to create from <paramref name="concrete_type"/>.</param>
-		/// <returns>Returns true if the conversion is possible and false otherwise.</returns>
-		public static bool CanCreateAsset(Type concrete_type, Type asset_type)
-		{
-			// Get or load and get the information for asset_type
-			if(!AssetInfo.TryGetValue(asset_type,out Dictionary<Type,ConstructorInfo>? raw_info))
-				if(!LoadType(asset_type,out raw_info))
-					return false;
-
-			return raw_info.ContainsKey(concrete_type);
-		}
-
-		/// <summary>
-		/// Loads asset info for type <paramref name="asset_type"/>.
-		/// </summary>
-		/// <param name="asset_type">The asset type to load info for.</param>
-		/// <param name="raw_info">The asset information loaded when this returns true or null when this returns false.</param>
-		/// <returns>Returns true if <paramref name="asset_type"/> was a valid asset type and something was loaded for it and false otherwise.</returns>
-		protected static bool LoadType(Type asset_type, [MaybeNullWhen(false)] out Dictionary<Type,ConstructorInfo> raw_info)
-		{
-			// We've never heard of asset_type, so let's learn about it
-			raw_info = new Dictionary<Type,ConstructorInfo>();
-
-			// asset_type may have multiple Asset attributes, and we need to document each one
-			foreach(Asset asset in asset_type.GetCustomAttributes<Asset>())
-			{
-				// We accept asset_type as an asset if A has a constructor that takes just the concrete type
-				ConstructorInfo? c_info = asset_type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,[asset.AssetConcreteType]);
-
-				if(c_info is not null)
-					raw_info[asset.AssetConcreteType] = c_info;
-			}
-
-			// If we learned nothing, we're done
-			if(raw_info.Count == 0)
-			{
-				raw_info = null;
-				return false;
-			}
-
-			// Otherwise, we learned SOMETHING and should remember it for later
-			AssetInfo[asset_type] = raw_info;
-
-			return true;
-		}
-
-		/// <summary>
-		/// The information required to build assets from concrete objects.
-		/// The first index is the asset type.
-		/// The second index is the concrete type.
-		/// The value, then, is the constructor that makes an asset from the raw type.
-		/// </summary>
-		private static Dictionary<Type,Dictionary<Type,ConstructorInfo>> AssetInfo;
-	}
 
 	[AttributeUsage(AttributeTargets.Class,AllowMultiple = true,Inherited = false)]
-	public partial class Asset : Attribute
+	public class Asset : Attribute
 	{
 		/// <summary>
-		/// Denotes a type as an asset which can be used to construct a concrete game type.
+		/// Denotes a type as an asset which can be used to construct a resource type.
 		/// </summary>
-		/// <param name="concrete_type">The concrete game type this asset can be turned into.</param>
-		public Asset(Type concrete_type)
+		/// <param name="resource_type">The resource type this asset can be turned into.</param>
+		/// <param name="converter">
+		/// This is a method that transforms resources into assets.
+		/// This should transform resources of type <paramref name="resource_type"/> (or further derived) into assets of some appropriate asset type that inherits from <see cref="AssetBase"/>.
+		/// The actual output type only matters into so far as it can be assigned to whatever generic type is specified by an Asset static method.
+		/// </param>
+		/// <param name="loader">
+		/// This is a method that loads an asset from the disc into memory given a path to it.
+		/// </param>
+		public Asset(Type resource_type, ResourceToAssetConverter converter, AssetLoadFromDisc loader)
 		{
-			AssetConcreteType = concrete_type;
+			ResourceType = resource_type;
+			RToAConverter = converter;
+			Loader = loader;
+
 			return;
 		}
 
 		/// <summary>
-		/// This is the concrete type that this asset can become.
+		/// This is the resource type that this asset can become.
 		/// </summary>
-		public Type AssetConcreteType
+		public Type ResourceType
+		{get;}
+
+		/// <summary>
+		/// Converts resources into assets.
+		/// </summary>
+		public ResourceToAssetConverter RToAConverter
+		{get;}
+
+		/// <summary>
+		/// The method that loads an asset from the disc.
+		/// </summary>
+		public AssetLoadFromDisc Loader
 		{get;}
 	}
+
+	/// <summary>
+	/// Represents a method that transforms a resource into an asset.
+	/// </summary>
+	/// <param name="r">The resource to transform into an asset.</param>
+	/// <returns>Returns an asset derived from <paramref name="r"/> if possible and null otherwise.</returns>
+	public delegate AssetBase? ResourceToAssetConverter(IResource r);
+
+	/// <summary>
+	/// Represents a method that loads an asset from disc into memory.
+	/// </summary>
+	/// <param name="path">
+	/// A valid path to the asset (including the filename and extension).
+	/// This can be relative to the working directory or absolute.
+	/// </param>
+	/// <returns>Returns the asset laoded or null if something went wrong.</returns>
+	public delegate AssetBase? AssetLoadFromDisc(string path);
 }
