@@ -7,7 +7,7 @@ namespace GameEngine.Assets.Sprites
 	/// </summary>
 	public abstract partial class BaseAnimationAsset<TSelf> where TSelf : BaseAnimationAsset<TSelf>
 	{
-		public static TSelf? Deserialize(string path, bool overwrite_dependencies = false) => path.DeserializeJsonFile<TSelf>();
+		public static TSelf? FromFile(string path) => path.DeserializeJsonFile<TSelf>();
 	}
 
 	public abstract partial class BaseAnimationAsset<TSelf> : AssetBase where TSelf : BaseAnimationAsset<TSelf>

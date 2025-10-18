@@ -15,7 +15,7 @@ namespace GameEnginePipeline.Importers.Sprites
 	public class Animation2DCollectionImporter : Importer<TInput,TOutput>
 	{
 		protected override TInput? Deserialize(string path)
-		{return TInput.Deserialize(path);}
+		{return TInput.FromFile(path);}
 
 		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{

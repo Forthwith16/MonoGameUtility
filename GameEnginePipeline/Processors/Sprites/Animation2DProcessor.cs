@@ -29,7 +29,7 @@ namespace GameEnginePipeline.Processors.Sprites
 
 			int i = 0;
 
-			foreach(float d in asset.Frames.Select((value,index) => value.Duration))
+			foreach(float d in asset.Frames.Select(value => value.Duration))
 			{
 				segs[++i] = segs[i - 1] + d;
 

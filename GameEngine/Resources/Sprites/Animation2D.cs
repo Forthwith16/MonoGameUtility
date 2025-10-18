@@ -1,4 +1,6 @@
-﻿using GameEngine.Events;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.Sprites;
+using GameEngine.Events;
 using GameEngine.Exceptions;
 using GameEngine.Framework;
 using GameEngine.Maths;
@@ -75,6 +77,15 @@ namespace GameEngine.Resources.Sprites
 
 			return;
 		}
+
+		/// <summary>
+		/// Implicitly converts <paramref name="a"/> into an Animation2D.
+		/// </summary>
+		/// <param name="a"></param>
+		/// <exception cref="AnimationFormatException">Thrown if <paramref name="a"/> does not define an Animation2D.</exception>
+		public static implicit operator Animation2D(Animation a) => new Animation2D(a);
+
+		AssetBase? IResource.ToAsset() => new Animation2DAsset(this);
 
 		public override void Initialize()
 		{

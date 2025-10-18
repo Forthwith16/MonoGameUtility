@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.Sprites;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Resources.Sprites
@@ -24,6 +26,8 @@ namespace GameEngine.Resources.Sprites
 			_sprites = new List<Rectangle>(sprites);
 			return;
 		}
+
+		AssetBase? IResource.ToAsset() => new SpriteSheetAsset(this);
 
 		/// <summary>
 		/// The source texture of the sprites.

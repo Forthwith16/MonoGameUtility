@@ -1,4 +1,6 @@
 ﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources;
+using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GameEngine.Assets
@@ -103,6 +105,60 @@ namespace GameEngine.Assets
 
 		public override int GetHashCode() => ContentID.GetHashCode();
 		public override string ToString() => ContentID.ToString();
+
+		/// <summary>
+		/// Converts this asset into an instance of its resource form.
+		/// </summary>
+		/// <param name="g">The GraphicsDevice to instantiate with or null if not provided.</param>
+		/// <returns>
+		/// Returns a resource instantiation of this asset.
+		/// The returned resource is created in its initial state and will be (sufficiently) independent of all other instantiations.
+		/// <para/>
+		/// Alternatively, this may return null if the asset is invalid or otherwise cannot be instantiated.
+		/// </returns>
+		/// <remarks>When multiple instances of a resource are not needed, it is (almost) always better to load through the content system proper rather than instantiating.</remarks>
+		protected abstract IResource? Instantiate(GraphicsDevice? g);
+
+		/// <summary>
+		/// Converts this asset into an instance of its resource form.
+		/// </summary>
+		/// <typeparam name="ResourceType">The target resource type.</typeparam>
+		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
+		/// <returns>Returns true if this could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
+		/// <remarks>
+		/// Resources which require a GraphicsDevice to construct cannot be instantiated with this.
+		/// Instead use <see cref="InstantiateGraphicsResource{ResourceType}(GraphicsDevice, out ResourceType)"/>.
+		/// </remarks>
+		public bool Instantiate<ResourceType>([MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
+		{
+			if(Instantiate(null) is ResourceType ret)
+			{
+				output = ret;
+				return true;
+			}
+			
+			output = default(ResourceType);
+			return false;
+		}
+
+		/// <summary>
+		/// Converts this asset into an instance of its resource form.
+		/// </summary>
+		/// <typeparam name="ResourceType">The target resource type.</typeparam>
+		/// <param name="g">The GraphicsDevice to instantiate this asset with.</param>
+		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
+		/// <returns>Returns true if this could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
+		public bool InstantiateGraphicsResource<ResourceType>(GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
+		{
+			if(Instantiate(g) is ResourceType ret)
+			{
+				output = ret;
+				return true;
+			}
+			
+			output = default(ResourceType);
+			return false;
+		}
 
 		/// <summary>
 		/// Saves an asset to <paramref name="path"/>.

@@ -1,4 +1,6 @@
-﻿using GameEngine.DataStructures.Absorbing;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.Sprites;
+using GameEngine.DataStructures.Absorbing;
 using GameEngine.Events;
 using GameEngine.Exceptions;
 using GameEngine.Framework;
@@ -95,6 +97,8 @@ namespace GameEngine.Resources.Sprites
 			ResetOnSwitch = c.ResetOnSwitch;
 			return;
 		}
+
+		AssetBase? IResource.ToAsset() => new Animation2DCollectionAsset(this);
 
 		protected override void Dispose(bool disposing)
 		{

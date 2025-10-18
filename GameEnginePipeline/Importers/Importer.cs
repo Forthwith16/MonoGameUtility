@@ -13,7 +13,10 @@ namespace GameEnginePipeline.Importers
 		/// <summary>
 		/// Imports an asset from a file.
 		/// </summary>
-		/// <param name="path">The absolute path to the asset including the filename.</param>
+		/// <param name="path">
+		/// The path to an asset file including the filename and extension.
+		/// This can be an absolute path or a path relative to the working directory.
+		/// </param>
 		/// <param name="context">The pipeline importer context.</param>
 		/// <returns>Returns the asset loaded.</returns>
 		/// <exception cref="PipelineException">Thrown if <paramref name="path"/> does not exist.</exception>
@@ -54,14 +57,20 @@ namespace GameEnginePipeline.Importers
 		/// <summary>
 		/// Deserializes the file <paramref name="path"/> into an asset.
 		/// </summary>
-		/// <param name="path">The path to the asset file including the filename.</param>
+		/// <param name="path">
+		/// The path to the asset file including the filename and extension.
+		/// This can be an absolute path or a path relative to the working directory.
+		/// </param>
 		/// <returns>Returns the deserialized asset or null if it could not be deserialized for any reason.</returns>
 		protected abstract TInput? Deserialize(string path);
 
 		/// <summary>
 		/// Adds any dependencies this asset requires.
 		/// </summary>
-		/// <param name="path">The path to the asset file including the filename.</param>
+		/// <param name="path">
+		/// The path to the asset file including the filename and extension.
+		/// This can be an absolute path or a path relative to the working directory.
+		/// </param>
 		/// <param name="context">The pipeline importer context.</param>
 		/// <param name="asset">The asset to add dependencies for.</param>
 		/// <returns>Returns true if all dependencies could be added. Returns false if a dependency could not be added or was invalid.</returns>
@@ -71,7 +80,10 @@ namespace GameEnginePipeline.Importers
 		/// Transforms an asset into content.
 		/// </summary>
 		/// <param name="asset">The asset to transform.</param>
-		/// <param name="path">The path to the asset file. This includes the filename itself.</param>
+		/// <param name="path">
+		/// The path to the asset file including the filename and extension.
+		/// This can be an absolute path or a path relative to the working directory.
+		/// </param>
 		/// <returns>Returns the asset in content form.</returns>
 		protected abstract TOutput ToContent(TInput asset, string path);
 	}

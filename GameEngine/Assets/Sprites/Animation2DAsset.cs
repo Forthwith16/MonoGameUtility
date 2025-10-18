@@ -1,11 +1,14 @@
 ﻿using GameEngine.Assets.Serialization;
 using GameEngine.Framework;
+using GameEngine.Maths;
+using GameEngine.Resources;
 using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,8 +17,7 @@ namespace GameEngine.Assets.Sprites
 	/// <summary>
 	/// Contains the base raw asset data of an Animation2D.
 	/// </summary>
-	[Asset(typeof(Animation))]
-	[Asset(typeof(Animation2D))]
+	[AssetLoader(typeof(BaseAnimationAsset<Animation2DAsset>),nameof(FromFile))]
 	public partial class Animation2DAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
@@ -26,10 +28,10 @@ namespace GameEngine.Assets.Sprites
 				{Asset.CreateAsset<SpriteSheetAsset>(Source.Resource!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
 				catch
 				{} // If something goes wrong, we don't want to crash horribly
-
+			
 			// Now we can serialize our sprite sheet proper
 			this.SerializeJson(path);
-
+			
 			return;
 		}
 
@@ -37,6 +39,75 @@ namespace GameEngine.Assets.Sprites
 		{
 			StandardAssetSourcePathAdjustment(Source,path,Source.Unnamed ? GenerateFreeFile(Path.Combine(root,path),".ss") : "");
 			return;
+		}
+
+		protected override IResource? Instantiate(GraphicsDevice? g)
+		{
+			// We must have a sprite sheet to instantiate an animation
+			// Similarly, we must have the frame data
+			if(Source.Resource is null || Frames is null || Frames.Length == 0)
+				return null;
+
+			// We will have to trust that the textures all exist in the sprite sheet, but we can check that the durations are nontrivial while we construct some timing info
+			float[] segs = new float[Frames.Length + 1];
+			segs[0] = 0.0f;
+
+			int i = 0;
+
+			foreach(float d in Frames.Select(f => f.Duration))
+			{
+				segs[++i] = segs[i - 1] + d;
+
+				if(d <= 0.0f)
+					return null;
+			}
+
+			// We need to calculate some timing information to send off to the animation constructor
+			float start;
+			
+			// Assign the start time
+			if(StartTime is null)
+				if(StartFrame is null)
+					start = 0.0f; // If we have neither start time, then we default to 0
+				else
+					start = segs[StartFrame.Value];
+			else
+				start = StartTime.Value;
+
+			// If we have the wrong loop data, we'll have to fix that
+			float loop_start;
+			
+			if(LoopStart is null)
+				if(LoopFrameStart is null)
+					loop_start = 0.0f;
+				else
+					if(LoopFrameStart < 0 || LoopFrameStart >= Frames.Length)
+						loop_start = -1.0f; // This is straight up not allowed, so give it a value that will cause problems
+					else
+						loop_start = segs[LoopFrameStart.Value];
+			else
+				loop_start = LoopStart.Value;
+
+			float loop_end;
+			
+			if(LoopEnd is null)
+				if(LoopFrameEnd is null)
+					loop_end = segs[Frames.Length];
+				else
+					if(LoopFrameEnd < 0 || LoopFrameEnd >= Frames.Length)
+						loop_end = -2.0f; // This is straight up not allowed, so give it a value that will cause problems
+					else
+						loop_end = segs[LoopFrameEnd.Value + 1];
+			else
+				loop_end = LoopEnd.Value;
+			
+			// All that we have left to do is check that the start time and loop data makes sense
+			if(start < 0.0f || start > segs[Frames.Length] || loop_end <= loop_start || loop_start < 0.0f || loop_end > segs[Frames.Length])
+				return null;
+
+			// We return an Animation with the understanding that there is an implicit converstion to Animation2D if that is what we're asking for
+			// If we're just asking for an Animation (which is the ideal scenario, since that's the reusable form), then we have no need to fret
+			return new Animation("",Source.Resource,Frames.Select(f => f.Duration),Frames.Select(f => f.Sprite),Frames.Select(f => Matrix2D.FromPositionRotationScaleOrigin(f.Translation,f.Rotation,f.Scale,f.Origin)),start,Loops,loop_start,loop_end);
 		}
 	}
 	
@@ -57,7 +128,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		/// <param name="a">The animation to turn into its asset form.</param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="a"/> is missing a sprite sheet source.</exception>
-		protected Animation2DAsset(Animation2D a) : this(a.SourceData)
+		protected internal Animation2DAsset(Animation2D a) : this(a.SourceData)
 		{return;}
 
 		/// <summary>
@@ -65,7 +136,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		/// <param name="a">The animation to turn into its asset form.</param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="a"/> does not represent an 2D animation or is missing a sprite sheet source.</exception>
-		protected Animation2DAsset(Animation a) : base(AnimationType.Animation2D)
+		protected internal Animation2DAsset(Animation a) : base(AnimationType.Animation2D)
 		{
 			// We must be a 2D animation
 			if(!a.IsAnimation2D)

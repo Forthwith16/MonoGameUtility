@@ -23,14 +23,14 @@ namespace GameEngine.Assets.Serialization
 	/// This will allow for serialization from type <c>T</c> to type <c>A</c> without knowledge of either type.
 	/// If this constructor is not present, this will fail to generate an entry in this class for such construction.
 	/// </summary>
-	public static class Assets
+	public static class Asset
 	{
 		/// <summary>
 		/// Constructs the asset double dictionary.
 		/// </summary>
-		static Assets()
+		static Asset()
 		{
-			AssetInfo = new Dictionary<Type,Dictionary<Type,Asset>>();
+			AssetInfo = new Dictionary<Type,Dictionary<Type,AssetLoader>>();
 			return;
 		}
 
@@ -58,21 +58,8 @@ namespace GameEngine.Assets.Serialization
 		/// <returns>Returns the asset created or null if no asset could be produced from <paramref name="resource"/>.</returns>
 		public static A? CreateAsset<A>(IResource resource) where A : AssetBase
 		{
-			Type a = typeof(A);
-
-			// The first thing to do is check if type A is a type we know about
-			if(!AssetInfo.TryGetValue(a,out Dictionary<Type,Asset>? raw_info))
-				if(!LoadType(a,out raw_info))
-					return null;
-
-			// At this point, we know at least something about A, but it remains to show if we know something useful about A
-			if(!raw_info.TryGetValue(resource.GetType(),out Asset? a_info))
-				return null; // We know nothing about turning raw into an A asset
-
-			try
-			{return (A?)a_info.RToAConverter(resource);}
-			catch
-			{return null;}
+			resource.ToAsset<A>(out A? asset);  /// TODO: Make this into a bool ret with out output
+			return asset;
 		}
 
 		/// <summary>
@@ -84,7 +71,7 @@ namespace GameEngine.Assets.Serialization
 		public static bool CanCreateAsset(Type concrete_type, Type asset_type)
 		{
 			// Get or load and get the information for asset_type
-			if(!AssetInfo.TryGetValue(asset_type,out Dictionary<Type,Asset>? raw_info))
+			if(!AssetInfo.TryGetValue(asset_type,out Dictionary<Type,AssetLoader>? raw_info))
 				if(!LoadType(asset_type,out raw_info))
 					return false;
 
@@ -97,14 +84,14 @@ namespace GameEngine.Assets.Serialization
 		/// <param name="asset_type">The asset type to load info for.</param>
 		/// <param name="raw_info">The asset information loaded when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if <paramref name="asset_type"/> was a valid asset type and something was loaded for it and false otherwise.</returns>
-		private static bool LoadType(Type asset_type, [MaybeNullWhen(false)] out Dictionary<Type,Asset> raw_info)
+		private static bool LoadType(Type asset_type, [MaybeNullWhen(false)] out Dictionary<Type,AssetLoader> raw_info)
 		{
 			// We've never heard of asset_type, so let's learn about it
-			raw_info = new Dictionary<Type,Asset>();
+			raw_info = new Dictionary<Type,AssetLoader>();
 			
 			// asset_type may have multiple Asset attributes, and we need to document each one
-			foreach(Asset asset in asset_type.GetCustomAttributes<Asset>())
-				raw_info[asset.ResourceType] = asset;
+			foreach(AssetLoader asset in asset_type.GetCustomAttributes<AssetLoader>())
+				;//raw_info[asset.ResourceType] = asset;
 
 			// If we learned nothing, we're done
 			if(raw_info.Count == 0)
@@ -125,6 +112,6 @@ namespace GameEngine.Assets.Serialization
 		/// The second index is the resource type.
 		/// The value, then, is the actual Asset that specifies how to do things.
 		/// </summary>
-		private static Dictionary<Type,Dictionary<Type,Asset>> AssetInfo;
+		private static Dictionary<Type,Dictionary<Type,AssetLoader>> AssetInfo;
 	}
 }

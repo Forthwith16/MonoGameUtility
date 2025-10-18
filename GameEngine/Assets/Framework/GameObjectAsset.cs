@@ -14,7 +14,7 @@ namespace GameEngine.Assets.Framework
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static GameObjectAsset? Deserialize(string path) => path.DeserializeJsonFile(new JsonGameObjectConverter()); // We will need state information, so we need a new converter every time (better than running Clean, b/c it becomes thread safe this way)
+		public static GameObjectAsset? FromFile(string path) => path.DeserializeJsonFile(new JsonGameObjectConverter()); // We will need state information, so we need a new converter every time (better than running Clean, b/c it becomes thread safe this way)
 		*/
 
 		/// <summary>

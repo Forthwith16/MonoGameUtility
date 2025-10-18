@@ -1,4 +1,5 @@
 ﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources;
 using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
@@ -13,7 +14,7 @@ namespace GameEngine.Assets.Sprites
 	/// <summary>
 	/// Contains the raw asset data of an sprite sheet.
 	/// </summary>
-	[Asset(typeof(SpriteSheet))]
+	[AssetLoader(typeof(SpriteSheetAsset),nameof(FromFile))]
 	public partial class SpriteSheetAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
@@ -32,7 +33,7 @@ namespace GameEngine.Assets.Sprites
 
 			// Now we can serialize our sprite sheet proper
 			this.SerializeJson(path);
-
+			
 			return;
 		}
 
@@ -46,7 +47,83 @@ namespace GameEngine.Assets.Sprites
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static SpriteSheetAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
+		public static SpriteSheetAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
+
+		protected override IResource? Instantiate(GraphicsDevice? g)
+		{
+			// If we don't have our resource loaded, then we can't do anything useful
+			// We don't have a great way to get our hands on the resource either, so we'll just not bother
+			if(Source.Resource is null)
+				return null;
+			
+			// If we already have our sprites, we're good to go
+			if(Sprites is not null && Sprites.Length > 0)
+				return new SpriteSheet("",Source.Resource,Sprites); // Assets are not necessarily loaded from disc, so we do not give a name to the asset
+
+			// We have a tiling system, so we MUST have positive tile widths and heights
+			if(TileWidth is null || TileWidth < 1 || TileHeight is null || TileHeight < 1)
+				return null;
+
+			// We gotta get our tiling dimensions
+			int width;
+			int height;
+			int len;
+
+			// We need EXACTLY two out of three of the remaining positive tile parameters OR they can all be in agreement
+			if(TileVCount is null)
+				if(TileHCount is null)
+					return null;
+				else
+					if(TileCount is null || TileHCount < 1 || TileCount < 1)
+						return null;
+					else
+					{
+						width = TileHCount.Value;
+						height = ((TileCount + TileHCount - 1) / TileHCount).Value;
+						len = TileCount.Value;
+					}
+			else
+				if(TileHCount is null)
+					if(TileCount is null || TileVCount < 1 || TileCount < 1)
+						return null;
+					else
+					{
+						width = ((TileCount + TileVCount - 1) / TileVCount).Value;
+						height = TileVCount.Value;
+						len = TileCount.Value;
+					}
+				else
+					if(TileHCount < 1 || TileVCount < 1)
+						return null;
+					else if(TileCount is null)
+					{
+						width = TileHCount.Value;
+						height = TileVCount.Value;
+						len = (TileVCount * TileHCount).Value;
+					}
+					else if(TileCount != TileVCount * TileHCount)
+						return null;
+					else
+					{
+						width = TileHCount.Value;
+						height = TileVCount.Value;
+						len = TileCount.Value;
+					}
+
+			// We need to create Sprites temporarily
+			Rectangle[] sprites = new Rectangle[len];
+
+			if(TileFillRowFirst)
+				for(int y = 0,c = 0;c < len;y++)
+					for(int x = 0;x < width && c < len;x++,c++)
+						sprites[c] = new Rectangle(x * width,y * height,width,height);
+			else
+				for(int x = 0,c = 0;c < len;x++)
+					for(int y = 0;y < height && c < len;y++,c++)
+						sprites[c] = new Rectangle(x * width,y * height,width,height);
+
+			return new SpriteSheet("",Source.Resource,sprites); // Assets are not necessarily loaded from disc, so we do not give a name to the asset
+		}
 	}
 
 	[JsonConverter(typeof(JsonSpriteSheetAssetConverter))]
@@ -71,7 +148,7 @@ namespace GameEngine.Assets.Sprites
 		/// This will attempt to determine if the source sprites are a tiling rather than custom sprite locations.
 		/// To do so, it checks that each sprite is the same size and that they are in row or column major order with each tightly packed.
 		/// </remarks>
-		protected SpriteSheetAsset(SpriteSheet ss) : base()
+		protected internal SpriteSheetAsset(SpriteSheet ss) : base()
 		{
 			// Create the source texture info
 			Source = new AssetSource<Texture2D>(ss.Source);
@@ -178,7 +255,6 @@ namespace GameEngine.Assets.Sprites
 
 		/// <summary>
 		/// The the number of sprites per row if specified via a tile system.
-		/// If this is specified by not TileVCount, then sprite sheet rows are filled before a new column is created.
 		/// <para/>
 		/// Only two of TileHCount, TileVCount, or TileCount need be specified.
 		/// If all three are, it <i>must</i> be the case that TileCount = TileHCount * TileVCount.
@@ -189,7 +265,6 @@ namespace GameEngine.Assets.Sprites
 
 		/// <summary>
 		/// The the number of sprites per column if specified via a tile system.
-		/// If this is specified by not TileVCount, then sprite sheet columns are filled before a new row is created.
 		/// <para/>
 		/// Only two of TileHCount, TileVCount, or TileCount need be specified.
 		/// If all three are, it <i>must</i> be the case that TileCount = TileHCount * TileVCount.

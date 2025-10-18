@@ -1,4 +1,6 @@
-﻿using GameEngine.Exceptions;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.Sprites;
+using GameEngine.Exceptions;
 using GameEngine.Maths;
 using System.Collections;
 
@@ -112,6 +114,8 @@ namespace GameEngine.Resources.Sprites
 
 			return ret;
 		}
+
+		AssetBase? IResource.ToAsset() => new Animation2DAsset(this);
 
 		#region Animation2D Methods
 		/// <summary>

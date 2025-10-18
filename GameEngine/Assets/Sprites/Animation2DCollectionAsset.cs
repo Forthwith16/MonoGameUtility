@@ -1,8 +1,10 @@
 ﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources;
 using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,7 +13,7 @@ namespace GameEngine.Assets.Sprites
 	/// <summary>
 	/// Contains the raw asset data of an animation collection.
 	/// </summary>
-	[Asset(typeof(Animation2DCollection))]
+	[AssetLoader(typeof(Animation2DCollection),nameof(FromFile))]
 	public partial class Animation2DCollectionAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
@@ -42,7 +44,22 @@ namespace GameEngine.Assets.Sprites
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static Animation2DCollectionAsset? Deserialize(string path) => path.DeserializeJsonFile<Animation2DCollectionAsset>();
+		public static Animation2DCollectionAsset? FromFile(string path) => path.DeserializeJsonFile<Animation2DCollectionAsset>();
+
+		protected override IResource? Instantiate(GraphicsDevice? g)
+		{
+			// We need to ensure we have everything we need before we can instantiate all willy nilly
+			HashSet<string> names = new HashSet<string>();
+			
+			foreach(NamedAnimation2D a in Animations)
+				if(a.Name is null || !names.Add(a.Name) || a.Source.Resource is null)
+					return null;
+
+			if(IdleAnimation is null || !names.Contains(IdleAnimation))
+				return null;
+
+			return new Animation2DCollection("",Animations.Select(a => a.Source.Resource!),Animations.Select(a => a.Name!),IdleAnimation);
+		}
 	}
 	
 	[JsonConverter(typeof(JsonAnimation2DCollectionAssetConverter))]
@@ -66,7 +83,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		/// <param name="collection">The animation collection to turn into its asset form.</param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="collection"/> is missing an animation source.</exception>
-		protected Animation2DCollectionAsset(Animation2DCollection collection) : base()
+		protected internal Animation2DCollectionAsset(Animation2DCollection collection) : base()
 		{
 			IdleAnimation = collection.IdleAnimationName;
 			ResetOnSwap = collection.ResetOnSwitch;

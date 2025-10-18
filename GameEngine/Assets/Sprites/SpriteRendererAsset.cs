@@ -1,4 +1,5 @@
 ﻿using GameEngine.Assets.Serialization;
+using GameEngine.Resources;
 using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.ClassExtensions;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
@@ -13,7 +14,7 @@ namespace GameEngine.Assets.Sprites
 	/// <summary>
 	/// The details of a SpriteRenderer laid bare.
 	/// </summary>
-	[Asset(typeof(SpriteRenderer))]
+	[AssetLoader(typeof(SpriteRendererAsset),nameof(FromFile))]
 	public partial class SpriteRendererAsset
 	{
 		protected override void Serialize(string path, string root, bool overwrite_dependencies = false)
@@ -50,7 +51,84 @@ namespace GameEngine.Assets.Sprites
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static SpriteRendererAsset? Deserialize(string path) => path.DeserializeJsonFile<SpriteRendererAsset>();
+		public static SpriteRendererAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteRendererAsset>();
+
+		protected override IResource? Instantiate(GraphicsDevice? g)
+		{
+			if(g is null)
+				return null;
+
+			SpriteRenderer ret = new SpriteRenderer(g);
+
+			ret.Shader = ShaderSource.Resource;
+			ret.Order = Order;
+
+			switch(Blend)
+			{
+			case BasicBlendState.Additive:
+				ret.Blend = BlendState.Additive;
+				break;
+			case BasicBlendState.AlphaBlend:
+				ret.Blend = BlendState.AlphaBlend;
+				break;
+			case BasicBlendState.NonPremultiplied:
+				ret.Blend = BlendState.NonPremultiplied;
+				break;
+			case BasicBlendState.Opaque:
+				ret.Blend = BlendState.Opaque;
+				break;
+			}
+
+			switch(Wrap)
+			{
+			case BasicSamplerState.PointClamp:
+				ret.Wrap = SamplerState.PointClamp;
+				break;
+			case BasicSamplerState.PointWrap:
+				ret.Wrap = SamplerState.PointWrap;
+				break;
+			case BasicSamplerState.LinearClamp:
+				ret.Wrap = SamplerState.LinearClamp;
+				break;
+			case BasicSamplerState.LinearWrap:
+				ret.Wrap = SamplerState.LinearWrap;
+				break;
+			case BasicSamplerState.AnisotropicClamp:
+				ret.Wrap = SamplerState.AnisotropicClamp;
+				break;
+			case BasicSamplerState.AnisotropicWrap:
+				ret.Wrap = SamplerState.AnisotropicWrap;
+				break;
+			}
+
+			switch(DepthStencil)
+			{
+			case BasicDepthStencilState.Default:
+				ret.DepthStencil = DepthStencilState.Default;
+				break;
+			case BasicDepthStencilState.DepthRead:
+				ret.DepthStencil = DepthStencilState.DepthRead;
+				break;
+			case BasicDepthStencilState.None:
+				ret.DepthStencil = DepthStencilState.None;
+				break;
+			}
+
+			switch(Cull)
+			{
+			case BasicRasterizerState.CullNone:
+				ret.Cull = RasterizerState.CullNone;
+				break;
+			case BasicRasterizerState.CullClockwise:
+				ret.Cull = RasterizerState.CullClockwise;
+				break;
+			case BasicRasterizerState.CullCounterClockwise:
+				ret.Cull = RasterizerState.CullCounterClockwise;
+				break;
+			}
+
+			return ret;
+		}
 	}
 	
 	[JsonConverter(typeof(JsonSpriteRendererAssetConvereter))]
@@ -77,7 +155,7 @@ namespace GameEngine.Assets.Sprites
 		/// </summary>
 		/// <param name="sr">The sprite renderer to turn into its asset form.</param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="sr"/> has a custom Blend, Wrap, DepthStencil, or Cull. This cannot accommodate custom values for these types.</exception>
-		protected SpriteRendererAsset(SpriteRenderer sr) : base()
+		protected internal SpriteRendererAsset(SpriteRenderer sr) : base()
 		{
 			// We can directly copy the sort order
 			Order = sr.Order;

@@ -1,4 +1,6 @@
-﻿using GameEngine.Maths;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.Sprites;
+using GameEngine.Maths;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -65,6 +67,8 @@ namespace GameEngine.Resources.Sprites
 			
 			return;
 		}
+
+		AssetBase? IResource.ToAsset() => new SpriteRendererAsset(this);
 
 		/// <summary>
 		/// Begins a new sprite and text batch with the memorized render state.
