@@ -21,10 +21,10 @@ namespace GameEngine.Assets.Sprites
 			// If our source animtions don't exist where we expect them to, write them out to those locations (if we have them)
 			for(int i = 0;i < Animations.Length;i++)
 				if(StandardShouldSerializeCheck(Animations[i].Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
-					try
-					{Asset.CreateAsset<Animation2DAsset>(Animations[i].Source.Resource!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
-					catch
-					{} // If something goes wrong, we don't want to crash horribly
+					if(Animations[i].Source.Resource is null)
+						throw new IOException("Failed to save an animation collection to disc due to an absent animation source");
+					else if(Asset.CreateAssetFromResource<SpriteSheetAsset>(Animations[i].Source.Resource!,out SpriteSheetAsset? asset))
+						Asset.SaveAsset(asset,Path.GetRelativePath(root,dst),root,overwrite_dependencies);
 
 			// Now we can serialize our sprite sheet proper
 			this.SerializeJson(path);

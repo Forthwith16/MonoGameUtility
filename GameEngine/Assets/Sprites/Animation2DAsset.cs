@@ -24,10 +24,10 @@ namespace GameEngine.Assets.Sprites
 		{
 			// If our source sprite sheet doesn't exist where we expect it to, write it out to that location (if we have it)
 			if(StandardShouldSerializeCheck(Source,Path.GetDirectoryName(path) ?? "",overwrite_dependencies,out string? dst))
-				try
-				{Asset.CreateAsset<SpriteSheetAsset>(Source.Resource!)?.SaveToDisc(Path.GetRelativePath(root,dst),root,overwrite_dependencies);}
-				catch
-				{} // If something goes wrong, we don't want to crash horribly
+				if(Source.Resource is null)
+					throw new IOException("Failed to save an animation to disc due to an absent sprite sheet source");
+				else if(Asset.CreateAssetFromResource<SpriteSheetAsset>(Source.Resource,out SpriteSheetAsset? asset))
+					Asset.SaveAsset(asset,Path.GetRelativePath(root,dst),root,overwrite_dependencies);;
 			
 			// Now we can serialize our sprite sheet proper
 			this.SerializeJson(path);

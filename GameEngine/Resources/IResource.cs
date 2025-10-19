@@ -28,7 +28,7 @@ namespace GameEngine.Resources
 		/// </summary>
 		/// <typeparam name="AssetType">The target asset type.</typeparam>
 		/// <param name="output">The asset created when this returns true or null when this returns false.</param>
-		/// <returns>Returns true if this could be transformed into an asset of type <typeparamref name="AssetType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
+		/// <returns>Returns true if this could be transformed into an asset of type <typeparamref name="AssetType"/> (or a derived type assignable to <typeparamref name="AssetType"/>). Returns false otherwise.</returns>
 		public bool ToAsset<AssetType>([MaybeNullWhen(false)] out AssetType output) where AssetType : AssetBase
 		{
 			if(ToAsset() is AssetType ret)
