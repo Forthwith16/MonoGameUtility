@@ -17,12 +17,12 @@ namespace GameEngine.Resources.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2DCollection : GameObject, IResource, IObservable<TimeEvent>
+	public class Animation2DCollection : GameObject, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
 		/// </summary>
-		/// <param name="name">The asset name.</param>
+		/// <param name="name">The resource name.</param>
 		/// <param name="animations">The animations to add to this collection.</param>
 		/// <param name="names">The names of the animations to add to this collection.</param>
 		/// <param name="idle_animation">The name of the idle animation (or the otherwise default animation).</param>
@@ -34,16 +34,14 @@ namespace GameEngine.Resources.Sprites
 		/// <summary>
 		/// Creates a new collection of Animation2Ds.
 		/// </summary>
-		/// <param name="name">The asset name.</param>
+		/// <param name="name">The resource name.</param>
 		/// <param name="animations">The animations to add to this collection.</param>
 		/// <param name="names">The names of the animations to add to this collection.</param>
 		/// <param name="idle_animation">The name of the idle animation (or the otherwise default animation).</param>
 		/// <exception cref="AnimationFormatException">Thrown if there are more animations than names or vice versa.</exception>
 		/// <exception cref="KeyNotFoundException">Thrown if <paramref name="idle_animation"/> is not an animation in this collection.</exception>
-		public Animation2DCollection(string name, IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base()
+		public Animation2DCollection(string name, IEnumerable<Animation2D> animations, IEnumerable<string> names, string idle_animation) : base(name)
 		{
-			ResourceName = name;
-
 			Animations = new AbsorbingDictionary<string,Animation2D>();
 
 			IEnumerator<Animation2D> _ia = animations.GetEnumerator();
@@ -78,8 +76,6 @@ namespace GameEngine.Resources.Sprites
 		/// <param name="c">The animation collection to copy.</param>
 		public Animation2DCollection(Animation2DCollection c) : base(c)
 		{
-			ResourceName = c.ResourceName;
-
 			Animations = new AbsorbingDictionary<string,Animation2D>(c.Animations.Select(p => new KeyValuePair<string,Animation2D>(p.Key,new Animation2D(p.Value))));
 
 			_ian = c._ian;
@@ -98,7 +94,7 @@ namespace GameEngine.Resources.Sprites
 			return;
 		}
 
-		AssetBase? IResource.ToAsset() => new Animation2DCollectionAsset(this);
+		protected override AssetBase? ToAsset() => new Animation2DCollectionAsset(this);
 
 		protected override void Dispose(bool disposing)
 		{
@@ -233,9 +229,6 @@ namespace GameEngine.Resources.Sprites
 		/// An event called when this collection changes its active animation.
 		/// </summary>
 		public event AnimationSwap AnimationSwapped;
-
-		public string ResourceName
-		{get;}
 
 		/// <summary>
 		/// Allows subscribers to unsubscribe.

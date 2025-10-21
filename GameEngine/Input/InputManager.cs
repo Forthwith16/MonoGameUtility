@@ -1,4 +1,5 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Assets;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -18,7 +19,7 @@ namespace GameEngine.Input
 		/// <summary>
 		/// Creates a new input manager.
 		/// </summary>
-		public InputManager()
+		public InputManager() : base("")
 		{
 			Records = new Dictionary<string,DynamicInputRecord>();
 			Bindings = new List<string>();
@@ -35,6 +36,8 @@ namespace GameEngine.Input
 			CurrentTime = 0.0f;
 			return;
 		}
+
+		protected override AssetBase? ToAsset() => null; // Input managers have no hope of being serialized b/c they accept arbitrarily complex bits of code into them
 
 		public override void Initialize()
 		{

@@ -33,6 +33,7 @@ namespace GameEngine.Resources.Sprites
 		/// <summary>
 		/// Creates a sprite renderer.
 		/// </summary>
+		/// <param name="name">The resource name.</param>
 		/// <param name="g">The graphics device used to draw with.</param>
 		public SpriteRenderer(string name, GraphicsDevice g) : base(g)
 		{
@@ -198,6 +199,6 @@ namespace GameEngine.Resources.Sprites
 		{get; set;}
 
 		public string ResourceName
-		{get;}
+		{get; set;}
 	}
 }

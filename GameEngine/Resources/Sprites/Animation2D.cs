@@ -16,20 +16,17 @@ namespace GameEngine.Resources.Sprites
 	/// <remarks>
 	/// Note that neither this nor anything it controls ever needs to know what Game it belongs to.
 	/// </remarks>
-	public class Animation2D : GameObject, IResource, IObservable<TimeEvent>
+	public class Animation2D : GameObject, IObservable<TimeEvent>
 	{
 		/// <summary>
 		/// Instantiates a new instance of <paramref name="a"/> as an Animation2D.
 		/// </summary>
 		/// <param name="a">The animation to turn into an Animation2D.</param>
 		/// <exception cref="AnimationFormatException">Thrown if this animation does not represent an Animation2D.</exception>
-		public Animation2D(Animation a) : base()
+		public Animation2D(Animation a) : base(a.ResourceName)
 		{
 			if(!a.IsAnimation2D)
 				throw new AnimationFormatException("The provided Animation did not represent an Animation2D");
-
-			// Grab the asset name
-			ResourceName = a.ResourceName;
 
 			// Remmber where we come from
 			SourceData = a;
@@ -66,7 +63,6 @@ namespace GameEngine.Resources.Sprites
 		/// <param name="a">The animation to clone.</param>
 		public Animation2D(Animation2D a) : base(a)
 		{
-			ResourceName = a.ResourceName;
 			SourceData = a.SourceData;
 			Source = a.Source;
 
@@ -85,7 +81,7 @@ namespace GameEngine.Resources.Sprites
 		/// <exception cref="AnimationFormatException">Thrown if <paramref name="a"/> does not define an Animation2D.</exception>
 		public static implicit operator Animation2D(Animation a) => new Animation2D(a);
 
-		AssetBase? IResource.ToAsset() => new Animation2DAsset(this);
+		protected override AssetBase? ToAsset() => new Animation2DAsset(this);
 
 		public override void Initialize()
 		{
@@ -262,9 +258,6 @@ namespace GameEngine.Resources.Sprites
 			get => Clock.Loops;
 			set => Clock.Loop(value);
 		}
-
-		public string ResourceName
-		{get;}
 	}
 
 	/// <summary>

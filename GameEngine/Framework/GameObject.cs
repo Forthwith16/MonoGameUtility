@@ -1,4 +1,6 @@
-﻿using GameEngine.Events;
+﻿using GameEngine.Assets;
+using GameEngine.Events;
+using GameEngine.Resources;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Framework
@@ -6,21 +8,24 @@ namespace GameEngine.Framework
 	/// <summary>
 	/// This is the basic game object type for use with all GameEngine tools and derived projects.
 	/// </summary>
-	public abstract class GameObject : IGameComponent, IUpdateable, IDisposable, IEquatable<GameObject>
+	public abstract class GameObject : IGameComponent, IUpdateable, IDisposable, IEquatable<GameObject>, IResource
 	{
 		/// <summary>
 		/// Creates a new game object.
 		/// </summary>
-		protected GameObject()
+		/// <param name="name">The resource name.</param>
+		protected GameObject(string name)
 		{
 			Initialized = false;
 			Disposed = false;
-			//Game = null; // We don't set this (it defaults to this anyway) b/c it can be overridden, and that can cause problems
+			// Game = null; We don't set this (it defaults to this anyway) b/c the property can be overridden, and that can cause problems
 			
 			_e = true;
 			_uo = 0;
 
 			ID = GameObjectID.GetFreshID(this);
+			ResourceName = name;
+			
 			return;
 		}
 
@@ -34,13 +39,14 @@ namespace GameEngine.Framework
 		/// </list>
 		/// Note that this will not initialize, dispose, or otherwise modify <paramref name="other"/>.
 		/// </summary>
-		protected GameObject(GameObject other) : this()
+		protected GameObject(GameObject other) : this(other.ResourceName)
 		{
 			Game = other.Game;
 
 			_e = other._e;
 			_uo = other._uo;
 
+			ResourceName = other.ResourceName;
 			return;
 		}
 
@@ -84,6 +90,14 @@ namespace GameEngine.Framework
 		public bool Equals(GameObject? obj) => obj is not null && ID == obj.ID;
 		public override bool Equals(object? obj) => obj is GameObject s && ID == s.ID;
 		public override int GetHashCode() => ID.GetHashCode();
+
+		AssetBase? IResource.ToAsset() => ToAsset();
+
+		/// <summary>
+		/// Converts this game object into its asset form.
+		/// </summary>
+		/// <returns>Returns the created asset or null if something went wrong.</returns>
+		protected abstract AssetBase? ToAsset();
 
 		/// <summary>
 		/// Initializes this game object.
@@ -198,5 +212,8 @@ namespace GameEngine.Framework
 		/// The second parameter will be an <see cref="OrderChangeEvent"/>.
 		/// </summary>
 		public event EventHandler<EventArgs>? UpdateOrderChanged;
+
+		public string ResourceName
+		{get; set;}
 	}
 }

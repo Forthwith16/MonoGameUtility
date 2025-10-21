@@ -15,7 +15,7 @@ namespace GameEngine.Resources.Sprites
 		/// <summary>
 		/// Creates a new sprite sheet with <paramref name="source"/> as the source texture and <paramref name="sprites"/> specifying the source rectangle for each sprite in the sprite sheet.
 		/// </summary>
-		/// <param name="name">The name of the sprite sheet. This should usually be the path, relative to a content root, to the file specifying this sprite sheet (or where one would like the file to be if saved).</param>
+		/// <param name="name">The resource name.</param>
 		/// <param name="source">The sprite sheet's source texture.</param>
 		/// <param name="sprites">The list of sprites specified by their source rectangle in <paramref name="source"/>. The contents of this will be copied and this variable discarded.</param>
 		public SpriteSheet(string name, Texture2D source, IEnumerable<Rectangle> sprites)
@@ -52,6 +52,6 @@ namespace GameEngine.Resources.Sprites
 		public int Count => _sprites.Count;
 
 		public string ResourceName
-		{get;}
+		{get; set;}
 	}
 }

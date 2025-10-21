@@ -47,7 +47,7 @@ namespace GameEngine.Assets.Sprites
 		/// Deserializes an asset from <paramref name="path"/>.
 		/// </summary>
 		/// <param name="path">The path to the asset.</param>
-		public static SpriteSheetAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
+		protected static SpriteSheetAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
 
 		protected override IResource? Instantiate(GraphicsDevice? g)
 		{

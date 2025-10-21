@@ -109,7 +109,7 @@ namespace GameEngine.Assets
 		/// <summary>
 		/// Converts this asset into an instance of its resource form.
 		/// </summary>
-		/// <param name="g">The GraphicsDevice to instantiate with or null if not provided.</param>
+		/// <param name="g">The GraphicsDevice to instantiate with.</param>
 		/// <returns>
 		/// Returns a resource instantiation of this asset.
 		/// The returned resource is created in its initial state and will be (sufficiently) independent of all other instantiations.
@@ -117,29 +117,7 @@ namespace GameEngine.Assets
 		/// Alternatively, this may return null if the asset is invalid or otherwise cannot be instantiated.
 		/// </returns>
 		/// <remarks>When multiple instances of a resource are not needed, it is (almost) always better to load through the content system proper rather than instantiating.</remarks>
-		protected abstract IResource? Instantiate(GraphicsDevice? g);
-
-		/// <summary>
-		/// Converts this asset into an instance of its resource form.
-		/// </summary>
-		/// <typeparam name="ResourceType">The target resource type.</typeparam>
-		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
-		/// <returns>Returns true if this could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		/// <remarks>
-		/// Resources which require a GraphicsDevice to construct cannot be instantiated with this.
-		/// Instead use <see cref="InstantiateGraphicsResource{ResourceType}(GraphicsDevice, out ResourceType)"/>.
-		/// </remarks>
-		public bool Instantiate<ResourceType>([MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
-		{
-			if(Instantiate(null) is ResourceType ret)
-			{
-				output = ret;
-				return true;
-			}
-			
-			output = default(ResourceType);
-			return false;
-		}
+		protected abstract IResource? Instantiate(GraphicsDevice g);
 
 		/// <summary>
 		/// Converts this asset into an instance of its resource form.
@@ -148,7 +126,7 @@ namespace GameEngine.Assets
 		/// <param name="g">The GraphicsDevice to instantiate this asset with.</param>
 		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if this could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		public bool InstantiateGraphicsResource<ResourceType>(GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
+		protected internal bool Instantiate<ResourceType>(GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
 		{
 			if(Instantiate(g) is ResourceType ret)
 			{
@@ -176,7 +154,7 @@ namespace GameEngine.Assets
 		/// If false, then this will only serialize itself and missing dependencies.
 		/// It will stop serializing at extant dependencies, so if any such dependency depends on an absent dependency in turn, this will not be detected.
 		/// </param>
-		public void SaveToDisc(string path, string root, bool overwrite_dependencies = false)
+		protected internal void SaveToDisc(string path, string root, bool overwrite_dependencies = false)
 		{
 			// We first need to adjust every filename to be relative to path
 			AdjustFilePaths(Path.GetDirectoryName(path) ?? "",root);
@@ -293,7 +271,7 @@ namespace GameEngine.Assets
 		/// </param>
 		/// <param name="dst">The desination path (including the filename) of <paramref name="source"/> when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if <paramref name="source"/> should be serialized and false otherwise.</returns>
-		public bool StandardShouldSerializeCheck<T>(AssetSource<T> source, string path, bool overwrite_dependencies, [MaybeNullWhen(false)] out string dst) where T : class
+		protected bool StandardShouldSerializeCheck<T>(AssetSource<T> source, string path, bool overwrite_dependencies, [MaybeNullWhen(false)] out string dst) where T : class
 		{
 			if(source.Resource is null || !source.GetFullPathFromAssetDirectory(path,out string? source_path) || !overwrite_dependencies && File.Exists(source_path))
 			{
@@ -333,7 +311,7 @@ namespace GameEngine.Assets
 		/// Thrown if something goes wrong in the link process.
 		/// Generally speaking, it is better to fail spectacularly during linking rather than to fail silently.
 		/// </exception>
-		protected void Link(params object?[] args)
+		protected internal void Link(params object?[] args)
 		{
 			if(Linked)
 				return;

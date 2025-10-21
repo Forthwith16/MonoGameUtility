@@ -29,16 +29,10 @@ namespace GameEngine.Resources
 		/// <typeparam name="AssetType">The target asset type.</typeparam>
 		/// <param name="output">The asset created when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if this could be transformed into an asset of type <typeparamref name="AssetType"/> (or a derived type assignable to <typeparamref name="AssetType"/>). Returns false otherwise.</returns>
-		public bool ToAsset<AssetType>([MaybeNullWhen(false)] out AssetType output) where AssetType : AssetBase
+		internal bool ToAsset<AssetType>([MaybeNullWhen(false)] out AssetType output) where AssetType : AssetBase
 		{
-			if(ToAsset() is AssetType ret)
-			{
-				output = ret;
-				return true;
-			}
-			
-			output = null;
-			return false;
+			output = ToAsset() as AssetType;
+			return output is not null;
 		}
 
 		/// <summary>
@@ -50,9 +44,9 @@ namespace GameEngine.Resources
 		/// </summary>
 		/// <remarks>
 		/// If the implementing class also happens to have a Name property which leads to the source asset in the content system, trust this over Name.
-		/// This will have the file extension as well, which is more useful (if sometimes annoying to remove when needed).
+		/// This should have the file extension as well, which is more useful (if sometimes annoying to remove when needed).
 		/// </remarks>
 		public string ResourceName
-		{get;}
+		{get; set;}
 	}
 }

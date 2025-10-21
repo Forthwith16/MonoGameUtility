@@ -28,11 +28,11 @@ namespace GameEngine.Assets.Serialization
 		}
 
 		/// <summary>
-		/// Creates an asset source initialized to have <paramref name="asset"/> as its source material.
+		/// Creates an asset source initialized to have <paramref name="resource"/> as its source material.
 		/// </summary>
-		public AssetSource(TResource? asset) : this()
+		public AssetSource(TResource? resource) : this()
 		{
-			SetConcretAsset(asset);
+			SetResource(resource);
 			return;
 		}
 
@@ -56,11 +56,11 @@ namespace GameEngine.Assets.Serialization
 		/// <summary>
 		/// Sets <see cref="Resource"/> to <paramref name="resource"/>.
 		/// This will also set <see cref="RootPath"/> to the AssetName or Name of <paramref name="resource"/> if it is an IAsset or GraphicsResource respectively, prioritizing the former.
-		/// If this would assign the empty string to it (which denotes a missing path in concrete assets), then null is assigned instead.
+		/// If this would assign the empty string to it (which denotes a missing path in resources), then null is assigned instead.
 		/// In the process, this will invalidate <see cref="RelativePath"/> and set it to null.
 		/// </summary>
 		/// <param name="resource">The resource backing this asset source. If null, this will invalidate both paths.</param>
-		public void SetConcretAsset(TResource? resource)
+		public void SetResource(TResource? resource)
 		{
 			Resource = resource;
 
@@ -73,7 +73,7 @@ namespace GameEngine.Assets.Serialization
 				else if(Resource is GraphicsResource gr)
 					RootPath = gr.Name; // We deprioritize this since Name may be inaccurate in some GraphicsResource assets (such as SpriteRenderer, unless something else has loaded it as a dependency and reassigned its Name)
 				
-				// We denote missing paths in concrete assets with the empty string and so special case the assignment here
+				// We denote missing paths in resources with the empty string and so special case the assignment here
 				if(RootPath == "")
 					RootPath = null;
 			}
@@ -249,5 +249,122 @@ namespace GameEngine.Assets.Serialization
 		/// If false, then this source has a name.
 		/// </summary>
 		public bool Unnamed => RootPath is null && RelativePath is null;
+	}
+
+	/// <summary>
+	/// Represents the source of an asset and potentially the asset itself.
+	/// </summary>
+	/// <typeparam name="TAsset">
+	/// The asset type.
+	/// This must be an <see cref="AssetBase"/> type with a corresponding <see cref="IResource"/> resource type.
+	/// </typeparam>
+	/// <typeparam name="TResource">
+	/// The resource type that this is a source for.
+	/// In this version of AssetSource, we constrain this to <see cref="IResource"/> types since we know we are dealing with out own assets.
+	/// </typeparam>
+	public class AssetSource<TAsset,TResource> : AssetSource<TResource> where TAsset : AssetBase where TResource : class, IResource
+	{
+		/// <summary>
+		/// Creates an asset source initialized to have no source.
+		/// </summary>
+		public AssetSource() : base()
+		{
+			LocalAsset = null;
+			return;
+		}
+
+		/// <summary>
+		/// Creates an asset source initialized to have <paramref name="resource"/> as its source material.
+		/// </summary>
+		public AssetSource(TResource? resource) : base(resource)
+		{
+			LocalAsset = null;
+			return;
+		}
+
+		/// <summary>
+		/// Creates an asset source initialized to have <paramref name="asset"/> as its source material.
+		/// </summary>
+		public AssetSource(TAsset? asset) : base()
+		{
+			LocalAsset = asset;
+			return;
+		}
+
+		/// <summary>
+		/// Creates an asset source initialized to point to the asset file <paramref name="root_path"/>.
+		/// If <paramref name="relative_to"/> is not null, it will also set the relative path as well.
+		/// </summary>
+		/// <param name="root_path">The path from the content root to the asset file (including the filename).</param>
+		/// <param name="relative_to">If null, this will have no effect. If not null, this will set <see cref="RelativePath"/> using this as the owning asset's directory.</param>
+		public AssetSource(string root_path, string? relative_to = null) : base(root_path,relative_to)
+		{
+			LocalAsset = null;
+			return;
+		}
+
+		/// <summary>
+		/// Creates the asset this source points to.
+		/// </summary>
+		/// <param name="owner_directory">
+		/// The path to the directory containing the asset owning this asset.
+		/// This can be relative to the working directory or absolute.
+		/// If this is null, then this will skip attempting to load the asset from disc via RelativePath.
+		/// </param>
+		/// <param name="content_root">
+		/// The path to the content root.
+		/// This can be relative to the working directory or absolute.
+		/// If this is null, then this will skip attempting to load the asset from disc via RootPath.
+		/// </param>
+		/// <returns>Returns true if the asset was created and false otherwise</returns>
+		/// <remarks>This will do nothing if the asset is already present.</remarks>
+		public bool CreateAsset(string? owner_directory = null, string? content_root = null)
+		{
+			if(LocalAsset is not null)
+				return true;
+
+			bool done = false;
+
+			// It doesn't really matter if we try the root or relative path first, so we just go with one
+			if(owner_directory is not null)
+				if(GetFullPathFromAssetDirectory(owner_directory,out string? path))
+					done = Asset.LoadAsset<TAsset>(path,out _la);
+
+			if(!done && content_root is not null)
+				if(GetFullPathFromContentRoot(content_root,out string? path))
+					done = Asset.LoadAsset<TAsset>(path,out _la);
+
+			// The raw resource is probably the least effective way to load a resource (in general) b/c we have to uncompile it, so we'll save it for a last resort
+			if(!done && Resource is not null)
+				done = Asset.CreateAssetFromResource<TAsset>(Resource,out _la);
+
+			return done;
+		}
+
+		/// <summary>
+		/// An asset created from some source available here.
+		/// </summary>
+		public TAsset? LocalAsset
+		{
+			get => _la;
+
+			protected set
+			{
+				_la = value;
+				return;
+			}
+		}
+
+		private TAsset? _la;
+
+		/// <summary>
+		/// The content ID of the asset created for this source or the NULL ID if no asset yet exists.
+		/// </summary>
+		public AssetID ContentID => LocalAsset is null ? AssetID.NULL : LocalAsset.ContentID;
+
+		/// <summary>
+		/// The internal asset ID of the asset created for this source or the NULL ID if no asset yet exists.
+		/// </summary>
+		public InternalAssetID InternalID => LocalAsset is null ? InternalAssetID.NULL : LocalAsset.InternalID;
 	}
 }

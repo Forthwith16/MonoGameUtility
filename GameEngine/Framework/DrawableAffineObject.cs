@@ -1,5 +1,6 @@
-﻿using GameEngine.Resources.Sprites;
+﻿using GameEngine.Assets;
 using GameEngine.Events;
+using GameEngine.Resources.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,13 +11,30 @@ namespace GameEngine.Framework
 	/// </summary>
 	public abstract class DrawableAffineObject : AffineObject, IDrawable
 	{
+
+
+		protected override AssetBase? ToAsset()
+		{
+			throw new NotImplementedException();
+		}
+
+
+
+
+
+
+
+
+
+
+
 		/// <summary>
 		/// Initializes this game object to have the identity transformation and no parent.
 		/// </summary>
 		/// <param name="game">The game this game object will belong to.</param>
 		/// <param name="renderer">The renderer to draw with (this can be changed later).</param>
 		/// <param name="c">The color to write with. If null, the color will default to white.</param>
-		protected DrawableAffineObject(SpriteRenderer? renderer = null, Color? c = null)
+		protected DrawableAffineObject(SpriteRenderer? renderer = null, Color? c = null) : base("")
 		{
 			_v = true;
 			_do = 0;

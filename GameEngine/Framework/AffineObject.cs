@@ -11,8 +11,9 @@ namespace GameEngine.Framework
 		/// <summary>
 		/// Initializes this component to have the identity transformation and no parent.
 		/// </summary>
+		/// <param name="name">The resource name.</param>
 		/// <param name="game">The game this component will belong to.</param>
-		protected AffineObject() : base()
+		protected AffineObject(string name) : base(name)
 		{
 			_p = null;
 			_children = new AVLSet<AffineObject>(Comparer<AffineObject>.Create((a,b) => a.ID.CompareTo(b.ID)));
@@ -45,6 +46,67 @@ namespace GameEngine.Framework
 			Transform = other.Transform;
 			Parent = other._p;
 			
+			return;
+		}
+
+		/// <summary>
+		/// Applies <paramref name="f"/> to every affine object of an affine object hierarchy.
+		/// </summary>
+		/// <param name="f">The function to apply to the hierarchy.</param>
+		/// <param name="bfs">
+		/// If true, this will apply <paramref name="f"/> in a breadth first search order.
+		/// If false, it will apply <paramref name="f"/> in a depth first search order, visiting affine objects on the way down the hierarchy rather than on the way back up.
+		/// </param>
+		/// <remarks>This will not branch off into affine objects not part of the parent/child hiearchy.</remarks>
+		public void ApplyToAffineHierarchy(ModifyAffineObject f, bool bfs = true)
+		{
+			if(bfs)
+				ApplyBFS(f);
+			else
+				ApplyDFS(f);
+
+			return;
+		}
+
+		/// <summary>
+		/// Applies <paramref name="f"/> to every affine object of this hiearchy in BFS order.
+		/// </summary>
+		private void ApplyBFS(ModifyAffineObject f)
+		{
+			Queue<AffineObject> q = new Queue<AffineObject>();
+			q.Enqueue(this);
+
+			while(q.Count > 0)
+			{
+				AffineObject obj = q.Dequeue();
+
+				f(obj);
+
+				foreach(AffineObject child in obj.Children)
+					q.Enqueue(child);
+			}
+
+			return;
+		}
+
+		/// <summary>
+		/// Applies <paramref name="f"/> to every affine object of this hiearchy in DFS order.
+		/// </summary>
+		private void ApplyDFS(ModifyAffineObject f)
+		{
+			Stack<AffineObject> q = new Stack<AffineObject>();
+			q.Push(this);
+
+			while(q.Count > 0)
+			{
+				AffineObject obj = q.Pop();
+
+				f(obj);
+
+				foreach(AffineObject child in obj.Children)
+					q.Push(child);
+			}
+
 			return;
 		}
 
@@ -287,4 +349,10 @@ namespace GameEngine.Framework
 		/// </summary>
 		protected AVLSet<AffineObject> _children;
 	}
+
+	/// <summary>
+	/// Represents a function that applies some effect to an affine object.
+	/// </summary>
+	/// <param name="current">The current affine object to apply the effect to.</param>
+	public delegate void ModifyAffineObject(AffineObject current);
 }

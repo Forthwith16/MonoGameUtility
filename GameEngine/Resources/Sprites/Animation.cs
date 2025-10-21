@@ -14,7 +14,7 @@ namespace GameEngine.Resources.Sprites
 		/// <summary>
 		/// Creates an Animation that represents an Animation2D.
 		/// </summary>
-		/// <param name="name">The asset name.</param>
+		/// <param name="name">The resource name.</param>
 		/// <param name="src">The sprite sheet holding the texture information for this animation.</param>
 		/// <param name="frame_lens">The durations (in seconds) of each frame.</param>
 		/// <param name="tex_index">The indices into <paramref name="src"/> for each frame's texture information.</param>
@@ -192,6 +192,6 @@ namespace GameEngine.Resources.Sprites
 		#endregion
 
 		public string ResourceName
-		{get;}
+		{get; set;}
 	}
 }

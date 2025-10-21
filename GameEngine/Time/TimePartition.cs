@@ -1,4 +1,5 @@
-﻿using GameEngine.Events;
+﻿using GameEngine.Assets;
+using GameEngine.Events;
 using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 
@@ -22,7 +23,7 @@ namespace GameEngine.Time
 		/// It has no maximum time and only one time segment that goes unto infinity.
 		/// </summary>
 		/// <param name="game">The game this object </param>
-		public TimePartition()
+		public TimePartition() : base("")
 		{
 			Playing = false;
 			Loops = false;
@@ -50,7 +51,7 @@ namespace GameEngine.Time
 		/// Duplicate values will be ignored.
 		/// Best practice is to provide the segmented values as sorted in advance to reduce sorting time.
 		/// </param>
-		public TimePartition(IEnumerable<float> segment_starts)
+		public TimePartition(IEnumerable<float> segment_starts) : base("")
 		{
 			Playing = false;
 			Loops = false;
@@ -95,6 +96,8 @@ namespace GameEngine.Time
 			Observers = new LinkedList<IObserver<TimeEvent>>();
 			return;
 		}
+
+		protected override AssetBase? ToAsset() => null; // We have no current plans to make this into a proper resource; things just have to construct this at runtime on their own
 		
 		/// <summary>
 		/// Initializes this timeline.

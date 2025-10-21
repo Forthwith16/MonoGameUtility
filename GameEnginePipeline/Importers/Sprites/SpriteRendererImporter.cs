@@ -1,4 +1,5 @@
-﻿using GameEnginePipeline.Processors.Sprites;
+﻿using GameEngine.Assets.Serialization;
+using GameEnginePipeline.Processors.Sprites;
 using Microsoft.Xna.Framework.Content.Pipeline;
 
 using TInput = GameEngine.Assets.Sprites.SpriteRendererAsset;
@@ -12,8 +13,11 @@ namespace GameEnginePipeline.Importers.Sprites
 	[ContentImporter(".ren",DisplayName = "Sprite Renderer Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(SpriteRendererProcessor))]
 	public sealed class SpriteRendererImporter : Importer<TInput,TOutput>
 	{
-		protected override TInput? Deserialize(string path)
-		{return TInput.FromFile(path);}
+		protected override TInput? LoadAssetFromFile(string path)
+		{	
+			Asset.LoadAsset<TInput>(path,out TInput? ret);
+			return ret; // We're required to return null if something went wrong, so this is always the correct return value
+		}
 
 		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{

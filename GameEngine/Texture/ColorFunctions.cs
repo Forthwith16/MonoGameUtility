@@ -13,6 +13,26 @@ namespace GameEngine.Texture
 		/// <summary>
 		/// Geneartes a texture according to <paramref name="func"/> of dimensions <paramref name="w"/> by <paramref name="h"/>.
 		/// </summary>
+		/// <param name="g">The GraphicsDevice to use to generate the texture.</param>
+		/// <param name="w">The width of the texture to generate.</param>
+		/// <param name="h">The height of the texture to generate.</param>
+		/// <param name="func">The color generation function.</param>
+		public static Texture2D GenerateTexture(GraphicsDevice g, int w, int h, ColorFunction func)
+		{
+			Texture2D ret = new Texture2D(g,w,h);
+			Color[] data = new Color[w * h];
+			
+			for(int x = 0;x < w;x++)
+				for(int y = 0;y < h;y++)
+					data[y * w + x] = func(x,y);
+			
+			ret.SetData(data);
+			return ret;
+		}
+
+		/// <summary>
+		/// Geneartes a texture according to <paramref name="func"/> of dimensions <paramref name="w"/> by <paramref name="h"/>.
+		/// </summary>
 		/// <param name="game">The game with the GraphicsDevice to use to create the texture.</param>
 		/// <param name="w">The width of the texture to generate.</param>
 		/// <param name="h">The height of the texture to generate.</param>

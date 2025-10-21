@@ -1,4 +1,5 @@
-﻿using GameEngine.DataStructures.Geometry;
+﻿using GameEngine.Assets;
+using GameEngine.DataStructures.Geometry;
 using GameEngine.Framework;
 using GameEngine.Physics.Collision.Colliders;
 using Microsoft.Xna.Framework;
@@ -31,7 +32,7 @@ namespace GameEngine.Physics.Collision
 		/// Creates a new 3D collision engine.
 		/// </summary>
 		/// <param name="world_bounds">The initial boundary of the world. This value will expand if necessary.</param>
-		public CollisionEngine3D(FPrism world_bounds) : base()
+		public CollisionEngine3D(FPrism world_bounds) : base("")
 		{
 			Statics = new Octree(world_bounds);
 			
@@ -47,6 +48,8 @@ namespace GameEngine.Physics.Collision
 			Collisions = new CollisionLinkedList<(ICollider3D,ICollider3D)>();
 			return;
 		}
+
+		protected override AssetBase? ToAsset() => null; // Never serialize your collision engine; are you stupid?
 
 		/// <summary>
 		/// Determines what colliders lie at least partially within <paramref name="region"/>.

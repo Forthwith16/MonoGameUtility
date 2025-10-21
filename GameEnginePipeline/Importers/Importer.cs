@@ -32,7 +32,7 @@ namespace GameEnginePipeline.Importers
 			context.Logger.LogMessage("Importing asset: " + path);
 #endif
 			
-			TInput? asset = Deserialize(path);
+			TInput? asset = LoadAssetFromFile(path);
 
 			// If we failed to load our asset, it's invalid
 			if(asset is null)
@@ -62,7 +62,7 @@ namespace GameEnginePipeline.Importers
 		/// This can be an absolute path or a path relative to the working directory.
 		/// </param>
 		/// <returns>Returns the deserialized asset or null if it could not be deserialized for any reason.</returns>
-		protected abstract TInput? Deserialize(string path);
+		protected abstract TInput? LoadAssetFromFile(string path);
 
 		/// <summary>
 		/// Adds any dependencies this asset requires.

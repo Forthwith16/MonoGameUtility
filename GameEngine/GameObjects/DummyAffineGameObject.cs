@@ -1,4 +1,6 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Assets;
+using GameEngine.Assets.GameObjects;
+using GameEngine.Framework;
 
 namespace GameEngine.GameObjects
 {
@@ -38,6 +40,8 @@ namespace GameEngine.GameObjects
 
 			return;
 		}
+
+		protected override AssetBase? ToAsset() => new DummyAffineGameObjectAsset(this);
 
 		public override int Width => DummyWidth;
 		

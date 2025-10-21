@@ -22,29 +22,16 @@ namespace GameEngine.Assets.Serialization
 		/// <summary>
 		/// Converts <paramref name="asset"/> into an instance of its resource form.
 		/// </summary>
-		/// <typeparam name="AssetType">The asset type to instantiate.</typeparam>
+		/// <typeparam name="AssetType">The asset type to instantiate. This is a convenience parameter and has no other effect upon this than to better define the input parameters.</typeparam>
 		/// <typeparam name="ResourceType">The target resource type.</typeparam>
 		/// <param name="asset">The asset to instantiate.</param>
+		/// <param name="g">The GraphicsDevice to instantiate <paramref name="asset"/> with. This is not always necessary to instantiate, but set this to null at your own peril.</param>
 		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if <paramref name="asset"/> could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		/// <remarks>
-		/// Resources which require a GraphicsDevice to construct cannot be instantiated with this.
-		/// Instead use <see cref="InstantiateGraphicsResource{AssetType, ResourceType}(AssetType, GraphicsDevice, out ResourceType)"/>.
-		/// </remarks>
-		public static bool Instantiate<AssetType,ResourceType>(AssetType asset, [MaybeNullWhen(false)] out ResourceType output) where AssetType : AssetBase where ResourceType : IResource
-		{return asset.Instantiate(out output);}
-
-		/// <summary>
-		/// Converts <paramref name="asset"/> into an instance of its resource form.
-		/// </summary>
-		/// <typeparam name="AssetType">The asset type to instantiate.</typeparam>
-		/// <typeparam name="ResourceType">The target resource type.</typeparam>
-		/// <param name="asset">The asset to instantiate.</param>
-		/// <param name="g">The GraphicsDevice to instantiate <paramref name="asset"/> with.</param>
-		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
-		/// <returns>Returns true if <paramref name="asset"/> could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		public static bool InstantiateGraphicsResource<AssetType,ResourceType>(AssetType asset, GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where AssetType : AssetBase where ResourceType : IResource
-		{return asset.InstantiateGraphicsResource(g,out output);}
+		public static bool Instantiate<AssetType,ResourceType>(AssetType asset, GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where AssetType : AssetBase where ResourceType : IResource
+		{
+			return asset.Instantiate(g,out output);
+		}
 
 		/// <summary>
 		/// Saves an asset to <paramref name="path"/>.
@@ -91,6 +78,7 @@ namespace GameEngine.Assets.Serialization
 		{
 			Type a = typeof(AssetType);
 
+			// Get the loader for the asset type
 			if(!AssetInfo.TryGetValue(a,out AssetLoader? loader))
 				if(!LoadType(a,out loader))
 				{
@@ -98,7 +86,14 @@ namespace GameEngine.Assets.Serialization
 					return false;
 				}
 
-			return loader.LoadAsset<AssetType>(path,out output);
+			// Perform the actual asset load
+			if(!loader.LoadAsset(path,out output))
+			{
+				output = null;
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>

@@ -14,8 +14,11 @@ namespace GameEnginePipeline.Importers.Sprites
 	[ContentImporter(".a2ds",DisplayName = "Animation2D Collection Importer - " + Constants.DLLIdentifier,DefaultProcessor = nameof(Animation2DCollectionProcessor))]
 	public class Animation2DCollectionImporter : Importer<TInput,TOutput>
 	{
-		protected override TInput? Deserialize(string path)
-		{return TInput.FromFile(path);}
+		protected override TInput? LoadAssetFromFile(string path)
+		{	
+			Asset.LoadAsset<TInput>(path,out TInput? ret);
+			return ret; // We're required to return null if something went wrong, so this is always the correct return value
+		}
 
 		protected override bool AddDependencies(string path, ContentImporterContext context, TInput asset)
 		{

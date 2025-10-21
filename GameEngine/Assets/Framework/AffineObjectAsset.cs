@@ -1,21 +1,33 @@
 ﻿using GameEngine.Assets.Serialization;
 using GameEngine.DataStructures.Collections;
-using GameEngine.Exceptions;
 using GameEngine.Framework;
 using GameEngine.Maths;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Assets.Framework
 {
 	/// <summary>
 	/// Contains the raw asset data of an AffineObject.
 	/// </summary>
-	/// <remarks>
-	/// This class hierarchy has no default JSON serializer provided.
-	/// Serializing/deserializing such an object requires using the <see cref="Serialize(string)"/> and <see cref="Deserialize(string)"/> methods (or some custom user defined converter).
-	/// </summary>
 	public abstract partial class AffineObjectAsset
 	{
+		/// <summary>
+		/// Instantiates <paramref name="instance"/> by assigning the variables this asset is responsible for.
+		/// </summary>
+		/// <param name="instance">The instance to instantiate.</param>
+		/// <param name="g">The graphics device used for instantiation.</param>
+		protected void InstantiateAffineObject(AffineObject instance, GraphicsDevice g)
+		{
+			InstantiateGameObject(instance);
 
+			instance.Transform = Transform;
+
+			foreach(AffineObjectAsset? child in Children.Select(src => src.LocalAsset))
+				if(child is not null && Asset.Instantiate<AffineObjectAsset,AffineObject>(child,g,out AffineObject? output)) // child should never be null, but just in case
+					output.Parent = instance;
+
+			return;
+		}
 
 		/// <param name="args">
 		/// This should contain, as the first argument at index 0, a Dictionary&lt;InternalAssetID,AssetBase&gt; that maps IDs to assets loaded as part of a hierarchy of game objects.
@@ -25,7 +37,7 @@ namespace GameEngine.Assets.Framework
 		/// <inheritdoc/>
 		protected override void LinkAssets(params object?[] args)
 		{
-			if(args[0] is not Dictionary<InternalAssetID,AssetBase> map)
+			/*if(args[0] is not Dictionary<InternalAssetID,AssetBase> map)
 				throw new LinkException("AffineObjectAssets require a dictionary of loaded assets during linking.");
 
 			foreach(InternalAssetID id in UnloadedChildren)
@@ -34,48 +46,61 @@ namespace GameEngine.Assets.Framework
 				else
 					throw new LinkException("Attempted to add or failed to find a non-AffineObjectAsset child.");
 
-			return;
+			return;*/
 		}
 	}
 
 	public abstract partial class AffineObjectAsset : GameObjectAsset
 	{
 		/// <summary>
-		/// Creates an affine object asset with all default values.
+		/// Creates an asset version of an affine object with all default values.
 		/// </summary>
 		protected AffineObjectAsset() : base()
 		{
 			Transform = Matrix2D.Identity;
 			Parent = null;
 
-			Children = new IndexedQueue<AffineObjectAsset>();
-			UnloadedChildren = new IndexedQueue<InternalAssetID>();
-
-			return;
-		}
-
-
-		protected AffineObjectAsset(AffineObject obj) : base(obj)
-		{
-			Transform = obj.Transform;
-			
-			Children = new IndexedQueue<AffineObjectAsset>();
-			UnloadedChildren = new IndexedQueue<InternalAssetID>();
-
-			// It is okay to create children in this manner, because the parent hierarchy is always a tree
-			foreach(AffineObject child in obj.Children)
-				;//Asset.CreateAsset(child,);
-
+			Children = new IndexedQueue<AssetSource<AffineObjectAsset,AffineObject>>();
 			return;
 		}
 
 		/// <summary>
-		/// Adds a child affine object asset to this.
+		/// Creates an asset version of <paramref name="obj"/>.
 		/// </summary>
-		/// <param name="child">The child asset to add.</param>
+		protected AffineObjectAsset(AffineObject obj) : base(obj)
+		{
+			Transform = obj.Transform;
+			Parent = null; // Parentage is ONLY assign via AddChild, so if this has a parent, then it will be added as a child somewhere
+
+			Children = new IndexedQueue<AssetSource<AffineObjectAsset,AffineObject>>();
+
+			// The parent hierarchy is always a tree, so we can always blindly create the children
+			foreach(AffineObject child in obj.Children)
+				AddChild(child);
+			
+			return;
+		}
+
+		/// <summary>
+		/// Adds a child to this.
+		/// </summary>
+		public virtual void AddChild(AffineObject child)
+		{
+			AssetSource<AffineObjectAsset,AffineObject> src = new AssetSource<AffineObjectAsset,AffineObject>(child);
+			
+			if(src.CreateAsset())
+				src.LocalAsset!.Parent = this;
+
+			Children.Add(src);
+			return;
+		}
+
+		/// <summary>
+		/// Adds a child to this.
+		/// </summary>
 		public virtual void AddChild(AffineObjectAsset child)
 		{
-			Children.Add(child);
+			Children.Add(new AssetSource<AffineObjectAsset,AffineObject>(child));
 			child.Parent = this;
 
 			return;
@@ -90,10 +115,11 @@ namespace GameEngine.Assets.Framework
 
 		/// <summary>
 		/// This is the parent affine asset of this affine object (if any).
-		/// This value is provided as a courtesy and is never serialized (and is only indirectly deserialized).
 		/// </summary>
 		/// <remarks>
 		/// If assigning the parent of a deriving class requires additional logic to occur, override this property to hook into the event.
+		/// <para/>
+		/// This value should never be set outside of <see cref="AddChild(AffineObjectAsset)"/> or maybe serialization.
 		/// </remarks>
 		public virtual AffineObjectAsset? Parent
 		{get; set;}
@@ -106,14 +132,7 @@ namespace GameEngine.Assets.Framework
 		/// To add to this, it is best to utilize <see cref="AddChild(AffineObjectAsset)"/>.
 		/// This will perform courtesy data assignments, such as assigning the child's <see cref="Parent"/> value..
 		/// </remarks>
-		public IndexedQueue<AffineObjectAsset> Children
-		{get;}
-
-		/// <summary>
-		/// This is the set of unloaded children of this affine object asset using the root game object's internal asset ID system.
-		/// This must be transformed into proper AffineObjectAsset children in <see cref="Children"/> during <c>Link</c> by overriding the <c>LinkAssets</c> method.
-		/// </summary>
-		public IndexedQueue<InternalAssetID> UnloadedChildren
+		public IndexedQueue<AssetSource<AffineObjectAsset,AffineObject>> Children
 		{get;}
 	}
 }
