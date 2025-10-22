@@ -4,7 +4,6 @@ using GameEngine.Resources.Sprites;
 using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
-using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -46,7 +45,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="path">The path to the asset.</param>
 		protected static Animation2DCollectionAsset? FromFile(string path) => path.DeserializeJsonFile<Animation2DCollectionAsset>();
 
-		protected override IResource? Instantiate(GraphicsDevice? g)
+		protected override IResource? Instantiate(Linker link)
 		{
 			// We need to ensure we have everything we need before we can instantiate all willy nilly
 			HashSet<string> names = new HashSet<string>();

@@ -1,14 +1,7 @@
 ﻿Programming Todo
 ----------------
-GameObject hierarchy needs to deal with ResourceName as a parameter or something; maybe have a default parameter of ""
-If the copy constructors don't go, then GameObject's copy constructor should pass the ResourceName off to be copied
-
 DrawableAffineObject has a default ToAsset that is holding back the tide of errors but should be deleted
 DrawableAffineObject also has a default name parameter in its base constructor call holding back the tide of yet more errors that should be excised
-
-Animation2D should pass off the resource name to its base constructor
--We allowed a protected set on ResourceName to get around this; destroy that
--Same with Animation2DCollection
 
 Need an ObjectRefernce asset
 -This is just AssetSource but with the ability to set an InternalAssetID (but not assign one automatically)
@@ -17,8 +10,14 @@ Need an ObjectRefernce asset
 
 
 
+The linker should probably be responsible for writing everything registered with it
+
+
+
 
 Update what assets we can to use the dual type parameter asset source class
+-Also update them with the linker available, since they now might have a way to load content
+--Will probably be useful to incorporate a load via linker call into AssetSource when we clean that class up
 
 Make AssetSource suck less documentation-wise, because its not fun to read through
 
@@ -34,12 +33,6 @@ Maybe it's sensible to write everything, including references, to a .part file o
 
 
 
-
-PLAN
--Get a list of internal (game?) objects that are part of the output
---Could make a custom class that manages internal asset IDs an can assign them to general non asset objects perhaps
--Everything else is an external reference or null
--We assume we own every reference that is ordinarily serializable
 
 
 

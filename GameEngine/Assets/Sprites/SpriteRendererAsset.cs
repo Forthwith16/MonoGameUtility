@@ -53,12 +53,9 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="path">The path to the asset.</param>
 		protected static SpriteRendererAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteRendererAsset>();
 
-		protected override IResource? Instantiate(GraphicsDevice? g)
+		protected override IResource? Instantiate(Linker link)
 		{
-			if(g is null)
-				return null;
-
-			SpriteRenderer ret = new SpriteRenderer(g);
+			SpriteRenderer ret = new SpriteRenderer(link.Graphics);
 
 			ret.Shader = ShaderSource.Resource;
 			ret.Order = Order;

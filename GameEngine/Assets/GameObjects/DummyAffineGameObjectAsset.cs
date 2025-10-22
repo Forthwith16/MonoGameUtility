@@ -1,7 +1,7 @@
 ﻿using GameEngine.Assets.Framework;
+using GameEngine.Assets.Serialization;
 using GameEngine.GameObjects;
 using GameEngine.Resources;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Assets.GameObjects
 {
@@ -12,10 +12,10 @@ namespace GameEngine.Assets.GameObjects
 	{
 		
 
-		protected override IResource? Instantiate(GraphicsDevice g)
+		protected override IResource? Instantiate(Linker link)
 		{
 			DummyAffineGameObject ret = new DummyAffineGameObject();
-			InstantiateDummyAffineGameObject(ret,g);
+			InstantiateDummyAffineGameObject(ret,link);
 			
 			return ret;
 		}
@@ -24,10 +24,10 @@ namespace GameEngine.Assets.GameObjects
 		/// Instantiates <paramref name="instance"/> by assigning the variables this asset is responsible for.
 		/// </summary>
 		/// <param name="instance">The instance to instantiate.</param>
-		/// <param name="g">The graphics device used for instantiation.</param>
-		protected void InstantiateDummyAffineGameObject(DummyAffineGameObject instance, GraphicsDevice g)
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
+		protected void InstantiateDummyAffineGameObject(DummyAffineGameObject instance, Linker link)
 		{
-			InstantiateDrawableAffineObject(instance,g);
+			InstantiateDrawableAffineObject(instance,link);
 
 			instance.DummyWidth = DummyWidth;
 			instance.DummyHeight = DummyHeight;

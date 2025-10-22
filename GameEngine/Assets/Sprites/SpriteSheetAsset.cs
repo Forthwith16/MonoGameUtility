@@ -49,7 +49,7 @@ namespace GameEngine.Assets.Sprites
 		/// <param name="path">The path to the asset.</param>
 		protected static SpriteSheetAsset? FromFile(string path) => path.DeserializeJsonFile<SpriteSheetAsset>();
 
-		protected override IResource? Instantiate(GraphicsDevice? g)
+		protected override IResource? Instantiate(Linker link)
 		{
 			// If we don't have our resource loaded, then we can't do anything useful
 			// We don't have a great way to get our hands on the resource either, so we'll just not bother

@@ -18,7 +18,7 @@ namespace GameEngine.Assets.Framework
 		protected static GameObjectAsset? FromFile(string path) => path.DeserializeJsonFile(new JsonGameObjectConverter()); // We will need state information, so we need a new converter every time (better than running Clean, b/c it becomes thread safe this way)
 
 
-
+		
 		/// <summary>
 		/// Instantiates <paramref name="instance"/> by assigning the variables this asset is responsible for.
 		/// </summary>

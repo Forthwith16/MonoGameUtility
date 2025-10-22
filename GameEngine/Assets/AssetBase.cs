@@ -1,6 +1,5 @@
 ﻿using GameEngine.Assets.Serialization;
 using GameEngine.Resources;
-using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GameEngine.Assets
@@ -109,7 +108,7 @@ namespace GameEngine.Assets
 		/// <summary>
 		/// Converts this asset into an instance of its resource form.
 		/// </summary>
-		/// <param name="g">The GraphicsDevice to instantiate with.</param>
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
 		/// <returns>
 		/// Returns a resource instantiation of this asset.
 		/// The returned resource is created in its initial state and will be (sufficiently) independent of all other instantiations.
@@ -117,18 +116,18 @@ namespace GameEngine.Assets
 		/// Alternatively, this may return null if the asset is invalid or otherwise cannot be instantiated.
 		/// </returns>
 		/// <remarks>When multiple instances of a resource are not needed, it is (almost) always better to load through the content system proper rather than instantiating.</remarks>
-		protected abstract IResource? Instantiate(GraphicsDevice g);
+		protected abstract IResource? Instantiate(Linker link);
 
 		/// <summary>
 		/// Converts this asset into an instance of its resource form.
 		/// </summary>
 		/// <typeparam name="ResourceType">The target resource type.</typeparam>
-		/// <param name="g">The GraphicsDevice to instantiate this asset with.</param>
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
 		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if this could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		protected internal bool Instantiate<ResourceType>(GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
+		protected internal bool Instantiate<ResourceType>(Linker link, [MaybeNullWhen(false)] out ResourceType output) where ResourceType : IResource
 		{
-			if(Instantiate(g) is ResourceType ret)
+			if(Instantiate(link) is ResourceType ret)
 			{
 				output = ret;
 				return true;

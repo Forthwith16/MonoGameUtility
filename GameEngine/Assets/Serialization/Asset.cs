@@ -1,5 +1,4 @@
 ﻿using GameEngine.Resources;
-using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -25,12 +24,21 @@ namespace GameEngine.Assets.Serialization
 		/// <typeparam name="AssetType">The asset type to instantiate. This is a convenience parameter and has no other effect upon this than to better define the input parameters.</typeparam>
 		/// <typeparam name="ResourceType">The target resource type.</typeparam>
 		/// <param name="asset">The asset to instantiate.</param>
-		/// <param name="g">The GraphicsDevice to instantiate <paramref name="asset"/> with. This is not always necessary to instantiate, but set this to null at your own peril.</param>
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
 		/// <param name="output">The resource instance created when this returns true or null when this returns false.</param>
 		/// <returns>Returns true if <paramref name="asset"/> could be transformed into a resource instance of type <typeparamref name="ResourceType"/> (or a derived type assignable to it). Returns false otherwise.</returns>
-		public static bool Instantiate<AssetType,ResourceType>(AssetType asset, GraphicsDevice g, [MaybeNullWhen(false)] out ResourceType output) where AssetType : AssetBase where ResourceType : IResource
+		public static bool Instantiate<AssetType,ResourceType>(AssetType asset, Linker link, [MaybeNullWhen(false)] out ResourceType output) where AssetType : AssetBase where ResourceType : IResource
 		{
-			return asset.Instantiate(g,out output);
+			// If we have not initialized, then we are the top-level call
+			if(link.Initialize())
+			{
+				bool ret = asset.Instantiate(link,out output);
+				link.Clear();
+
+				return ret;
+			}
+
+			return asset.Instantiate(link,out output);
 		}
 
 		/// <summary>

@@ -2,7 +2,6 @@
 using GameEngine.DataStructures.Collections;
 using GameEngine.Framework;
 using GameEngine.Maths;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Assets.Framework
 {
@@ -15,19 +14,26 @@ namespace GameEngine.Assets.Framework
 		/// Instantiates <paramref name="instance"/> by assigning the variables this asset is responsible for.
 		/// </summary>
 		/// <param name="instance">The instance to instantiate.</param>
-		/// <param name="g">The graphics device used for instantiation.</param>
-		protected void InstantiateAffineObject(AffineObject instance, GraphicsDevice g)
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
+		protected void InstantiateAffineObject(AffineObject instance, Linker link)
 		{
 			InstantiateGameObject(instance);
 
 			instance.Transform = Transform;
 
 			foreach(AffineObjectAsset? child in Children.Select(src => src.LocalAsset))
-				if(child is not null && Asset.Instantiate<AffineObjectAsset,AffineObject>(child,g,out AffineObject? output)) // child should never be null, but just in case
+				if(child is not null && Asset.Instantiate<AffineObjectAsset,AffineObject>(child,link,out AffineObject? output)) // child should never be null, but just in case
 					output.Parent = instance;
 
 			return;
 		}
+
+
+
+
+
+
+
 
 		/// <param name="args">
 		/// This should contain, as the first argument at index 0, a Dictionary&lt;InternalAssetID,AssetBase&gt; that maps IDs to assets loaded as part of a hierarchy of game objects.

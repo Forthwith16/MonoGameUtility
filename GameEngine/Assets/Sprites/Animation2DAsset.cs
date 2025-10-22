@@ -8,7 +8,6 @@ using GameEngine.Utility.ExtensionMethods.PrimitiveExtensions;
 using GameEngine.Utility.ExtensionMethods.SerializationExtensions;
 using GameEngine.Utility.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -41,7 +40,7 @@ namespace GameEngine.Assets.Sprites
 			return;
 		}
 
-		protected override IResource? Instantiate(GraphicsDevice? g)
+		protected override IResource? Instantiate(Linker link)
 		{
 			// We must have a sprite sheet to instantiate an animation
 			// Similarly, we must have the frame data

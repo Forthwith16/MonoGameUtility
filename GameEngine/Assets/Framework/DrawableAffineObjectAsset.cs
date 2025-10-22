@@ -1,4 +1,5 @@
-﻿using GameEngine.Framework;
+﻿using GameEngine.Assets.Serialization;
+using GameEngine.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,10 +14,10 @@ namespace GameEngine.Assets.Framework
 		/// Instantiates <paramref name="instance"/> by assigning the variables this asset is responsible for.
 		/// </summary>
 		/// <param name="instance">The instance to instantiate.</param>
-		/// <param name="g">The graphics device used for instantiation.</param>
-		protected void InstantiateDrawableAffineObject(DrawableAffineObject instance, GraphicsDevice g)
+		/// <param name="link">The linker used to provide a graphics device and other resources.</param>
+		protected void InstantiateDrawableAffineObject(DrawableAffineObject instance, Linker link)
 		{
-			InstantiateAffineObject(instance,g);
+			InstantiateAffineObject(instance,link);
 
 			instance.Visible = Visible;
 			instance.DrawOrder = DrawOrder;
